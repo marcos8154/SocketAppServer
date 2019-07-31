@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ControllerMapping class="MobileAppServer.ServerObjects.ServerInfoController">
+  <RequestMapping value="FullServerInfo"/>
+  <RequestMapping value="DownloadFile"/>
+  <RequestMapping value="Reboot"/>
+</ControllerMapping>
