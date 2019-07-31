@@ -3,7 +3,7 @@ A simple, lightweight and fast MVC-like Socket server
 
 
 How to Setup:
-
+```
         public static void Main(string[] args)
         {
             //create server
@@ -36,3 +36,4 @@ How to Setup:
             //send Reboot Signal call to CoreServer
             server.SendReboot();
         }
+```
