@@ -85,6 +85,7 @@ Below is an example of how to implement an action with simple parameters, and an
 ```C#
     public  class ProductController : IController
     {
+        //This is a very simple action whose parameters are either primitive or basic C # types
         public ActionResult SimpleAction(int param1, string arg2, decimal param3)
         {
             //... do things...
@@ -97,6 +98,7 @@ Below is an example of how to implement an action with simple parameters, and an
             return ActionResult.Json(product);
         }
 
+        //Here we are getting a product instance in our action
         public ActionResult ComplexAction(Product product, string otherParam)
         {
             if (product.Price > 200)
