@@ -95,11 +95,5 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\MobileAppServerClient\MobileAppServerClient.csproj">
-      <Project>{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}</Project>
-      <Name>MobileAppServerClient</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
