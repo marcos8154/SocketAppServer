@@ -2,7 +2,7 @@
 A simple, lightweight and fast MVC-like Socket server
 
 
-How to Setup:
+**How to Setup**
 ```C#
         public static void Main(string[] args)
         {
@@ -73,4 +73,36 @@ The file syntax and structure should look similar to the example below:
 	</RequestMapping>
 	
 </ControllerMapping>
+```
+**Implementing actions on your server**
+
+Now that your server is properly mapped and configured, the next step is the most fun: D
+Let's create classes for our Controllers, implementing the IContoller interface, and creating the methods we want to expose.
+Methods must return an instance of ActionResult
+
+Below is an example of how to implement an action with simple parameters, and another with parameters of complex types:
+
+```C#
+    public  class ProductController : IController
+    {
+        public ActionResult SimpleAction(int param1, string arg2, decimal param3)
+        {
+            //... do things...
+
+            var product = new Product
+            {
+                Name = "Product Name",
+                Price = 500
+            };
+            return ActionResult.Json(product);
+        }
+
+        public ActionResult ComplexAction(Product product, string otherParam)
+        {
+            if (product.Price > 200)
+                return ActionResult.Json(product, ResponseStatus.ERROR, "Invalid product");
+            else
+                return ActionResult.Json(true);
+        }
+    }
 ```
