@@ -3,7 +3,7 @@ A simple, lightweight and fast MVC-like Socket server
 
 
 How to Setup:
-```
+```C#
         public static void Main(string[] args)
         {
             //create server
