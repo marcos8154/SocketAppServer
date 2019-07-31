@@ -39,7 +39,10 @@ How to Setup:
 ```
 
 
-How to map you Controllers and Actions
+* How to map you Controllers and Actions *
+To map your Controllers and Actions, you must create a folder in your project called "Mappings", and within it, create configuration XML files whose xml name is the Controller name.
+
+The file syntax and structure should look similar to the example below:
 
 ```XML
 <?xml version="1.0" encoding="utf-8" ?>
