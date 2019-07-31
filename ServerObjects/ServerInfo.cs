@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MobileAppServer.ServerObjects
 {
     internal class ServerInfo
     {
+        public string MachineName { get; set; }
         public string ServerVersion { get; set; }
         public List<ControllerInfo> ServerControllers { get; set; }
 
@@ -14,6 +13,7 @@ namespace MobileAppServer.ServerObjects
         {
             ServerVersion = "1.2.10";
             ServerControllers = new List<ControllerInfo>();
+            MachineName = Environment.MachineName;
         }
     }
 }

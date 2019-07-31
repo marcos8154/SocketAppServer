@@ -18,7 +18,6 @@ namespace MobileAppServer.ServerObjects
 
         public ActionResult FullServerInfo()
         {
-            Thread.Sleep(2000);
             ServerInfo info = new ServerInfo();
 
             DirectoryInfo dInfo = new DirectoryInfo(@".\Mappings\");
@@ -31,10 +30,9 @@ namespace MobileAppServer.ServerObjects
                 controllerInfo.ControllerName = fi.Name.Replace(".xml", string.Empty);
 
                 info.ServerControllers.Add(GetControllerInfo(fi.Name));
-
             }
 
-            return ActionResult.Json(info);
+            return ActionResult.Json(new OperationResult(info, 600, "Server info"));
         }
 
         public ActionResult DownloadFile(string path)

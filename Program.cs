@@ -12,7 +12,7 @@ namespace MobileAppServer
             Server server = new Server();
 
             //set port
-            server.Port = 4590;
+            server.Port = 4000;
 
             //set Threads Limit; default value is 999999 threads
             server.MaxThreadsCount = 4;
@@ -25,12 +25,6 @@ namespace MobileAppServer
 
             //server global encoding for requests and responses
             server.ServerEncoding = Encoding.UTF8;
-
-            //register you server controllers
-            server.RegisterAllControllers(Assembly.GetExecutingAssembly(), "FullNamespaceNameForControllers");
-
-            //register you server entities/models
-            server.RegisterAllModels(Assembly.GetExecutingAssembly(), "FullNamespaceNameForModels");
 
             //start server :D
             server.Start();
