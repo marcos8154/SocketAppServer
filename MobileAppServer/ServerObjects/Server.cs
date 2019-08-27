@@ -14,7 +14,7 @@ namespace MobileAppServer.ServerObjects
         internal static List<ControllerRegister> RegisteredControllers { get; set; }
         internal static List<ModelRegister> RegisteredModels { get; set; }
 
-        internal static Server GlobalInstance { get; set; }
+        public static Server GlobalInstance { get; private set; }
 
         private bool Started = false;
 

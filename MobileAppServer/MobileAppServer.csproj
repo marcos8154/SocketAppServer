@@ -72,6 +72,7 @@
     <Compile Include="ServerObjects\SocketRequest.cs" />
     <Compile Include="ServerObjects\ServerSocketResponse.cs" />
     <Compile Include="ServerObjects\SocketSession.cs" />
+    <Compile Include="ServerObjects\TypedObjectsRequestManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Mappings\HowToMap.xml">
