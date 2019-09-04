@@ -53,6 +53,8 @@
     <Compile Include="ServerObjects\ControllerInfo.cs" />
     <Compile Include="ServerObjects\ControllerRegister.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
+    <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
+    <Compile Include="ServerObjects\InterceptorHandleResult.cs" />
     <Compile Include="ServerObjects\JsonResult.cs" />
     <Compile Include="ServerObjects\LogController.cs" />
     <Compile Include="ServerObjects\ModelRegister.cs" />

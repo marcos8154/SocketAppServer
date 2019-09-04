@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
@@ -35,8 +36,10 @@ namespace MobileAppServer.ServerObjects
                 if (!typedObjManager.ExistsAction(action, controller))
                     throw new Exception($"Action '{action}' not exists in controller '{controller}'");
 
-                request.Parameters = typedObjManager.GetParameters(RequestBody.Parameters,
+                var parameters = typedObjManager.GetParameters(RequestBody.Parameters,
                     action, request.Controller);
+                parameters.ForEach(p => request.AddParameter(p));
+
                 return request;
             }
             catch (Exception ex)
@@ -115,10 +118,28 @@ Parameters: ";
             }
         }
 
+        private bool PreHandleInterceptors(List<IHandlerInterceptor> interceptors,
+            SocketRequest request)
+        {
+            foreach (var interceptor in interceptors)
+            {
+                var handleResult = interceptor.PreHandle(request);
+                if (!handleResult.Success)
+                {
+                    request.ProcessResponse(ActionResult.Json("",
+                        ResponseStatus.ERROR, handleResult.Message), socket);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        IController controller = null;
+        MethodInfo method = null;
         public override object DoInBackGround(int p)
         {
-            IController controller = null;
-            MethodInfo method = null;
+
             SocketRequest request = null;
 
             try
@@ -145,13 +166,31 @@ Parameters: ";
                 {
                     if (pi.ParameterType == typeof(SocketRequest))//.Equals("MobileAppServer.ServerObjects.SocketRequest"))
                     {
-                        request.Parameters.Add(new RequestParameter("request", request));
+                        request.AddParameter(new RequestParameter("request", request));
                         continue;
                     }
 
                     if (!request.Parameters.Any(rp => rp.Name.Equals(pi.Name)))
                         throw new Exception($"O parâmetro '{pi.Name}', necessário em {request.Controller.GetType().Name}/{request.Action}, não foi informado.");
                 }
+
+                //GLOBAL Interceptors
+                var globalInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
+                    i.ActionName.Equals("") && i.ControllerName.Equals("")).ToList();
+                if (!PreHandleInterceptors(globalInterceptors, request))
+                    return string.Empty;
+
+                //CONTROLLER (all actions) Interceptors
+                var controllerInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
+                    i.ActionName.Equals("") && i.ControllerName.Equals(controller.GetType().Name)).ToList();
+                if (!PreHandleInterceptors(controllerInterceptors, request))
+                    return string.Empty;
+
+                //CONTROLLER (specific action) Interceptors
+                var controllerActionInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
+                    i.ActionName.Equals(method.Name) && i.ControllerName.Equals(controller.GetType().Name)).ToList();
+                if (!PreHandleInterceptors(controllerActionInterceptors, request))
+                    return string.Empty;
 
                 object[] methodParameters = new object[request.Parameters.Count];
                 for (int i = 0; i < request.Parameters.Count; i++)
@@ -203,6 +242,7 @@ Parameters: ";
 
         public override void OnPostExecute(object result)
         {
+            ActionLocker.ReleaseLock(controller, method.Name);
             DownThreadCount();
         }
 

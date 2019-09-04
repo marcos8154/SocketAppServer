@@ -5,12 +5,12 @@ using System.Text;
 
 namespace MobileAppServer.ServerObjects
 {
-    internal class RequestParameter
+    public class RequestParameter
     {
-        public string Name { get; set; }
-        public object Value { get; set; }
+        public string Name { get; internal set; }
+        public object Value { get; internal set; }
 
-        public RequestParameter(string name, object value)
+        internal RequestParameter(string name, object value)
         {
             Name = name;
             Value = value;

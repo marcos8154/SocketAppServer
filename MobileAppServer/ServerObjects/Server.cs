@@ -13,6 +13,7 @@ namespace MobileAppServer.ServerObjects
     {
         internal static List<ControllerRegister> RegisteredControllers { get; set; }
         internal static List<ModelRegister> RegisteredModels { get; set; }
+        internal List<IHandlerInterceptor> Interceptors { get; private set; }
 
         public static Server GlobalInstance { get; private set; }
 
@@ -59,6 +60,7 @@ namespace MobileAppServer.ServerObjects
                 MaxThreadsCount = 999999;
 
             Requests = 0;
+            Interceptors = new List<IHandlerInterceptor>();
             RegisterController("ServerInfoController", typeof(ServerInfoController));
             GlobalInstance = this;
 
@@ -66,6 +68,13 @@ namespace MobileAppServer.ServerObjects
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
                 Console.WriteLine($"Server max threads count: " + MaxThreadsCount);
+        }
+
+        public void RegisterInterceptor(IHandlerInterceptor interceptor)
+        {
+            if (Interceptors == null)
+                Interceptors = new List<IHandlerInterceptor>();
+            Interceptors.Add(interceptor);
         }
 
         public void RegisterController(string name, Type type)

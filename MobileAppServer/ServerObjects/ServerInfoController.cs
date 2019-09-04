@@ -56,7 +56,7 @@ namespace MobileAppServer.ServerObjects
                 info.ControllerName = mappingName.Replace(".xml", string.Empty);
                 info.ControllerActions = ListActions(mappingName);
 
-                XmlNode node = RequestProccess.FindNode(xml.ChildNodes, "ControllerMapping");
+                XmlNode node = new TypedObjectsRequestManager().FindNode(xml.ChildNodes, "ControllerMapping");
                 foreach (XmlAttribute attr in node.Attributes)
                 {
                     if (attr.Name.Equals("class"))
@@ -85,7 +85,7 @@ namespace MobileAppServer.ServerObjects
                 xml.Load(stream);
                 stream.Close();
 
-                XmlNode node = RequestProccess.FindNode(xml.ChildNodes, "ControllerMapping");
+                XmlNode node = new TypedObjectsRequestManager().FindNode(xml.ChildNodes, "ControllerMapping");
                 foreach (XmlNode chNode in node.ChildNodes)
                     if (chNode.Name.Equals("RequestMapping"))
                         foreach (XmlAttribute a in chNode.Attributes)

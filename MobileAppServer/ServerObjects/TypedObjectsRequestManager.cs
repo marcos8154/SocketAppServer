@@ -123,7 +123,7 @@ namespace MobileAppServer.ServerObjects
             }
         }
 
-        private XmlNode FindNode(XmlNodeList list, string nodeName)
+        internal XmlNode FindNode(XmlNodeList list, string nodeName)
         {
             if (list.Count > 0)
             {

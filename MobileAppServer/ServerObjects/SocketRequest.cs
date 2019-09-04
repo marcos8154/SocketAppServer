@@ -2,21 +2,35 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 
 namespace MobileAppServer.ServerObjects
 {
-    internal class SocketRequest
+    public class SocketRequest
     {
-        public Socket Client { get; set; }
-        public List<RequestParameter> Parameters { get; set; }
-        public IController Controller { get; set; }
-        public string Action { get; set; }
-        public bool HasErrors { get; set; }
-        public string InternalErrorMessage { get; set; }
+        internal Socket Client { get; set; }
 
-        public void ProcessResponse(ActionResult result, Socket socket)
+        private List<RequestParameter> requestParameters = new List<RequestParameter>();
+        internal void AddParameter(RequestParameter parameter)
+        {
+            requestParameters.Add(parameter);
+        }
+
+        public ReadOnlyCollection<RequestParameter> Parameters
+        {
+            get
+            {
+                return new ReadOnlyCollection<RequestParameter>(requestParameters);
+            }
+        }
+        public IController Controller { get; internal set; }
+        public string Action { get; internal set; }
+        public bool HasErrors { get; internal set; }
+        public string InternalErrorMessage { get; internal set; }
+
+        internal void ProcessResponse(ActionResult result, Socket socket)
         {
             Client = socket;
             ProcessResponse(result);
