@@ -242,7 +242,8 @@ Parameters: ";
 
         public override void OnPostExecute(object result)
         {
-            ActionLocker.ReleaseLock(controller, method.Name);
+            if (controller != null && method != null)
+                ActionLocker.ReleaseLock(controller, method.Name);
             DownThreadCount();
         }
 

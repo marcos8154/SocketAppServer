@@ -10,6 +10,7 @@ namespace MobileAppServerTest
         public Form1()
         {
             InitializeComponent();
+            txResult.ScrollBars = ScrollBars.Both;
         }
 
         private void btConnect_Click(object sender, EventArgs e)
