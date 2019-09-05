@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace MobileAppServer.ServerObjects
+﻿namespace MobileAppServer.ServerObjects
 {
     public class InterceptorHandleResult
     {
-        internal bool Success { get; set; }
-
+        internal bool CancelActionInvoke { get; set; }
+        public bool ResponseSuccess { get; }
         internal string Message { get; set; }
 
-        public InterceptorHandleResult(bool success,
-            string message)
+        internal object Data { get; set; }
+
+        public InterceptorHandleResult(bool cancelActionInvoke,
+            bool responseSuccess,
+            string message, object data)
         {
-            Success = success;
+            CancelActionInvoke = cancelActionInvoke;
+            ResponseSuccess = responseSuccess;
             Message = message;
+            Data = data;
         }
     }
 }

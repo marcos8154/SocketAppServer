@@ -19,14 +19,14 @@ namespace MobileAppServerClient
 
     public class Client
     {
-        public static void Configure(string server, int port)
+        public static void Configure(string server, int port, int maxPacketSize = 4096)
         {
             try
             {
                 string conf = $@"SERVER={server}
 PORT={port}
 ENCODING=UTF-8
-MAXPACKETSIZE=4096";
+MAXPACKETSIZE={maxPacketSize}";
                 File.WriteAllText(@".\MobileAppServerClient.conf", conf);
             }
             catch { }
@@ -142,7 +142,7 @@ MAXPACKETSIZE=4096";
             }
             catch (Exception ex)
             {
-                return new ServerResponse(500, ex.Message, "");
+                return new ServerResponse(500, ex.Message, "", 0);
             }
         }
 

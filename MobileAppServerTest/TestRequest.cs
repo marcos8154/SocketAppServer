@@ -36,7 +36,9 @@ namespace MobileAppServerTest
             RequestCache cache = JsonConvert.DeserializeObject<RequestCache>(json);
             txAction.Text = cache.Action;
             txController.Text = cache.Controller;
-            dataGrid.DataSource = cache.Parameters;
+
+            if (cache.Parameters.Count > 0)
+                dataGrid.DataSource = cache.Parameters;
 
             return true;
         }
@@ -81,12 +83,12 @@ namespace MobileAppServerTest
                     client.SendRequest(rb);
                     return client.GetResult();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("Error: \n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return null;
                 }
-           });
+            });
 
             Result = res;
             Close();

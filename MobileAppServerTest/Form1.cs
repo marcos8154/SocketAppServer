@@ -1,6 +1,8 @@
 ﻿using MobileAppServerClient;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace MobileAppServerTest
@@ -18,7 +20,7 @@ namespace MobileAppServerTest
             try
             {
                 treeView.Nodes.Clear();
-                Client.Configure(txAddress.Text, int.Parse(txPort.Text));
+                Client.Configure(txAddress.Text, int.Parse(txPort.Text), ((4096 * 100) * 1000));
                 Client client = new Client();
 
                 RequestBody rb = RequestBody.Create("ServerInfoController", "FullServerInfo");
@@ -75,8 +77,19 @@ namespace MobileAppServerTest
             var test = new TestRequest(controller, action);
             test.ShowDialog();
 
+            var result = JsonConvert.SerializeObject(test.Result, Formatting.Indented);
             if (test.Result != null)
-                txResult.Text = JsonConvert.SerializeObject(test.Result, Formatting.Indented);
+            {
+                if (ckSaveToFile.Checked)
+                {
+                    if (!Directory.Exists(@".\ResponseData\"))
+                        Directory.CreateDirectory(@".\ResponseData\");
+                    File.WriteAllText($@".\ResponseData\{controller}-{action}.json", result);
+                    Process.Start("notepad.exe", $@".\ResponseData\{controller}-{action}.json");
+                }
+                else
+                    txResult.Text = result;
+            }
         }
     }
 }

@@ -10,12 +10,12 @@ namespace MobileAppServer
         {
             //create server
             Server server = new Server();
-
+      //      server.RegisterInterceptor(new Class1());
             //set port
             server.Port = 4000;
 
             //set Threads Limit; default value is 999999 threads
-            server.MaxThreadsCount = 4;
+            server.MaxThreadsCount = 5;
 
             //define if server is Single-Threaded; if true, MaxThreadsCount is ignored
             server.IsSingleThreaded = false;

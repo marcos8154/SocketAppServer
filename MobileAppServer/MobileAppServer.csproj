@@ -53,6 +53,7 @@
     <Compile Include="ServerObjects\ControllerInfo.cs" />
     <Compile Include="ServerObjects\ControllerRegister.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
+    <Compile Include="ServerObjects\IDependencyInjectorMaker.cs" />
     <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
     <Compile Include="ServerObjects\InterceptorHandleResult.cs" />
     <Compile Include="ServerObjects\JsonResult.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="ServerObjects\RequestProccess.cs" />
     <Compile Include="ServerObjects\ResponseStatus.cs" />
     <Compile Include="ServerObjects\Server.cs" />
+    <Compile Include="ServerObjects\ServerAlert.cs" />
     <Compile Include="ServerObjects\ServerInfo.cs" />
     <Compile Include="ServerObjects\ServerInfoController.cs" />
     <Compile Include="ServerObjects\SocketRequest.cs" />

@@ -57,8 +57,17 @@ namespace MobileAppServer.ServerObjects
             {
                 LogController.WriteLog($"Instantiating Controller {controllerName}...");
 
+                var injectorMaker = Server.GlobalInstance.DependencyInjectorMakers.FirstOrDefault(
+                       maker => maker.ControllerName.Equals(controllerName) ||
+                       maker.ControllerName.Equals(""));
+                if (controllerName.Equals("ServerInfoController"))
+                    injectorMaker = null;
+
                 ControllerRegister register = Server.RegisteredControllers.FirstOrDefault(c => c.Name.Equals(controllerName));
-                IController controller = (IController)Activator.CreateInstance(register.Type);
+
+                IController controller = (injectorMaker == null
+                    ? (IController)Activator.CreateInstance(register.Type)
+                    : (IController)Activator.CreateInstance(register.Type, injectorMaker.BuildInjectValues()));
 
                 LogController.WriteLog($"Instantiate Controller success! Controller name: {controller.GetType().FullName}");
                 return controller;
@@ -124,10 +133,14 @@ Parameters: ";
             foreach (var interceptor in interceptors)
             {
                 var handleResult = interceptor.PreHandle(request);
-                if (!handleResult.Success)
+                if (handleResult.CancelActionInvoke)
                 {
-                    request.ProcessResponse(ActionResult.Json("",
-                        ResponseStatus.ERROR, handleResult.Message), socket);
+                    var response = (handleResult.ResponseSuccess
+                        ? ResponseStatus.SUCCESS
+                        : ResponseStatus.ERROR);
+
+                    request.ProcessResponse(ActionResult.Json(handleResult.Data,
+                        ResponseStatus.SUCCESS, handleResult.Message), socket);
                     return false;
                 }
             }

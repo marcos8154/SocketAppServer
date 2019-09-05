@@ -14,6 +14,7 @@ namespace MobileAppServer.ServerObjects
         internal static List<ControllerRegister> RegisteredControllers { get; set; }
         internal static List<ModelRegister> RegisteredModels { get; set; }
         internal List<IHandlerInterceptor> Interceptors { get; private set; }
+        internal List<IDependencyInjectorMaker> DependencyInjectorMakers { get; private set; }
 
         public static Server GlobalInstance { get; private set; }
 
@@ -60,7 +61,11 @@ namespace MobileAppServer.ServerObjects
                 MaxThreadsCount = 999999;
 
             Requests = 0;
-            Interceptors = new List<IHandlerInterceptor>();
+            if (Interceptors == null)
+                Interceptors = new List<IHandlerInterceptor>();
+            if (DependencyInjectorMakers == null)
+                DependencyInjectorMakers = new List<IDependencyInjectorMaker>();
+
             RegisterController("ServerInfoController", typeof(ServerInfoController));
             GlobalInstance = this;
 
@@ -75,6 +80,16 @@ namespace MobileAppServer.ServerObjects
             if (Interceptors == null)
                 Interceptors = new List<IHandlerInterceptor>();
             Interceptors.Add(interceptor);
+        }
+
+        public void RegisterDependencyInjectorMaker(IDependencyInjectorMaker injectorMaker)
+        {
+            if (injectorMaker == null)
+                throw new Exception("Cannot be null");
+
+            if (DependencyInjectorMakers == null)
+                DependencyInjectorMakers = new List<IDependencyInjectorMaker>();
+            DependencyInjectorMakers.Add(injectorMaker);
         }
 
         public void RegisterController(string name, Type type)
@@ -130,7 +145,7 @@ Type: {type.FullName}
             ServerSocket.Listen(0);
             ServerSocket.BeginAccept(AcceptCallback, null);
             Started = true;
-            
+
             Console.WriteLine("Type 'exit' to stop...");
             string line = "";
 
@@ -143,7 +158,7 @@ Type: {type.FullName}
 
         public void SendReboot()
         {
-            while(RequestProccess.ThreadCount > 1)
+            while (RequestProccess.ThreadCount > 1)
             {
                 Thread.Sleep(300);
                 //wait...
@@ -162,7 +177,7 @@ Type: {type.FullName}
             ServerSocket.Listen(0);
             ServerSocket.BeginAccept(AcceptCallback, null);
         }
-        
+
         private object lockAccept = new object();
         private void AcceptCallback(IAsyncResult AR)
         {

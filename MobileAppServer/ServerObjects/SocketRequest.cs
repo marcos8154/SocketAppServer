@@ -1,10 +1,9 @@
-﻿
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
+using Newtonsoft.Json;
 
 namespace MobileAppServer.ServerObjects
 {
@@ -32,8 +31,36 @@ namespace MobileAppServer.ServerObjects
 
         internal void ProcessResponse(ActionResult result, Socket socket)
         {
+            CheckStatistics(result);
             Client = socket;
             ProcessResponse(result);
+        }
+
+        internal void CheckStatistics(ActionResult result)
+        {
+            string json = JsonConvert.SerializeObject(result.Content);
+            var bytes = Server.GlobalInstance.ServerEncoding.GetBytes(json);
+            var lenght = bytes.Length;
+            double bytesUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
+            result.ResponseLenght = lenght;
+
+            if (bytesUsed >= 80)
+            {
+                string msg = $"\nThe action response on the controller is using around {bytesUsed.ToString("N2")}% of the buffer quota configured on the server. Review your code as soon as possible before the server collapses and begins to give incomplete responses to connected clients.";
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(msg);
+                Console.ForegroundColor = ConsoleColor.Gray;
+
+                var alert = new ServerAlert
+                {
+                    Action = Action,
+                    Controller = Controller.GetType().Name,
+                    Date = DateTime.Now,
+                    Message = msg
+                };
+
+                ServerAlertManager.Save(alert);
+            }
         }
 
         private void SendBytes(byte[] data)

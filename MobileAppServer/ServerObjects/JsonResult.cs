@@ -1,18 +1,19 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MobileAppServer.ServerObjects
 {
     public class JsonResult : ActionResult
     {
+        public double bytesUsed = 0;
+
         public JsonResult(object obj, int status, string message)
         {
             try
             {
-                this.Content = JsonConvert.SerializeObject(obj);
+                string json = JsonConvert.SerializeObject(obj);
+          
+                this.Content = json;
             }
             catch (Exception ex)
             {

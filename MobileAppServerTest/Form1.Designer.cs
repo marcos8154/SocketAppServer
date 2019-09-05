@@ -39,6 +39,7 @@
             this.lbDescription = new System.Windows.Forms.Label();
             this.txResult = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.ckSaveToFile = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -157,11 +158,23 @@
             this.linkLabel1.Text = "Create new request";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
+            // ckSaveToFile
+            // 
+            this.ckSaveToFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ckSaveToFile.AutoSize = true;
+            this.ckSaveToFile.Location = new System.Drawing.Point(496, 429);
+            this.ckSaveToFile.Name = "ckSaveToFile";
+            this.ckSaveToFile.Size = new System.Drawing.Size(203, 17);
+            this.ckSaveToFile.TabIndex = 5;
+            this.ckSaveToFile.Text = "Save to File, not show in this Window";
+            this.ckSaveToFile.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(711, 450);
+            this.Controls.Add(this.ckSaveToFile);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.txResult);
             this.Controls.Add(this.lbDescription);
@@ -190,6 +203,7 @@
         private System.Windows.Forms.Label lbDescription;
         private System.Windows.Forms.TextBox txResult;
         private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.CheckBox ckSaveToFile;
     }
 }
 
