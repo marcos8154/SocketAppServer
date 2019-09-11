@@ -19,7 +19,8 @@ namespace MobileAppServerClient
 
     public class Client
     {
-        public static void Configure(string server, int port, int maxPacketSize = 4096)
+        public static void Configure(string server, int port, 
+            int maxPacketSize = 4096)
         {
             try
             {

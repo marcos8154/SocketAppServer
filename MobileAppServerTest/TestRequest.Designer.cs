@@ -107,7 +107,7 @@
             this.dataGrid.DataSource = this.serverRequestParameterBindingSource;
             this.dataGrid.Location = new System.Drawing.Point(12, 117);
             this.dataGrid.Name = "dataGrid";
-            this.dataGrid.RowHeadersVisible = false;
+            this.dataGrid.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGrid.Size = new System.Drawing.Size(326, 342);
             this.dataGrid.TabIndex = 6;
             // 

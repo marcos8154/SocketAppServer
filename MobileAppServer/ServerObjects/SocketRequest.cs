@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
-using Newtonsoft.Json;
 
 namespace MobileAppServer.ServerObjects
 {
@@ -41,12 +41,17 @@ namespace MobileAppServer.ServerObjects
             string json = JsonConvert.SerializeObject(result.Content);
             var bytes = Server.GlobalInstance.ServerEncoding.GetBytes(json);
             var lenght = bytes.Length;
-            double bytesUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
+            double percentBufferUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
             result.ResponseLenght = lenght;
 
-            if (bytesUsed >= 80)
+            if (percentBufferUsed >= 100)
             {
-                string msg = $"\nThe action response on the controller is using around {bytesUsed.ToString("N2")}% of the buffer quota configured on the server. Review your code as soon as possible before the server collapses and begins to give incomplete responses to connected clients.";
+                string msg = $@"
+The action response on the controller is using around {percentBufferUsed.ToString("N2")}% of the buffer quota configured on the server.
+Server Buffer Size: {Server.GlobalInstance.BufferSize}
+Response Size:      {lenght}
+Operation has stopped.";
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(msg);
                 Console.ForegroundColor = ConsoleColor.Gray;
@@ -59,7 +64,26 @@ namespace MobileAppServer.ServerObjects
                     Message = msg
                 };
 
-                ServerAlertManager.Save(alert);
+                ServerAlertManager.CreateAlert(alert);
+                throw new Exception(msg);
+            }
+
+            if (percentBufferUsed >= 80)
+            {
+                string msg = $"\nThe action response on the controller is using around {percentBufferUsed.ToString("N2")}% of the buffer quota configured on the server. Review your code as soon as possible before the server collapses and begins to give incomplete responses to connected clients.";
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(msg);
+                Console.ForegroundColor = ConsoleColor.Gray;
+
+                var alert = new ServerAlert
+                {
+                    Action = Action,
+                    Controller = Controller.GetType().Name,
+                    Date = DateTime.Now,
+                    Message = msg
+                };
+
+                ServerAlertManager.CreateAlert(alert);
             }
         }
 
@@ -85,6 +109,13 @@ namespace MobileAppServer.ServerObjects
                 session.Close();
                 Server.GlobalInstance.ClientSockets.Remove(session);
             }
+
+            if (Client != null)
+            {
+                Client.Close();
+                Client.Dispose();
+                Client = null;
+            }
         }
 
         private void ProcessResponse(ActionResult response)
@@ -99,14 +130,18 @@ namespace MobileAppServer.ServerObjects
                         ? "EOF"
                         : "BOF");
 
-                    SendBytes(Server.GlobalInstance.ServerEncoding.GetBytes(JsonConvert.SerializeObject(response)));
+                    string jsonFile = JsonConvert.SerializeObject(response);
+                    SendBytes(Server.GlobalInstance.ServerEncoding.GetBytes(jsonFile));
                     if (file != null)
                         SendBytes(file);
                     return;
                 }
 
-                byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(JsonConvert.SerializeObject(response));
+                string json = JsonConvert.SerializeObject(response);
+                byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(json);
                 SendBytes(resultData);
+                json = null;
+                resultData = null;
             }
             catch (Exception ex)
             {

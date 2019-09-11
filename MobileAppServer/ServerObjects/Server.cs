@@ -48,7 +48,7 @@ namespace MobileAppServer.ServerObjects
 
         private void Initialize()
         {
-            Console.WriteLine("Socket App Server 1.2.10");
+            Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
 
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             if (BufferSize == 0)
@@ -94,18 +94,11 @@ namespace MobileAppServer.ServerObjects
 
         public void RegisterController(string name, Type type)
         {
-            Console.WriteLine("\nRegistering a new controller...");
+            Console.WriteLine($"Registering controller '{name}'...");
 
             if (RegisteredControllers == null)
                 RegisteredControllers = new List<ControllerRegister>();
             RegisteredControllers.Add(new ControllerRegister() { Name = name, Type = type });
-
-            Console.WriteLine($@"
-*************************************
-Controller registration info: 
-Name: {name}
-Type: {type.FullName}
-*************************************");
         }
 
         public void RegisterAllControllers(Assembly assembly, string namespaceName)
@@ -131,7 +124,7 @@ Type: {type.FullName}
         {
             if (RegisteredModels == null)
                 RegisteredModels = new List<ModelRegister>();
-            Console.WriteLine("Registering model...");
+            Console.WriteLine($"Registering model '{modelType.FullName}'");
             RegisteredModels.Add(new ModelRegister(modelType.FullName, modelType));
         }
 
@@ -212,7 +205,7 @@ Type: {type.FullName}
         }
     }
 
-    public class RequestPreProcess
+    public class RequestPreProcess : IDisposable
     {
         private SocketSession GetSession(Socket clientSocket)
         {
@@ -227,15 +220,50 @@ Type: {type.FullName}
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+            if (disposing)
+            {
+                if (session != null)
+                {
+                    try
+                    {
+                        Server.GlobalInstance.ClientSockets.Remove(session);
+                        session.Close();
+                        session = null;
+                    }
+                    catch { }
+                }
+
+                if (clientSocket != null)
+                {
+                    try
+                    {
+                        clientSocket.Dispose();
+                        clientSocket = null;
+                    }
+                    catch { }
+                }
+            }
+            disposed = true;
+        }
+
+        Socket clientSocket = null;
+        SocketSession session = null;
 
         public RequestPreProcess(IAsyncResult AR)
         {
-            Socket clientSocket = null;
-
             clientSocket = (Socket)AR.AsyncState;
             int received;
-
-            SocketSession session = null;
 
             for (int i = 0; i < 3; i++)
             {
@@ -246,7 +274,10 @@ Type: {type.FullName}
             }
 
             if (session == null)
+            {
+                Dispose();
                 return;
+            }
 
             try
             {
@@ -254,15 +285,7 @@ Type: {type.FullName}
             }
             catch (Exception ex)
             {
-                // Don't shutdown because the socket may be disposed and its disconnected anyway.
-
-                try
-                {
-                    //   clientSocket.Close();
-                    session.Close();
-                    Server.GlobalInstance.ClientSockets.Remove(session);
-                }
-                catch { }
+                Dispose();
                 return;
             }
 
@@ -271,10 +294,20 @@ Type: {type.FullName}
             string uriRequest = Server.GlobalInstance.ServerEncoding.GetString(recBuf);
             string resultText = string.Empty;
 
+            if (string.IsNullOrEmpty(uriRequest))
+            {
+                Dispose();
+                return;
+            }
+
             RequestProccess process = new RequestProccess(uriRequest, clientSocket);
+            process.OnCompleted += Process_OnCompleted;
 
             if (Server.GlobalInstance.IsSingleThreaded)
+            {
                 process.DoInBackGround(0);
+                Dispose();
+            }
             else
             {
                 while (Server.GlobalInstance.MaxThreadsCount > 0 &&
@@ -286,6 +319,11 @@ Type: {type.FullName}
 
                 process.Execute(0);
             }
+        }
+
+        private void Process_OnCompleted(object result)
+        {
+            Dispose();
         }
     }
 }

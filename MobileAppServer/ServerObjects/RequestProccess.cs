@@ -32,13 +32,15 @@ namespace MobileAppServer.ServerObjects
                 request = new SocketRequest();
                 request.Client = socket;
                 request.Action = action;
+
                 request.Controller = GetController(controller);
-                if (!typedObjManager.ExistsAction(action, controller))
-                    throw new Exception($"Action '{action}' not exists in controller '{controller}'");
 
                 var parameters = typedObjManager.GetParameters(RequestBody.Parameters,
-                    action, request.Controller);
+                action, request.Controller);
                 parameters.ForEach(p => request.AddParameter(p));
+
+                if (!typedObjManager.ExistsAction(action, controller))
+                    throw new Exception($"Action '{action}' not exists in controller '{controller}'");
 
                 return request;
             }
@@ -67,7 +69,7 @@ namespace MobileAppServer.ServerObjects
 
                 IController controller = (injectorMaker == null
                     ? (IController)Activator.CreateInstance(register.Type)
-                    : (IController)Activator.CreateInstance(register.Type, injectorMaker.BuildInjectValues()));
+                    : (IController)Activator.CreateInstance(register.Type, injectorMaker.BuildInjectValues(RequestBody)));
 
                 LogController.WriteLog($"Instantiate Controller success! Controller name: {controller.GetType().FullName}");
                 return controller;

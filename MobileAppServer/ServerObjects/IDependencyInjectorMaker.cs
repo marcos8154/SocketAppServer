@@ -9,6 +9,6 @@ namespace MobileAppServer.ServerObjects
     {
         string ControllerName { get; }
 
-        object[] BuildInjectValues();
+        object[] BuildInjectValues(RequestBody body);
     }
 }

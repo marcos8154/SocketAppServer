@@ -43,7 +43,7 @@ namespace MobileAppServer.ServerObjects
         }
         
         private static object writeLock = new object();
-        internal static void Save(ServerAlert alert)
+        public static void CreateAlert(ServerAlert alert)
         {
             lock (writeLock)
             {
