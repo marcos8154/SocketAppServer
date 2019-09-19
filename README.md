@@ -117,7 +117,7 @@ The calling commands are simple and clear and can be executed from any client-so
 Take this ProductController action as an example:
 
 ```C#
-public ActionResult SaveProcuct(Product product, string oltherParam)
+public ActionResult SaveProduct(Product product, string oltherParam)
 {
     .......
 }
@@ -166,3 +166,8 @@ Having it installed, you can submit requests for the same action example as foll
             client.GetResult();
 ```
 
+If your server has actions that return objects, you can easily convert them on the client side:
+
+```C#
+            List<Product> myProducts = (List<Product>) client.GetResult(typeof(List<Product>)).Entity;
+```
