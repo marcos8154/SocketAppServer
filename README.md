@@ -108,3 +108,61 @@ Below is an example of how to implement an action with simple parameters, and an
         }
     }
 ```
+
+**Making calls to your server**
+
+In addition to responding by default in JSON, the server also receives requests through JSON syntax.
+The calling commands are simple and clear and can be executed from any client-socket program.
+
+Take this ProductController action as an example:
+
+```C#
+public ActionResult SaveProcuct(Product product, string oltherParam)
+{
+    .......
+}
+```
+For the above action we will have the following request syntax sent by the client:
+
+```JSON
+"Controller" : "ProductController",
+"Action" : "SaveProduct",
+"Parameters" : [
+	{ "Name" : "product.Name", "Value" : "Notebook DELL XPS" },
+	{ "Name" : "product.Price", "Value" : "1,999.90" },
+	{ "Name" : "otherParam", "Value" : "Another param to action" }
+]
+```
+
+**Making requests via the server's default client library**
+The framework has a standard lib client written for it, and you can find it through Nuget:
+"Install-Package MobileAppServer.Client -Version 1.2.0" | or higher
+
+Having it installed, you can submit requests for the same action example as follows:
+
+```C#
+	    using MobileAppServerClient;
+	    
+	    .....
+
+            //default config for client
+            //necessary only on app startup
+            Client.Configure("serveraddress", 5000, 200000);
+
+            //Instantiating the client. 
+            //This will already result in an open connection on the server.
+            Client client = new Client();
+
+            //creating request with parameters
+            RequestBody rb = RequestBody.Create("ProductController", "SaveProduct")
+                .AddParameter("product.Name", "Notebook DELL XPS")
+                .AddParameter("product.Price", "1,999.90")
+                .AddParameter("otherParam", "Another param to action");
+
+            //submit request to server
+            client.SendRequest(rb);
+
+            //get response and closes connection
+            client.GetResult();
+```
+
