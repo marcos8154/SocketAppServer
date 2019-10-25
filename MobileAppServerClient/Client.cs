@@ -78,12 +78,15 @@ MAXPACKETSIZE={maxPacketSize}";
             ByteBuffer = byteBuffer;
         }
 
+        public ServerResponse Response { get; private set; }
+
         public OperationResult GetResult(Type entityType = null)
         {
             ServerResponse response = ReadResponse();
             if (response.Status == 500)
                 throw new Exception(response.Message);
 
+            Response = response;
             OperationResult result = (OperationResult)JsonConvert.DeserializeObject(response.Content.ToString(), typeof(OperationResult));
 
             if (entityType != null)

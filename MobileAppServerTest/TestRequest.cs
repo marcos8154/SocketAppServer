@@ -13,6 +13,7 @@ namespace MobileAppServerTest
     public partial class TestRequest : Form
     {
         public OperationResult Result { get; private set; }
+        public ServerResponse ServerResponse { get; private set; }
         public TestRequest(string controller, string action)
         {
             InitializeComponent();
@@ -81,7 +82,10 @@ namespace MobileAppServerTest
                         rb.AddParameter(parameter.Key, parameter.Value);
 
                     client.SendRequest(rb);
-                    return client.GetResult();
+
+                    var result =  client.GetResult();
+                    ServerResponse = client.Response;
+                    return result;
                 }
                 catch (Exception ex)
                 {

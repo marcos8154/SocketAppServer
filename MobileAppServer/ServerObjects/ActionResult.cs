@@ -7,6 +7,7 @@ namespace MobileAppServer.ServerObjects
 {
     public abstract class ActionResult
     {
+        public virtual double PercentUsage { get; set; }
         public virtual double ResponseLenght { get; set; }
         public virtual string FileState { get; set; }
         public virtual int Type { get; set; }

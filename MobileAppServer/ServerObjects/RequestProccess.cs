@@ -21,13 +21,15 @@ namespace MobileAppServer.ServerObjects
                 return null;
             if (RequestBody != null)
                 if (RequestBody.Controller != null)
-                    LogController.WriteLog($"Processing request for action '{RequestBody.Controller}.{RequestBody.Action}'...");
+                    LogController.WriteLog(new ServerLog($"Processing request for action '{RequestBody.Controller}.{RequestBody.Action}'...", RequestBody.Controller, RequestBody.Action));
             SocketRequest request = null;
+            string controller = "";
+            string action = "";
             try
             {
                 string path = RequestBody.Action;
-                string controller = RequestBody.Controller;
-                string action = RequestBody.Action;
+                controller = RequestBody.Controller;
+                action = RequestBody.Action;
 
                 request = new SocketRequest();
                 request.Client = socket;
@@ -46,7 +48,7 @@ namespace MobileAppServer.ServerObjects
             }
             catch (Exception ex)
             {
-                LogController.WriteLog(ex.Message + "\n" + ex.StackTrace);
+                LogController.WriteLog(new ServerLog(ex.Message + "\n" + ex.StackTrace, controller, action, ServerLogType.ERROR));
                 request.HasErrors = true;
                 request.InternalErrorMessage = ex.Message;
                 return request;
@@ -57,7 +59,7 @@ namespace MobileAppServer.ServerObjects
         {
             try
             {
-                LogController.WriteLog($"Instantiating Controller {controllerName}...");
+                LogController.WriteLog(new ServerLog($"Instantiating Controller {controllerName}...", controllerName, ""));
 
                 var injectorMaker = Server.GlobalInstance.DependencyInjectorMakers.FirstOrDefault(
                        maker => maker.ControllerName.Equals(controllerName) ||
@@ -71,7 +73,7 @@ namespace MobileAppServer.ServerObjects
                     ? (IController)Activator.CreateInstance(register.Type)
                     : (IController)Activator.CreateInstance(register.Type, injectorMaker.BuildInjectValues(RequestBody)));
 
-                LogController.WriteLog($"Instantiate Controller success! Controller name: {controller.GetType().FullName}");
+                LogController.WriteLog(new ServerLog($"Instantiate Controller success! Controller name: {controller.GetType().FullName}", controllerName, ""));
                 return controller;
             }
             catch (Exception ex)
@@ -79,8 +81,8 @@ namespace MobileAppServer.ServerObjects
                 string msg = ex.Message;
                 if (ex.InnerException != null)
                     msg += ex.InnerException.Message;
-                LogController.WriteLog($@"Instantiate controller '{controllerName}' threw an exception. 
-{msg}");
+                LogController.WriteLog(new ServerLog($@"Instantiate controller '{controllerName}' threw an exception. 
+{msg}", controllerName, "", ServerLogType.ERROR));
                 throw new Exception($@"Instantiate controller '{controllerName}' threw an exception. 
 {msg}");
             }
@@ -112,7 +114,7 @@ Parameters: ";
                 log += @"
 ********************************";
 
-                LogController.WriteLog(log);
+                LogController.WriteLog(new ServerLog(log, RequestBody.Controller, RequestBody.Action));
             }
             catch (Exception ex)
             {
@@ -211,7 +213,7 @@ Parameters: ";
                 for (int i = 0; i < request.Parameters.Count; i++)
                     methodParameters[i] = request.Parameters[i].Value;
 
-                LogController.WriteLog($"Invoking action '{controller.GetType().Name}.{method.Name}'...");
+                LogController.WriteLog(new ServerLog($"Invoking action '{controller.GetType().Name}.{method.Name}'...", controller.GetType().Name, method.Name));
                 Stopwatch w = new Stopwatch();
                 w.Start();
                 ActionResult result = (ActionResult)method.Invoke(controller, methodParameters);
@@ -219,7 +221,7 @@ Parameters: ";
 
                 ActionLocker.ReleaseLock(controller, method.Name);
 
-                LogController.WriteLog($"Request completed in {w.ElapsedMilliseconds}ms");
+                LogController.WriteLog(new ServerLog($"Request completed in {w.ElapsedMilliseconds}ms", controller.GetType().Name, method.Name));
                 request.ProcessResponse(result, socket);
 
                 return result;

@@ -43,6 +43,7 @@ namespace MobileAppServer.ServerObjects
             var lenght = bytes.Length;
             double percentBufferUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
             result.ResponseLenght = lenght;
+            result.PercentUsage = percentBufferUsed;
 
             if (percentBufferUsed >= 100)
             {
@@ -145,7 +146,7 @@ Operation has stopped.";
             }
             catch (Exception ex)
             {
-                LogController.WriteLog($"*** ERROR ON PROCESS RESPONSE:*** \n {ex.Message}");
+                LogController.WriteLog(new ServerLog($"*** ERROR ON PROCESS RESPONSE:*** \n {ex.Message}", ServerLogType.ERROR));
                 ReleaseSession();
             }
         }

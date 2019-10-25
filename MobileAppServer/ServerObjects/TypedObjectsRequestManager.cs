@@ -20,19 +20,19 @@ namespace MobileAppServer.ServerObjects
                 return (new RequestParameter(pName, int.Parse(pValue)));
 
             if (pInfo.ParameterType == typeof(string))
-               return (new RequestParameter(pName, pValue));
+                return (new RequestParameter(pName, pValue));
 
             if (pInfo.ParameterType == typeof(decimal))
-               return (new RequestParameter(pName, decimal.Parse(pValue)));
+                return (new RequestParameter(pName, decimal.Parse(pValue)));
 
             if (pInfo.ParameterType == typeof(double))
-               return (new RequestParameter(pName, double.Parse(pValue)));
+                return (new RequestParameter(pName, double.Parse(pValue)));
 
             if (pInfo.ParameterType == typeof(DateTime))
-               return new RequestParameter(pName, Convert.ToDateTime(pValue));
+                return new RequestParameter(pName, Convert.ToDateTime(pValue));
 
             if (pInfo.ParameterType == typeof(long))
-               return (new RequestParameter(pName, long.Parse(pValue)));
+                return (new RequestParameter(pName, long.Parse(pValue)));
 
             return null;
         }
@@ -88,16 +88,18 @@ namespace MobileAppServer.ServerObjects
             }
             catch (Exception ex)
             {
-                LogController.WriteLog($"*** CHECK PARAMETER '{requestParameter}' FOR ACTION '{controllerName}.{actionName}' ERROR: *** \n{ex.Message}");
+                LogController.WriteLog(new ServerLog($"*** CHECK PARAMETER '{requestParameter}' FOR ACTION '{controllerName}.{actionName}' ERROR: *** \n{ex.Message}",
+                    controllerName, actionName, ServerLogType.ERROR));
                 return null;
             }
         }
 
         internal bool ExistsAction(string actionName, string controllerName)
         {
-            LogController.WriteLog($"Checking action '{controllerName}.{actionName}'...");
-            StreamReader stream = null;
+            LogController.WriteLog(new ServerLog($"Checking action '{controllerName}.{actionName}'...",
+                controllerName, actionName));
 
+            StreamReader stream = null;
             try
             {
                 stream = new StreamReader(
@@ -118,7 +120,8 @@ namespace MobileAppServer.ServerObjects
             }
             catch (Exception ex)
             {
-                LogController.WriteLog($"*** CHECK ACTION '{controllerName}.{actionName}' ERROR: *** \n {ex.Message}");
+                LogController.WriteLog(new ServerLog($"*** CHECK ACTION '{controllerName}.{actionName}' ERROR: *** \n {ex.Message}",
+                    controllerName, actionName, ServerLogType.ERROR));
                 return false;
             }
         }
@@ -141,7 +144,7 @@ namespace MobileAppServer.ServerObjects
         internal List<RequestParameter> GetParameters(List<RequestParameter> parameters, string action,
           IController controller)
         {
-            LogController.WriteLog($"Checking parameter list form action '{controller.GetType().Name}.{action}'...");
+            LogController.WriteLog(new ServerLog($"Checking parameter list form action '{controller.GetType().Name}.{action}'...", controller.GetType().Name, action));
             if (parameters == null)
                 return new List<RequestParameter>();
 
@@ -151,7 +154,7 @@ namespace MobileAppServer.ServerObjects
             MethodInfo method = controller.GetType().GetMethod(action);
             foreach (RequestParameter parameter in parameters)
             {
-                LogController.WriteLog($"Setting parameter '{parameter.Name}' for action '{controller.GetType().Name}.{action}'...");
+                LogController.WriteLog(new ServerLog($"Setting parameter '{parameter.Name}' for action '{controller.GetType().Name}.{action}'...", controller.GetType().Name, action));
                 string pName = parameter.Name;
                 string pValue = parameter.Value.ToString();
 
@@ -159,28 +162,34 @@ namespace MobileAppServer.ServerObjects
 
                 foreach (ParameterInfo pInfo in method.GetParameters())
                 {
-                    ObjectRequestParameter objRP = GetObjectParameterType(pName, action, controller.GetType().Name);
-                    if (objRP == null)
+                    ObjectRequestParameter objectRequestParameter = GetObjectParameterType(pName, action, controller.GetType().Name);
+                    if (objectRequestParameter == null)
                         if (!pInfo.Name.Equals(pName))
                             continue;
 
                     // string objectParameterType = objRP.TypeName;
 
-                    if (objRP != null)
+                    if (objectRequestParameter != null)
                     {
-                        LogController.WriteLog("Object parameter is not null!");
-                        if (objRP.Alias != currentObjRpAlias ||
+                        if (objectRequestParameter.Alias != currentObjRpAlias ||
                             entityParameterObject.GetType().Name.Equals(this.GetType().Name))
                         {
-                            currentObjRpAlias = objRP.Alias;
+                            currentObjRpAlias = objectRequestParameter.Alias;
 
-                            ModelRegister model = Server.RegisteredModels.FirstOrDefault(m => m.ModeName == objRP.TypeName);
+                            ModelRegister model = Server.RegisteredModels.FirstOrDefault(m => m.ModeName == objectRequestParameter.TypeName);
                             if (model == null)
-                                throw new Exception($"Could not instantiate controller '{objRP.TypeName}'. Check its mapping XML.");
+                            {
+                                LogController.WriteLog(new ServerLog($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.", controller.GetType().Name, action, ServerLogType.ERROR));
+                                throw new Exception($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.");
+                            }
 
                             Type type = model.ModelType;
                             if (type == null)
-                                throw new Exception($"Could not instantiate controller '{objRP.TypeName}'. Check its mapping XML.");
+                            {
+                                LogController.WriteLog(new ServerLog($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.", controller.GetType().Name, action, ServerLogType.ERROR));
+                                throw new Exception($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.");
+                            }
+
                             entityParameterObject = Activator.CreateInstance(type);
 
                             string parameterMethodName = pName.Substring(0, pName.IndexOf('.'));

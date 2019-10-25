@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -44,6 +45,13 @@ namespace MobileAppServer.ServerObjects
         public bool IsSingleThreaded { get; set; }
         public int MaxThreadsCount { get; set; }
 
+        public ILoggerWrapper Logger { get; private set; }
+
+        public void SetDefaultLoggerWrapper(ILoggerWrapper wrapper)
+        {
+            Logger = wrapper;
+        }
+
         public Encoding ServerEncoding { get; set; }
 
         private void Initialize()
@@ -68,7 +76,7 @@ namespace MobileAppServer.ServerObjects
 
             RegisterController("ServerInfoController", typeof(ServerInfoController));
             GlobalInstance = this;
-
+            
             Console.WriteLine($"Server started with {BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
@@ -128,16 +136,26 @@ namespace MobileAppServer.ServerObjects
             RegisteredModels.Add(new ModelRegister(modelType.FullName, modelType));
         }
 
+        public delegate void StartServer();
+        public event StartServer ServerStarted;
+
         public void Start(bool waitForUserTypeExit = true)
         {
             if (Started)
                 throw new Exception("Server already has been started.");
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
             Initialize();
             ServerSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
             ServerSocket.Listen(0);
             ServerSocket.BeginAccept(AcceptCallback, null);
             Started = true;
+            ServerStarted?.Invoke();
+
+            sw.Stop();
+            LogController.WriteLog(new ServerLog($"Server started in {sw.ElapsedMilliseconds}ms", "Server", "Start"));
 
             Console.WriteLine("Type 'exit' to stop...");
             string line = "";
@@ -190,7 +208,7 @@ namespace MobileAppServer.ServerObjects
                 }
                 catch (Exception ex) // I cannot seem to avoid this (on exit when properly closing sockets)
                 {
-                    LogController.WriteLog("*** ERROR ***: \n" + ex.Message);
+                    LogController.WriteLog(new ServerLog("*** ERROR ***: \n" + ex.Message, ServerLogType.ERROR));
                 }
             }
         }
@@ -313,7 +331,7 @@ namespace MobileAppServer.ServerObjects
                 while (Server.GlobalInstance.MaxThreadsCount > 0 &&
                    RequestProccess.ThreadCount >= Server.GlobalInstance.MaxThreadsCount)
                 {
-                    LogController.WriteLog("\nNumber of current threads has exceeded the set limit. Waiting for tasks to finish...");
+                    LogController.WriteLog(new ServerLog("\nNumber of current threads has exceeded the set limit. Waiting for tasks to finish...", ServerLogType.ALERT));
                     Thread.Sleep(300);
                 }
 

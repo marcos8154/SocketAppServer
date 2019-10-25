@@ -40,6 +40,7 @@
             this.txResult = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.ckSaveToFile = new System.Windows.Forms.CheckBox();
+            this.lbBytes = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -143,7 +144,7 @@
             this.txResult.Location = new System.Drawing.Point(245, 98);
             this.txResult.Multiline = true;
             this.txResult.Name = "txResult";
-            this.txResult.Size = new System.Drawing.Size(454, 327);
+            this.txResult.Size = new System.Drawing.Size(454, 311);
             this.txResult.TabIndex = 3;
             // 
             // linkLabel1
@@ -169,11 +170,23 @@
             this.ckSaveToFile.Text = "Save to File, not show in this Window";
             this.ckSaveToFile.UseVisualStyleBackColor = true;
             // 
+            // lbBytes
+            // 
+            this.lbBytes.AutoSize = true;
+            this.lbBytes.Location = new System.Drawing.Point(244, 412);
+            this.lbBytes.Name = "lbBytes";
+            this.lbBytes.Size = new System.Drawing.Size(195, 13);
+            this.lbBytes.TabIndex = 6;
+            this.lbBytes.Text = "Bytes used: 4859 (0,9% of server buffer)";
+            this.lbBytes.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbBytes.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(711, 450);
+            this.Controls.Add(this.lbBytes);
             this.Controls.Add(this.ckSaveToFile);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.txResult);
@@ -204,6 +217,7 @@
         private System.Windows.Forms.TextBox txResult;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.CheckBox ckSaveToFile;
+        private System.Windows.Forms.Label lbBytes;
     }
 }
 

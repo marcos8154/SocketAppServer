@@ -80,6 +80,8 @@ namespace MobileAppServerTest
             var result = JsonConvert.SerializeObject(test.Result, Formatting.Indented);
             if (test.Result != null)
             {
+                lbBytes.Visible = true;
+                lbBytes.Text = $"Bytes used: {test.ServerResponse.ResponseLenght} ({test.ServerResponse.PercentUsage.ToString("N2")}% of server buffer)";
                 if (ckSaveToFile.Checked)
                 {
                     if (!Directory.Exists(@".\ResponseData\"))

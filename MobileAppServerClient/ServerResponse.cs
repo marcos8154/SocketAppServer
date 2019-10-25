@@ -8,6 +8,7 @@ namespace MobileAppServerClient
     public class ServerResponse
     {
         public virtual double ResponseLenght { get; set; }
+        public virtual double PercentUsage { get; set; }
         public string FileState { get; set; }
         public int Type { get; set; }
         public int Status { get; set; }
