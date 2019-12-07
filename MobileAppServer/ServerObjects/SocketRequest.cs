@@ -30,6 +30,12 @@ namespace MobileAppServer.ServerObjects
             requestParameters.Add(parameter);
         }
 
+        public RequestParameter FindParameter(string parameterName)
+        {
+            var parameter = requestParameters.FirstOrDefault(p => p.Name.Equals(parameterName));
+            return parameter;
+        }
+
         public ReadOnlyCollection<RequestParameter> Parameters
         {
             get
