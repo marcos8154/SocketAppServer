@@ -9,12 +9,11 @@ namespace MobileAppServer.Security
     public sealed class ServerUser
     {
         public ServerUser(string identifier, string name, 
-            string email, string password, string organization)
+            string email, string organization)
         {
             Identifier = identifier;
             Name = name;
             Email = email;
-            Password = password;
             Organization = organization;
             Roles = new List<UserRole>();
         }
@@ -22,7 +21,6 @@ namespace MobileAppServer.Security
         public string Identifier { get; private set; }
         public string Name { get; private set; }
         public string Email { get; private set; }
-        private string Password { get; set; }
         public string Organization { get; private set; }
 
         public override string ToString()
@@ -31,11 +29,6 @@ namespace MobileAppServer.Security
                 return Name;
             else
                 return $"{Name}@{Organization}";
-        }
-
-        public string RevealPassword()
-        {
-            return Password;
         }
 
         internal List<UserRole> Roles { get; set; }
