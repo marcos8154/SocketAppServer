@@ -92,6 +92,7 @@
             this.txAddress.Name = "txAddress";
             this.txAddress.Size = new System.Drawing.Size(244, 20);
             this.txAddress.TabIndex = 2;
+            this.txAddress.Text = "localhost";
             // 
             // label2
             // 
@@ -172,12 +173,13 @@
             // 
             // lbBytes
             // 
+            this.lbBytes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbBytes.AutoSize = true;
             this.lbBytes.Location = new System.Drawing.Point(244, 412);
             this.lbBytes.Name = "lbBytes";
-            this.lbBytes.Size = new System.Drawing.Size(195, 13);
+            this.lbBytes.Size = new System.Drawing.Size(177, 13);
             this.lbBytes.TabIndex = 6;
-            this.lbBytes.Text = "Bytes used: 4859 (0,9% of server buffer)";
+            this.lbBytes.Text = "Bytes used: 0 (0,0% of server buffer)";
             this.lbBytes.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbBytes.Visible = false;
             // 

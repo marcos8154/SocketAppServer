@@ -11,6 +11,19 @@ namespace MobileAppServer.ServerObjects
     {
         internal Socket Client { get; set; }
 
+        public SocketRequest()
+        {
+
+        }
+
+        internal SocketRequest(IController controller,
+            string action, List<RequestParameter> parameters)
+        {
+            Controller = controller;
+            Action = action;
+            requestParameters = parameters;
+        }
+
         private List<RequestParameter> requestParameters = new List<RequestParameter>();
         internal void AddParameter(RequestParameter parameter)
         {
@@ -21,6 +34,8 @@ namespace MobileAppServer.ServerObjects
         {
             get
             {
+                if (requestParameters == null)
+                    requestParameters = new List<RequestParameter>();
                 return new ReadOnlyCollection<RequestParameter>(requestParameters);
             }
         }
@@ -123,10 +138,11 @@ Operation has stopped.";
         {
             try
             {
+                /*
                 if (response.Type == 1)
                 {
                     byte[] file = (byte[])response.Content;
-                    response.Content = null;
+              //      response.Content = response.Content;
                     response.FileState = (file == null
                         ? "EOF"
                         : "BOF");
@@ -137,7 +153,7 @@ Operation has stopped.";
                         SendBytes(file);
                     return;
                 }
-
+                */
                 string json = JsonConvert.SerializeObject(response);
                 byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(json);
                 SendBytes(resultData);

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -70,6 +71,20 @@ namespace MobileAppServerTest
             string controller = txController.Text;
             string action = txAction.Text;
 
+            if (controller.Equals("ServerInfoController") &&
+                action.Equals("DownloadFile"))
+            {
+                DownloadFile(controller, action, list);
+                Result = new OperationResult()
+                {
+                    Status = 600,
+                    Entity = "",
+                    Message = "File saved"
+                };
+                Close();
+                return;
+            }
+
             SaveCache();
 
             OperationResult res = await Task.Run(() =>
@@ -83,7 +98,7 @@ namespace MobileAppServerTest
 
                     client.SendRequest(rb);
 
-                    var result =  client.GetResult();
+                    var result = client.GetResult();
                     ServerResponse = client.Response;
                     return result;
                 }
@@ -96,6 +111,37 @@ namespace MobileAppServerTest
 
             Result = res;
             Close();
+        }
+
+        private void DownloadFile(string controller, string action, List<ServerRequestParameter> list)
+        {
+            byte[] res;
+
+            try
+            {
+                Client client = new Client();
+                RequestBody rb = RequestBody.Create(controller, action);
+                foreach (var parameter in list)
+                    rb.AddParameter(parameter.Key, parameter.Value);
+
+                client.SendRequest(rb);
+                res = client.GetResultFile();
+                ServerResponse = client.Response;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: \n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.ShowDialog();
+
+            if (string.IsNullOrEmpty(dialog.FileName))
+                return;
+
+            
+            File.WriteAllBytes(dialog.FileName, res);
         }
     }
 }

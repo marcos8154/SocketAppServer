@@ -10,7 +10,7 @@ namespace MobileAppServer
         {
             //create server
             Server server = new Server();
-      //      server.RegisterInterceptor(new Class1());
+
             //set port
             server.Port = 4000;
 
@@ -21,7 +21,7 @@ namespace MobileAppServer
             server.IsSingleThreaded = false;
 
             //Buffer-Size input for server
-            server.BufferSize = 4096;
+            server.BufferSize = 400000;
 
             //server global encoding for requests and responses
             server.ServerEncoding = Encoding.UTF8;

@@ -143,8 +143,8 @@ Parameters: ";
                         ? ResponseStatus.SUCCESS
                         : ResponseStatus.ERROR);
 
-                    request.ProcessResponse(ActionResult.Json(handleResult.Data,
-                        ResponseStatus.SUCCESS, handleResult.Message), socket);
+                    request.ProcessResponse(ActionResult.Json(
+                        new OperationResult("", response, handleResult.Message), response, handleResult.Message), socket);
                     return false;
                 }
             }
@@ -194,19 +194,19 @@ Parameters: ";
                 //GLOBAL Interceptors
                 var globalInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals("") && i.ControllerName.Equals("")).ToList();
-                if (!PreHandleInterceptors(globalInterceptors, request))
+                if (!PreHandleInterceptors(globalInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
                     return string.Empty;
 
                 //CONTROLLER (all actions) Interceptors
                 var controllerInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals("") && i.ControllerName.Equals(controller.GetType().Name)).ToList();
-                if (!PreHandleInterceptors(controllerInterceptors, request))
+                if (!PreHandleInterceptors(controllerInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
                     return string.Empty;
 
                 //CONTROLLER (specific action) Interceptors
                 var controllerActionInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals(method.Name) && i.ControllerName.Equals(controller.GetType().Name)).ToList();
-                if (!PreHandleInterceptors(controllerActionInterceptors, request))
+                if (!PreHandleInterceptors(controllerActionInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
                     return string.Empty;
 
                 object[] methodParameters = new object[request.Parameters.Count];

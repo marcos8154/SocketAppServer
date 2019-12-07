@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MobileAppServer.Security;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -45,6 +46,12 @@ namespace MobileAppServer.ServerObjects
         public bool IsSingleThreaded { get; set; }
         public int MaxThreadsCount { get; set; }
 
+        public Server()
+        {
+            Interceptors = new List<IHandlerInterceptor>();
+            DependencyInjectorMakers = new List<IDependencyInjectorMaker>();
+        }
+
         public ILoggerWrapper Logger { get; private set; }
 
         public void SetDefaultLoggerWrapper(ILoggerWrapper wrapper)
@@ -76,7 +83,7 @@ namespace MobileAppServer.ServerObjects
 
             RegisterController("ServerInfoController", typeof(ServerInfoController));
             GlobalInstance = this;
-            
+
             Console.WriteLine($"Server started with {BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
@@ -85,9 +92,33 @@ namespace MobileAppServer.ServerObjects
 
         public void RegisterInterceptor(IHandlerInterceptor interceptor)
         {
-            if (Interceptors == null)
-                Interceptors = new List<IHandlerInterceptor>();
             Interceptors.Add(interceptor);
+        }
+
+        public IServerUserRepository UserRepository { get; private set; }
+        public int TokenLifeTime { get; private set; }
+        public string TokenCryptPassword { get; private set; }
+        public void EnableSecurity(IServerUserRepository repository,
+            int tokenLifetime = 3, string tokenCryptPassword = "")
+        {
+            TokenCryptPassword = tokenCryptPassword;
+            UserRepository = repository;
+            TokenLifeTime = tokenLifetime;
+
+            RegisterController("AuthorizationController", typeof(AuthorizationController));
+
+            List<IHandlerInterceptor> list = new List<IHandlerInterceptor>();
+            if (Interceptors.Count > 0)
+            {
+                Interceptors.ForEach(i => list.Add(i));
+                Interceptors.Clear();
+            }
+
+            RegisterInterceptor(new SecurityTokenInterceptor());
+            RegisterInterceptor(new UserRoleValidationInterceptor());
+
+            if (list.Count > 0)
+                list.ForEach(i => RegisterInterceptor(i));
         }
 
         public void RegisterDependencyInjectorMaker(IDependencyInjectorMaker injectorMaker)
@@ -139,6 +170,9 @@ namespace MobileAppServer.ServerObjects
         public delegate void StartServer();
         public event StartServer ServerStarted;
 
+        public delegate void Reboot();
+        public event Reboot RebootRequest;
+
         public void Start(bool waitForUserTypeExit = true)
         {
             if (Started)
@@ -157,13 +191,15 @@ namespace MobileAppServer.ServerObjects
             sw.Stop();
             LogController.WriteLog(new ServerLog($"Server started in {sw.ElapsedMilliseconds}ms", "Server", "Start"));
 
-            Console.WriteLine("Type 'exit' to stop...");
+            Console.WriteLine("Type 'exit' to stop; 'reboot' to send reboot request event...");
             string line = "";
 
             if (waitForUserTypeExit)
                 while (line != "exit")
                 {
                     line = Console.ReadLine();
+                    if (line == "reboot")
+                        RebootRequest?.Invoke();
                 }
         }
 
@@ -187,6 +223,8 @@ namespace MobileAppServer.ServerObjects
             ServerSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
             ServerSocket.Listen(0);
             ServerSocket.BeginAccept(AcceptCallback, null);
+
+            RebootRequest?.Invoke();
         }
 
         private object lockAccept = new object();

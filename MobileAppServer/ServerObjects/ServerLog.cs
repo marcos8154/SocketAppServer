@@ -23,14 +23,14 @@ namespace MobileAppServer.ServerObjects
         [JsonProperty]
         public ServerLogType Type { get; internal set; }
 
-        internal ServerLog(string logText, ServerLogType type = ServerLogType.INFO)
+        public ServerLog(string logText, ServerLogType type = ServerLogType.INFO)
         {
             EventDate = DateTime.Now;
             LogText = logText;
             Type = type;
         }
 
-        internal ServerLog(string logText, string controller, string action, ServerLogType type = ServerLogType.INFO)
+        public ServerLog(string logText, string controller, string action, ServerLogType type = ServerLogType.INFO)
         {
             LogText = logText;
             ControllerName = controller;

@@ -93,7 +93,9 @@ namespace MobileAppServer.ServerObjects
         {
             lock (CacheList)
             {
-                Console.WriteLine($"Removendo {cache.Key}...");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine($"Removing cache entry: '{cache.Key}'...");
+                Console.ForegroundColor = ConsoleColor.Gray;
                 CacheList.Remove(cache);
                 cache = null;
             }

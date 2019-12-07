@@ -80,6 +80,18 @@ MAXPACKETSIZE={maxPacketSize}";
 
         public ServerResponse Response { get; private set; }
 
+        public byte[] GetResultFile()
+        {
+            ServerResponse response = ReadResponse();
+            if (response.Status == 500)
+                throw new Exception(response.Message);
+
+            Response = response;
+            byte[] res =  Convert.FromBase64String(response.Content.ToString());
+            Close();
+            return res;
+        }
+
         public OperationResult GetResult(Type entityType = null)
         {
             ServerResponse response = ReadResponse();
@@ -137,10 +149,7 @@ MAXPACKETSIZE={maxPacketSize}";
                 if (response.Type == 1)
                 {
                     if (response.FileState == "BOF")
-                        response.Content = ReceiveBytes();
-
-                    response.Message = Encoding.ASCII.GetString((byte[])response.Content);
-                    File.WriteAllBytes(@"C:\Temp\img2.png", (byte[])response.Content);
+                        response.Content = Encoding.GetBytes(response.Content.ToString());;
                 }
                 return response;
             }

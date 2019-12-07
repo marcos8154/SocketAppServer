@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,11 +51,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Security\Crypto.cs" />
+    <Compile Include="Security\IUserServerRepository.cs" />
+    <Compile Include="Security\AuthorizationController.cs" />
+    <Compile Include="Security\SecurityTokenInterceptor.cs" />
+    <Compile Include="Security\ServerToken.cs" />
+    <Compile Include="Security\ServerUser.cs" />
+    <Compile Include="Security\TokenRepository.cs" />
+    <Compile Include="Security\UserRole.cs" />
+    <Compile Include="Security\UserRoleValidationInterceptor.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />
     <Compile Include="ServerObjects\CacheRepository.cs" />
     <Compile Include="ServerObjects\ControllerInfo.cs" />
     <Compile Include="ServerObjects\ControllerRegister.cs" />
+    <Compile Include="ServerObjects\CPUID.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
     <Compile Include="ServerObjects\IDependencyInjectorMaker.cs" />
     <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
@@ -87,6 +98,9 @@
   <ItemGroup>
     <Content Include="Mappings\HowToMap.xml">
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Mappings\AuthorizationController.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Mappings\ServerInfoController.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

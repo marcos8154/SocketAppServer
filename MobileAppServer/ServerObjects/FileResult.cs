@@ -13,7 +13,8 @@ namespace MobileAppServer.ServerObjects
         {
             try
             {
-                this.Content = System.IO.File.ReadAllBytes(filePath);
+                byte[] bytes = System.IO.File.ReadAllBytes(filePath);
+                this.Content = Convert.ToBase64String(bytes);
             }
             catch(Exception ex)
             {

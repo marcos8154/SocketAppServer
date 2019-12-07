@@ -13,6 +13,7 @@ namespace MobileAppServerTest
         {
             InitializeComponent();
             txResult.ScrollBars = ScrollBars.Both;
+            txPort.Focus();
         }
 
         private void btConnect_Click(object sender, EventArgs e)
@@ -81,7 +82,10 @@ namespace MobileAppServerTest
             if (test.Result != null)
             {
                 lbBytes.Visible = true;
-                lbBytes.Text = $"Bytes used: {test.ServerResponse.ResponseLenght} ({test.ServerResponse.PercentUsage.ToString("N2")}% of server buffer)";
+                if (test.ServerResponse != null)
+                    lbBytes.Text = $"Bytes used: {test.ServerResponse.ResponseLenght} ({test.ServerResponse.PercentUsage.ToString("N2")}% of server buffer)";
+                else
+                    lbBytes.Text = "";
                 if (ckSaveToFile.Checked)
                 {
                     if (!Directory.Exists(@".\ResponseData\"))
