@@ -4,34 +4,37 @@ using System.Linq;
 
 namespace MobileAppServer.ServerObjects
 {
-    public interface ICache
-    {
-
-    }
-
-    public class Cache<T> : ICache
+    public class Cache<T>
     {
         public delegate void ExpireEvent(Cache<T> cache);
         public event ExpireEvent Expired;
 
         public string Key { get; private set; }
         public T Value { get; set; }
+        public string[] MethodsToInvokeOnExpire { get; set; }
 
-        private System.Timers.Timer Timer { get; set; }
+        public System.Timers.Timer Timer { get; set; }
 
         private int Elapsed = 0;
         private int Limit = 0;
 
-        public Cache(string key, T value, int timeToLive)
+        public Cache(string key, T value, int timeToLive,
+            bool eternal = false,
+            string[] methodsToInvokeOnExpire = null)
         {
+            MethodsToInvokeOnExpire = methodsToInvokeOnExpire;
             Limit = timeToLive;
             Key = key;
             Value = value;
-            Timer = new System.Timers.Timer();
-            Timer.Interval = 1000;
-            Timer.AutoReset = true; ;
-            Timer.Elapsed += Timer_Elapsed;
-            Timer.Start();
+
+            if (!eternal)
+            {
+                Timer = new System.Timers.Timer();
+                Timer.Interval = 1000;
+                Timer.AutoReset = true; ;
+                Timer.Elapsed += Timer_Elapsed;
+                Timer.Start();
+            }
         }
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -55,11 +58,14 @@ namespace MobileAppServer.ServerObjects
     public class CacheRepository<T>
     {
         private static List<Cache<T>> CacheList = new List<Cache<T>>();
-
+        private static object lck = new object();
         public static Cache<T> Get(string key)
         {
-            Cache<T> result = CacheList.FirstOrDefault(e => e.Key.Equals(key));
-            return result;
+            lock (lck)
+            {
+                Cache<T> result = CacheList.FirstOrDefault(e => e.Key.Equals(key));
+                return result;
+            }
         }
 
         public static void ExpireAll(string startKey)
@@ -70,32 +76,48 @@ namespace MobileAppServer.ServerObjects
                 Cache_Expired(cache);
         }
 
-        public static void Set(string key, T entity, int time)
+        public static void Set(string key, T entity, int time,
+            bool eternal = false,
+            string[] methodsToInvokeOnExpire = null)
         {
-            if (entity == null)
-                return;
-
-            if (Get(key) != null)
+            lock (lck)
             {
-                Get(key).Value = entity;
-                return;
-            }
+                if (entity == null)
+                    return;
 
-            lock (CacheList)
-            {
-                Cache<T> cache = new Cache<T>(key, entity, time);
-                cache.Expired += Cache_Expired;
-                CacheList.Add(cache);
+                if (Get(key) != null)
+                {
+                    Get(key).Value = entity;
+                    return;
+                }
+
+                lock (CacheList)
+                {
+                    Cache<T> cache = new Cache<T>(key, entity, time, eternal, methodsToInvokeOnExpire);
+                    cache.Expired += Cache_Expired;
+                    CacheList.Add(cache);
+                }
             }
         }
 
         private static void Cache_Expired(Cache<T> cache)
         {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"Removing cache entry '{cache.Key}' from Cache Repository...");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+
             lock (CacheList)
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine($"Removing cache entry: '{cache.Key}'...");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                if (cache.MethodsToInvokeOnExpire != null)
+                {
+                    try
+                    {
+                        foreach (string method in cache.MethodsToInvokeOnExpire)
+                            cache.Value.GetType().GetMethod(method).Invoke(cache.Value, null);
+                    }
+                    catch { }
+                }
+                
                 CacheList.Remove(cache);
                 cache = null;
             }
