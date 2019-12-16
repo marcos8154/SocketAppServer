@@ -30,7 +30,7 @@ Now let's implement a basic code that makes our server startup
             //define if server is Single-Threaded; if true, MaxThreadsCount is ignored
             server.IsSingleThreaded = false;
 
-            //Buffer-Size input for server
+            //Buffer-Size output for server
             server.BufferSize = 4096;
 
             //server global encoding for requests and responses
@@ -44,9 +44,6 @@ Now let's implement a basic code that makes our server startup
 
             //start server :D
             server.Start();
-
-            //send Reboot Signal call to CoreServer
-            server.SendReboot();
         }
 ```
 
