@@ -1,4 +1,5 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.ScheduledServices;
+using MobileAppServer.ServerObjects;
 using System.Reflection;
 using System.Text;
 
@@ -28,9 +29,7 @@ namespace MobileAppServer
 
             //start server :D
             server.Start();
-
-            //send Reboot Signal call to CoreServer
-            server.SendReboot();
+            
         }
     }
 }

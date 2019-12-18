@@ -176,7 +176,7 @@ namespace MobileAppServer.ServerObjects
                         {
                             currentObjRpAlias = objectRequestParameter.Alias;
 
-                            ModelRegister model = Server.RegisteredModels.FirstOrDefault(m => m.ModeName == objectRequestParameter.TypeName);
+                            ModelRegister model = Server.GlobalInstance.RegisteredModels.FirstOrDefault(m => m.ModeName == objectRequestParameter.TypeName);
                             if (model == null)
                             {
                                 LogController.WriteLog(new ServerLog($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.", controller.GetType().Name, action, ServerLogType.ERROR));

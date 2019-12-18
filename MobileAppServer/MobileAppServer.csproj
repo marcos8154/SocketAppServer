@@ -51,6 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ScheduledServices\ScheduledTask.cs" />
+    <Compile Include="ScheduledServices\ScheduledTaskInterval.cs" />
+    <Compile Include="ScheduledServices\ScheduleNextEvent.cs" />
+    <Compile Include="ScheduledServices\ScheduleNextEventsRepository.cs" />
+    <Compile Include="ScheduledServices\ScheduledTaskExecutorService.cs" />
     <Compile Include="Security\Crypto.cs" />
     <Compile Include="Security\IUserServerRepository.cs" />
     <Compile Include="Security\AuthorizationController.cs" />

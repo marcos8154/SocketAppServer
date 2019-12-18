@@ -67,7 +67,7 @@ namespace MobileAppServer.ServerObjects
                 if (controllerName.Equals("ServerInfoController"))
                     injectorMaker = null;
 
-                ControllerRegister register = Server.RegisteredControllers.FirstOrDefault(c => c.Name.Equals(controllerName));
+                ControllerRegister register = Server.GlobalInstance.RegisteredControllers.FirstOrDefault(c => c.Name.Equals(controllerName));
 
                 IController controller = (injectorMaker == null
                     ? (IController)Activator.CreateInstance(register.Type)

@@ -1,4 +1,5 @@
-﻿using MobileAppServer.Security;
+﻿using MobileAppServer.ScheduledServices;
+using MobileAppServer.Security;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,10 +14,12 @@ namespace MobileAppServer.ServerObjects
 {
     public class Server
     {
-        internal static List<ControllerRegister> RegisteredControllers { get; set; }
-        internal static List<ModelRegister> RegisteredModels { get; set; }
+        internal List<ControllerRegister> RegisteredControllers { get; set; }
+        internal List<ModelRegister> RegisteredModels { get; set; }
         internal List<IHandlerInterceptor> Interceptors { get; private set; }
         internal List<IDependencyInjectorMaker> DependencyInjectorMakers { get; private set; }
+        internal List<ScheduledTask> ScheduledTasks { get; private set; }
+
 
         public static Server GlobalInstance { get; private set; }
 
@@ -88,11 +91,26 @@ namespace MobileAppServer.ServerObjects
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
                 Console.WriteLine($"Server max threads count: " + MaxThreadsCount);
+
+
         }
 
         public void RegisterInterceptor(IHandlerInterceptor interceptor)
         {
             Interceptors.Add(interceptor);
+        }
+
+        public void AddScheduledTask(ScheduledTask task)
+        {
+            if (string.IsNullOrEmpty(task.TaskName))
+                throw new Exception("Task name is empty");
+            if (task.Interval == null)
+                throw new Exception("Task interval is null");
+
+            if (ScheduledTasks == null)
+                ScheduledTasks = new List<ScheduledTask>();
+
+            ScheduledTasks.Add(task);
         }
 
         public IServerUserRepository UserRepository { get; private set; }
@@ -173,6 +191,18 @@ namespace MobileAppServer.ServerObjects
         public delegate void Reboot();
         public event Reboot RebootRequest;
 
+        private void RunServerStartupTasks()
+        {
+            if (ScheduledTasks != null)
+                ScheduledTasks
+                    .Where(t => t.RunOnServerStart)
+                    .ToList()
+                    .ForEach(t =>
+                    {
+                        new ScheduledTaskExecutorService().Execute(t);
+                    });
+        }
+
         public void Start(bool waitForUserTypeExit = true)
         {
             if (Started)
@@ -187,7 +217,7 @@ namespace MobileAppServer.ServerObjects
             ServerSocket.BeginAccept(AcceptCallback, null);
             Started = true;
             ServerStarted?.Invoke();
-
+            RunServerStartupTasks();
             sw.Stop();
             LogController.WriteLog(new ServerLog($"Server started in {sw.ElapsedMilliseconds}ms", "Server", "Start"));
 
