@@ -3,6 +3,18 @@ A simple, lightweight and fast MVC-like Socket server
 
 
 **How to Setup**
+
+First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.4.3** (or higher)
+
+The framework will add **NewtonSoft.Json** together, and also create a folder called **"Mappings"** in your project.
+
+The Mappings folder will contain all mapping XMLs for your server Controllers.
+
+**ATTENTION:** *ALL XML's in this folder must be copied to the project binaries folder at compile time.
+To do this, all XML files in the folder must be marked **"Copy if newer"** in the file properties window.*
+
+Now let's implement a basic code that makes our server startup
+
 ```C#
         public static void Main(string[] args)
         {
@@ -18,7 +30,7 @@ A simple, lightweight and fast MVC-like Socket server
             //define if server is Single-Threaded; if true, MaxThreadsCount is ignored
             server.IsSingleThreaded = false;
 
-            //Buffer-Size input for server
+            //Buffer-Size output for server
             server.BufferSize = 4096;
 
             //server global encoding for requests and responses
@@ -32,9 +44,6 @@ A simple, lightweight and fast MVC-like Socket server
 
             //start server :D
             server.Start();
-
-            //send Reboot Signal call to CoreServer
-            server.SendReboot();
         }
 ```
 
