@@ -14,6 +14,20 @@ namespace MobileAppServer.ServerObjects
         public string Action { get; set; }
 
         public string Message { get; set; }
+
+        public ServerAlert(string controller, string action,
+            string message)
+        {
+            Date = DateTime.Now;
+            Controller = controller;
+            Action = action;
+            Message = message;
+        }
+
+        public ServerAlert()
+        {
+            Date = DateTime.Now;
+        }
     }
 
     public class ServerAlertManager

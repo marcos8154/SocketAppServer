@@ -126,7 +126,7 @@ Parameters: ";
                         msg += ex.InnerException.InnerException.Message;
                 }
                 new SocketRequest().ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR,
-                    $@"Um erro de sintaxe foi detectado ao converter o corpo da requisição para um objeto do servidor. 
+                    $@"A syntax error was detected while converting the request body to a server object. 
 {msg}"), socket);
             }
         }
@@ -156,9 +156,7 @@ Parameters: ";
         MethodInfo method = null;
         public override object DoInBackGround(int p)
         {
-
             SocketRequest request = null;
-
             try
             {
                 request = GetRequestSocket();
@@ -218,6 +216,10 @@ Parameters: ";
                 w.Start();
                 ActionResult result = (ActionResult)method.Invoke(controller, methodParameters);
                 w.Stop();
+
+                if (w.ElapsedMilliseconds > 10000) 
+                    ServerAlertManager.CreateAlert(new ServerAlert(request.Controller.GetType().Name, request.Action,
+                        $"The action it is taking considerable time to execute ({w.ElapsedMilliseconds} ms). Review your code to improve performance.'"));
 
                 ActionLocker.ReleaseLock(controller, method.Name);
 

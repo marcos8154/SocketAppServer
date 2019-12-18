@@ -26,11 +26,15 @@ namespace MobileAppServer.ServerObjects
 
         public static void ReleaseLock(IController controller, string actionName)
         {
-            var lckd = lockedActions.FirstOrDefault(l => l.Key.GetType().Name.Equals(controller.GetType().Name) &&
-               l.Value.Equals(actionName));
+            try
+            {
+                var lckd = lockedActions.FirstOrDefault(l => l.Key.GetType().Name.Equals(controller.GetType().Name) &&
+                   l.Value.Equals(actionName));
 
-            if (lckd.Key != null)
-                lockedActions.Remove(lckd);
+                if (lckd.Key != null)
+                    lockedActions.Remove(lckd);
+            }
+            catch { }
         }
     }
 }

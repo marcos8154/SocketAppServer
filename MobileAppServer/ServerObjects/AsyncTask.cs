@@ -38,6 +38,11 @@ namespace MobileAppServer.ServerObjects
             return double.Parse(GetValue(key).ToString());
         }
 
+        public bool GetBool(string key)
+        {
+            return bool.Parse(GetValue(key).ToString());
+        }
+
         public string GetString(string key)
         {
             return GetValue(key).ToString();
@@ -77,6 +82,11 @@ namespace MobileAppServer.ServerObjects
         public int GetInt(string key)
         {
             return int.Parse(GetValue(key).ToString());
+        }
+
+        public bool GetBool(string key)
+        {
+            return bool.Parse(GetValue(key).ToString());
         }
 
         public double GetDouble(string key)

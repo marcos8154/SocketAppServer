@@ -87,6 +87,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerObjects\AsyncTask.cs" />
     <Compile Include="ServerObjects\IController.cs" />
+    <Compile Include="ServerObjects\RequestPreProcess.cs" />
     <Compile Include="ServerObjects\RequestProccess.cs" />
     <Compile Include="ServerObjects\ResponseStatus.cs" />
     <Compile Include="ServerObjects\Server.cs" />
