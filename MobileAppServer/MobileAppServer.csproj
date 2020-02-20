@@ -38,6 +38,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MobileAppServerClient, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MobileAppServer.Client.1.2.5\lib\net45\MobileAppServerClient.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -51,6 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LoadBalancingServices\INotifiableSubServerRequiriment.cs" />
+    <Compile Include="LoadBalancingServices\LoadBalanceConfigurator.cs" />
+    <Compile Include="LoadBalancingServices\LoadBalanceServer.cs" />
+    <Compile Include="LoadBalancingServices\SubServer.cs" />
     <Compile Include="ScheduledServices\ScheduledTask.cs" />
     <Compile Include="ScheduledServices\ScheduledTaskInterval.cs" />
     <Compile Include="ScheduledServices\ScheduleNextEvent.cs" />
@@ -67,6 +74,7 @@
     <Compile Include="Security\UserRoleValidationInterceptor.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />
+    <Compile Include="ServerObjects\BasicControllerRequestProcess.cs" />
     <Compile Include="ServerObjects\CacheRepository.cs" />
     <Compile Include="ServerObjects\ControllerInfo.cs" />
     <Compile Include="ServerObjects\ControllerRegister.cs" />
@@ -76,6 +84,7 @@
     <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
     <Compile Include="ServerObjects\ILoggerWrapper.cs" />
     <Compile Include="ServerObjects\InterceptorHandleResult.cs" />
+    <Compile Include="ServerObjects\IBasicServerController.cs" />
     <Compile Include="ServerObjects\JsonResult.cs" />
     <Compile Include="ServerObjects\LogController.cs" />
     <Compile Include="ServerObjects\ModelRegister.cs" />
@@ -115,6 +124,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

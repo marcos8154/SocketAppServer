@@ -3,4 +3,5 @@
   <RequestMapping value="FullServerInfo"/>
   <RequestMapping value="DownloadFile"/>
   <RequestMapping value="Reboot"/>
+  <RequestMapping value="GetCurrentThreadsCount"/>
 </ControllerMapping>

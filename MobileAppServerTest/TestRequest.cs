@@ -71,8 +71,7 @@ namespace MobileAppServerTest
             string controller = txController.Text;
             string action = txAction.Text;
 
-            if (controller.Equals("ServerInfoController") &&
-                action.Equals("DownloadFile"))
+            if (ckFileResult.Checked)
             {
                 DownloadFile(controller, action, list);
                 Result = new OperationResult()

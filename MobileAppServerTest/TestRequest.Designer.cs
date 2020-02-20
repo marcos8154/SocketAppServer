@@ -40,6 +40,7 @@
             this.valueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.serverRequestParameterBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.button1 = new System.Windows.Forms.Button();
+            this.ckFileResult = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.serverRequestParameterBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -75,7 +76,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(17, 101);
+            this.label4.Location = new System.Drawing.Point(14, 133);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(63, 13);
             this.label4.TabIndex = 3;
@@ -105,10 +106,10 @@
             this.keyDataGridViewTextBoxColumn,
             this.valueDataGridViewTextBoxColumn});
             this.dataGrid.DataSource = this.serverRequestParameterBindingSource;
-            this.dataGrid.Location = new System.Drawing.Point(12, 117);
+            this.dataGrid.Location = new System.Drawing.Point(12, 149);
             this.dataGrid.Name = "dataGrid";
             this.dataGrid.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGrid.Size = new System.Drawing.Size(326, 342);
+            this.dataGrid.Size = new System.Drawing.Size(326, 310);
             this.dataGrid.TabIndex = 6;
             // 
             // keyDataGridViewTextBoxColumn
@@ -138,12 +139,23 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // ckFileResult
+            // 
+            this.ckFileResult.AutoSize = true;
+            this.ckFileResult.Location = new System.Drawing.Point(121, 100);
+            this.ckFileResult.Name = "ckFileResult";
+            this.ckFileResult.Size = new System.Drawing.Size(182, 17);
+            this.ckFileResult.TabIndex = 8;
+            this.ckFileResult.Text = "This action response a FileResult";
+            this.ckFileResult.UseVisualStyleBackColor = true;
+            // 
             // TestRequest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(350, 500);
+            this.Controls.Add(this.ckFileResult);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.dataGrid);
             this.Controls.Add(this.txAction);
@@ -177,5 +189,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.DataGridViewTextBoxColumn keyDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn valueDataGridViewTextBoxColumn;
+        private System.Windows.Forms.CheckBox ckFileResult;
     }
 }

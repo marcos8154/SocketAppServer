@@ -16,6 +16,11 @@ namespace MobileAppServer.ServerObjects
             return ActionResult.Json(true, 600, "Ok");
         }
 
+        public ActionResult GetCurrentThreadsCount()
+        {
+            return ActionResult.Json(RequestProccess.ThreadCount);
+        }
+
         public ActionResult FullServerInfo()
         {
             ServerInfo info = new ServerInfo();

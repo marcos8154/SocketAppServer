@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MobileAppServer.ServerObjects
 {
@@ -47,12 +45,12 @@ namespace MobileAppServer.ServerObjects
                     catch { }
                 }
 
-                if (clientSocket != null)
+                if (ClientSocket != null)
                 {
                     try
                     {
-                        clientSocket.Dispose();
-                        clientSocket = null;
+                        ClientSocket.Dispose();
+                        ClientSocket = null;
                     }
                     catch { }
                 }
@@ -60,17 +58,27 @@ namespace MobileAppServer.ServerObjects
             disposed = true;
         }
 
-        Socket clientSocket = null;
+        private void WaitPendingRequestsCompletations()
+        {
+            while (Server.GlobalInstance.MaxThreadsCount > 0 &&
+                RequestProccess.ThreadCount >= Server.GlobalInstance.MaxThreadsCount)
+            {
+                LogController.WriteLog(new ServerLog("\nNumber of current threads has exceeded the set limit. Waiting for tasks to finish...", ServerLogType.ALERT));
+                Thread.Sleep(300);
+            }
+        }
+
+        internal Socket ClientSocket { get; private set; }
         SocketSession session = null;
 
         public RequestPreProcess(IAsyncResult AR)
         {
-            clientSocket = (Socket)AR.AsyncState;
+            ClientSocket = (Socket)AR.AsyncState;
             int received;
 
             for (int i = 0; i < 3; i++)
             {
-                session = GetSession(clientSocket);
+                session = GetSession(ClientSocket);
                 if (session != null)
                     break;
                 else Thread.Sleep(100);
@@ -84,7 +92,7 @@ namespace MobileAppServer.ServerObjects
 
             try
             {
-                received = clientSocket.EndReceive(AR);
+                received = ClientSocket.EndReceive(AR);
             }
             catch (Exception ex)
             {
@@ -97,13 +105,27 @@ namespace MobileAppServer.ServerObjects
             string uriRequest = Server.GlobalInstance.ServerEncoding.GetString(recBuf);
             string resultText = string.Empty;
 
+            var srv = Server.GlobalInstance;
+            if (srv.IsBasicServerControllerMode)
+            {
+                BasicControllerRequestProcess requestProcess = new BasicControllerRequestProcess(this);
+                if (srv.IsSingleThreaded)
+                    requestProcess.DoInBackGround(uriRequest);
+                else
+                {
+                    WaitPendingRequestsCompletations();
+                    requestProcess.Execute(uriRequest);
+                }
+                return;
+            }
+
             if (string.IsNullOrEmpty(uriRequest))
             {
                 Dispose();
                 return;
             }
 
-            RequestProccess process = new RequestProccess(uriRequest, clientSocket);
+            RequestProccess process = new RequestProccess(uriRequest, ClientSocket);
             process.OnCompleted += Process_OnCompleted;
 
             if (Server.GlobalInstance.IsSingleThreaded)
@@ -113,13 +135,7 @@ namespace MobileAppServer.ServerObjects
             }
             else
             {
-                while (Server.GlobalInstance.MaxThreadsCount > 0 &&
-                   RequestProccess.ThreadCount >= Server.GlobalInstance.MaxThreadsCount)
-                {
-                    LogController.WriteLog(new ServerLog("\nNumber of current threads has exceeded the set limit. Waiting for tasks to finish...", ServerLogType.ALERT));
-                    Thread.Sleep(300);
-                }
-
+                WaitPendingRequestsCompletations();
                 process.Execute(0);
             }
         }

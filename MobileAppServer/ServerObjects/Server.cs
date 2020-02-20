@@ -1,4 +1,5 @@
-﻿using MobileAppServer.ScheduledServices;
+﻿using MobileAppServer.LoadBalancingServices;
+using MobileAppServer.ScheduledServices;
 using MobileAppServer.Security;
 using System;
 using System.Collections.Generic;
@@ -44,10 +45,12 @@ namespace MobileAppServer.ServerObjects
         }
 
         public int BufferSize { get; set; }
-        public int Port = 14555;
+        public int Port { get; set; }
         public int Requests { get; set; }
         public bool IsSingleThreaded { get; set; }
         public int MaxThreadsCount { get; set; }
+
+        public int AttemptsToGetSubServerAvailable { get; private set; }
 
         public Server()
         {
@@ -91,8 +94,6 @@ namespace MobileAppServer.ServerObjects
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
                 Console.WriteLine($"Server max threads count: " + MaxThreadsCount);
-
-
         }
 
         public void RegisterInterceptor(IHandlerInterceptor interceptor)
@@ -137,6 +138,17 @@ namespace MobileAppServer.ServerObjects
 
             if (list.Count > 0)
                 list.ForEach(i => RegisterInterceptor(i));
+        }
+
+        public LoadBalanceConfigurator EnableLoadBalanceServer(int maxAttemptsToGetAvailableSubServer = 3,
+            bool cacheResultsForUnreachableServers = false)
+        {
+            EnableBasicServerController(new LoadBalanceServer());
+            if (cacheResultsForUnreachableServers)
+                LoadBalanceServer.EnableCachedResultsForUnreachableServers();
+
+            AttemptsToGetSubServerAvailable = maxAttemptsToGetAvailableSubServer;
+            return new LoadBalanceConfigurator();
         }
 
         public void RegisterDependencyInjectorMaker(IDependencyInjectorMaker injectorMaker)
@@ -203,6 +215,15 @@ namespace MobileAppServer.ServerObjects
                     });
         }
 
+        public Type BasicServerControllerType { get; private set; }
+        public bool IsBasicServerControllerMode { get; private set; }
+
+        public void EnableBasicServerController(IBasicServerController singleServerController)
+        {
+            BasicServerControllerType = singleServerController.GetType();
+            IsBasicServerControllerMode = true;
+        }
+
         public void Start(bool waitForUserTypeExit = true)
         {
             if (Started)
@@ -213,6 +234,7 @@ namespace MobileAppServer.ServerObjects
 
             Initialize();
             ServerSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
+
             ServerSocket.Listen(0);
             ServerSocket.BeginAccept(AcceptCallback, null);
             Started = true;
@@ -220,7 +242,7 @@ namespace MobileAppServer.ServerObjects
             RunServerStartupTasks();
             sw.Stop();
             LogController.WriteLog(new ServerLog($"Server started in {sw.ElapsedMilliseconds}ms", "Server", "Start"));
-
+            LogController.WriteLog(new ServerLog($"Running at port {Port}"));
             Console.WriteLine("Type 'exit' to stop; 'reboot' to send reboot request event...");
             string line = "";
 

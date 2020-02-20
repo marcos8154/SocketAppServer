@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Text;
 
 namespace MobileAppServer.ServerObjects
 {
@@ -11,8 +13,15 @@ namespace MobileAppServer.ServerObjects
         {
             try
             {
-                string json = JsonConvert.SerializeObject(obj);
-          
+                StringBuilder sb = new StringBuilder();
+                StringWriter writer = new StringWriter(sb);
+                using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                {
+                    var serializer = new JsonSerializer();
+                    serializer.Serialize(writer, obj);
+                }
+
+                string json = sb.ToString();//JsonConvert.SerializeObject(obj);
                 this.Content = json;
             }
             catch (Exception ex)

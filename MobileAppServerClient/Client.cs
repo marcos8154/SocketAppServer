@@ -56,7 +56,12 @@ MAXPACKETSIZE={maxPacketSize}";
 
             ConnectToServer(conf.SERVER, int.Parse(conf.PORT),
                 Encoding.GetEncoding(conf.ENCODING), int.Parse(conf.MAXPACKETSIZE));
-     
+        }
+
+        public Client(string server, int port,
+            Encoding encoding, int packetSize, int maxAttempts = 10)
+        {
+            ConnectToServer(server, port, encoding, packetSize, maxAttempts);
         }
 
         public void ConnectToServer(string server,
@@ -82,40 +87,56 @@ MAXPACKETSIZE={maxPacketSize}";
 
         public byte[] GetResultFile()
         {
-            ServerResponse response = ReadResponse();
-            if (response.Status == 500)
-                throw new Exception(response.Message);
+            try
+            {
+                ServerResponse response = ReadResponse();
+                if (response.Status == 500)
+                    throw new Exception(response.Message);
 
-            Response = response;
-            byte[] res =  Convert.FromBase64String(response.Content.ToString());
-            Close();
-            return res;
+                Response = response;
+                byte[] res = Convert.FromBase64String(response.Content.ToString());
+                Close();
+                return res;
+            }
+            catch
+            {
+                Close();
+                return null;
+            }
         }
 
         public OperationResult GetResult(Type entityType = null)
         {
-            ServerResponse response = ReadResponse();
-            if (response.Status == 500)
-                throw new Exception(response.Message);
-
-            Response = response;
-            OperationResult result = (OperationResult)JsonConvert.DeserializeObject(response.Content.ToString(), typeof(OperationResult));
-
-            if (entityType != null)
+            try
             {
-                try
-                {
-                    string entityJson = result.Entity.ToString();
-                    Object entity = JsonConvert.DeserializeObject(entityJson, entityType);
-                    result.Entity = entity;
-                }
-                catch (Exception ex)
-                {
+                ServerResponse response = ReadResponse();
+                if (response.Status == 500)
+                    throw new Exception(response.Message);
 
+                Response = response;
+                OperationResult result = (OperationResult)JsonConvert.DeserializeObject(response.Content.ToString(), typeof(OperationResult));
+
+                if (entityType != null)
+                {
+                    try
+                    {
+                        string entityJson = result.Entity.ToString();
+                        Object entity = JsonConvert.DeserializeObject(entityJson, entityType);
+                        result.Entity = entity;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
+                Close();
+                return result;
             }
-            Close();
-            return result;
+            catch
+            {
+                Close();
+                throw;
+            }
         }
 
         public void SendRequest(RequestBody body)
