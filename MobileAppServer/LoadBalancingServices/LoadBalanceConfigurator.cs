@@ -8,7 +8,7 @@ namespace MobileAppServer.LoadBalancingServices
 {
     public  class LoadBalanceConfigurator
     {
-        public LoadBalanceConfigurator EnableSubServerAutoRequirement(INotifiableSubServerRequirement notifiable,
+        public LoadBalanceConfigurator EnableDynamicInstanceAllocationManagement(INotifiableSubServerRequirement notifiable,
             int serversLifetimeInMinutes = 10)
         {
             LoadBalanceServer.EnableSubServerAutoRequirement(notifiable, serversLifetimeInMinutes);
