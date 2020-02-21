@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,6 +35,18 @@ namespace MobileAppServer.ServerObjects
             if (pInfo.ParameterType == typeof(long))
                 return (new RequestParameter(pName, long.Parse(pValue)));
 
+            if (pInfo.ParameterType == typeof(Guid))
+                return new RequestParameter(pName, Guid.Parse(pValue));
+
+            if (pInfo.ParameterType == typeof(List<>) ||
+               pInfo.ParameterType.Name.Contains("List"))
+            {
+                var type = pInfo.ParameterType.GenericTypeArguments[0];
+                Type typeList = typeof(List<>).MakeGenericType(type);
+                object list = JsonConvert.DeserializeObject(pValue, typeList);
+                return new RequestParameter(pName, list);
+            }
+
             return null;
         }
 
@@ -54,12 +67,20 @@ namespace MobileAppServer.ServerObjects
                 property.SetValue(entity, double.Parse(requestValue), null);
             if (property.PropertyType == typeof(float))
                 property.SetValue(entity, float.Parse(requestValue), null);
-            if (property.PropertyType == typeof(bool))
-                property.SetValue(entity, bool.Parse(requestValue), null);
+            if (property.PropertyType == typeof(List<>) ||
+                property.PropertyType.Name.Contains("List"))
+            {
+                var type = property.PropertyType.GenericTypeArguments[0];
+                Type typeList = typeof(List<>).MakeGenericType(type);
+                object list = JsonConvert.DeserializeObject(requestValue, typeList);
+                property.SetValue(entity, list, null);
+            }
             if (property.PropertyType == typeof(DateTime))
                 property.SetValue(entity, DateTime.Parse(requestValue), null);
             if (property.PropertyType == typeof(double))
                 property.SetValue(entity, double.Parse(requestValue), null);
+            if (property.PropertyType == typeof(Guid))
+                property.SetValue(entity, Guid.Parse(requestValue), null);
         }
 
         internal ObjectRequestParameter GetObjectParameterType(string requestParameter, string actionName,
@@ -74,6 +95,7 @@ namespace MobileAppServer.ServerObjects
                 XmlDocument xml = new XmlDocument();
                 xml.Load(stream);
                 stream.Close();
+                stream.Dispose();
 
                 XmlNode node = FindNode(xml.ChildNodes, "ControllerMapping");
                 foreach (XmlNode requestMappingNode in node.ChildNodes)

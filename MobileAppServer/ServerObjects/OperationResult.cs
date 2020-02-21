@@ -7,7 +7,7 @@ using System.Text;
 namespace MobileAppServer.ServerObjects
 {
 
-    internal class OperationResult
+    public class OperationResult
     {
         public int Status { get; set; }
         public string Message { get; set; }

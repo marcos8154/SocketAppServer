@@ -50,7 +50,7 @@ namespace MobileAppServer.LoadBalancingServices
                 }
             }
 
-            LogController.WriteLog($"Added sub-server node named as '{server.Address}'", ServerLogType.INFO);
+            LogController.WriteLog($"Added sub-server node named as '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
         }
 
@@ -84,7 +84,7 @@ namespace MobileAppServer.LoadBalancingServices
 
         private int GetCurrentThreadCountOnServer(SubServer server, Client client)
         {
-            LogController.WriteLog($"Querying availability on '{server.Address}'", ServerLogType.INFO);
+            LogController.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
             MobileAppServerClient.RequestBody rb = MobileAppServerClient
                 .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
@@ -96,7 +96,7 @@ namespace MobileAppServer.LoadBalancingServices
 
         int attemptsToGetServerAvailable = 0;
 
-        private bool IsServerInavailable(SubServer server)
+        private bool IsServerUnavailable(SubServer server)
         {
             string key = $"unavailable-{server.Address}:{server.Port}";
             Cache<bool> cached = CacheRepository<bool>.Get(key);
@@ -109,14 +109,14 @@ namespace MobileAppServer.LoadBalancingServices
         {
             foreach (SubServer server in SubServers)
             {
-                if (IsServerInavailable(server))
+                if (IsServerUnavailable(server))
                     continue;
 
                 string key = $"unavailable-{server.Address}:{server.Port}";
                 Client client = BuildClient(server);
                 if (client == null)
                 {
-                    LogController.WriteLog($"Sub-server node '{server.Address}' is unreachable", ServerLogType.ALERT);
+                    LogController.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
                     try
                     {
                         client.Close();
@@ -140,13 +140,13 @@ namespace MobileAppServer.LoadBalancingServices
 
                 if (serverCurrentThreadsCount > server.AcceptableProcesses)
                 {
-                    LogController.WriteLog($"Sub-server node '{server.Address}' is too busy", ServerLogType.ALERT);
+                    LogController.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is too busy", ServerLogType.ALERT);
                     //It is not necessary to close the client
                     //because it was already closed when making the request
                     continue;
                 }
 
-                LogController.WriteLog($"Elected sub-server: '{server.Address}'");
+                LogController.WriteLog($"Elected sub-server: '{server.Address}:{server.Port}'");
                 return server;
             }
 
