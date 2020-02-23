@@ -22,6 +22,8 @@ namespace MobileAppServer.ServerObjects
                     break;
                 }
 
+                if (cpuInfo == null)
+                    cpuInfo = string.Empty;
                 CacheRepository<string>.Set(key, cpuInfo, 60);
                 return cpuInfo;
             }

@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EFI\IExtensibleFrameworkInterface.cs" />
     <Compile Include="LoadBalancingServices\INotifiableSubServerRequiriment.cs" />
     <Compile Include="LoadBalancingServices\LoadBalanceConfigurator.cs" />
     <Compile Include="LoadBalancingServices\LoadBalanceServer.cs" />

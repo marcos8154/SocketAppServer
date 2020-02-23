@@ -49,6 +49,7 @@ namespace MobileAppServer.ServerObjects
                 {
                     try
                     {
+                        ClientSocket.Close();
                         ClientSocket.Dispose();
                         ClientSocket = null;
                     }

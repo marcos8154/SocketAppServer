@@ -25,7 +25,6 @@ namespace MobileAppServer
 
             //server global encoding for requests and responses
             server.ServerEncoding = Encoding.UTF8;
-
             //start server :D
             server.Start();
 

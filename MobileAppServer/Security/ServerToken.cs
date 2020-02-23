@@ -79,6 +79,5 @@ namespace MobileAppServer.Security
             }
             else return passwd;
         }
-
     }
 }

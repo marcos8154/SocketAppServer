@@ -1,4 +1,5 @@
-﻿using MobileAppServer.LoadBalancingServices;
+﻿using MobileAppServer.EFI;
+using MobileAppServer.LoadBalancingServices;
 using MobileAppServer.ScheduledServices;
 using MobileAppServer.Security;
 using System;
@@ -20,6 +21,7 @@ namespace MobileAppServer.ServerObjects
         internal List<IHandlerInterceptor> Interceptors { get; private set; }
         internal List<IDependencyInjectorMaker> DependencyInjectorMakers { get; private set; }
         internal List<ScheduledTask> ScheduledTasks { get; private set; }
+        internal List<IExtensibleFrameworkInterface> Extensions { get; private set; }
 
 
         public static Server GlobalInstance { get; private set; }
@@ -65,10 +67,18 @@ namespace MobileAppServer.ServerObjects
             Logger = wrapper;
         }
 
+        public void EnableExtension(IExtensibleFrameworkInterface extension)
+        {
+            if (Extensions == null)
+                Extensions = new List<IExtensibleFrameworkInterface>();
+            Extensions.Add(extension);
+        }
+
         public Encoding ServerEncoding { get; set; }
 
         private void Initialize()
         {
+            GlobalInstance = this;
             Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
 
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -88,12 +98,32 @@ namespace MobileAppServer.ServerObjects
                 DependencyInjectorMakers = new List<IDependencyInjectorMaker>();
 
             RegisterController("ServerInfoController", typeof(ServerInfoController));
-            GlobalInstance = this;
 
             Console.WriteLine($"Server started with {BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
                 Console.WriteLine($"Server max threads count: " + MaxThreadsCount);
+
+            foreach(IExtensibleFrameworkInterface extension in Extensions)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(extension.ExtensionName))
+                        throw new Exception($"Cannot be load unknown extension from assembly '{extension.GetType().Assembly.FullName}'");
+                    if (string.IsNullOrEmpty(extension.ExtensionVersion))
+                        throw new Exception($"Cannot be read extension version for '{extension.ExtensionName}'");
+                    if (string.IsNullOrEmpty(extension.ExtensionPublisher))
+                        throw new Exception($"Cannot be load unknown publisher extension for '{extension.ExtensionName}'");
+
+                    LogController.WriteLog($"Loading extension '{extension.ExtensionName}', version {extension.ExtensionVersion} by {extension.ExtensionPublisher}", ServerLogType.INFO);
+                    extension.Load(this);
+                    LogController.WriteLog($"Extension '{extension.ExtensionName}' successfully loaded");
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
+            }
         }
 
         public void RegisterInterceptor(IHandlerInterceptor interceptor)
@@ -304,7 +334,7 @@ namespace MobileAppServer.ServerObjects
         }
 
         private object lockReceive = new object();
-        public void ReceiveCallback(IAsyncResult AR)
+        private void ReceiveCallback(IAsyncResult AR)
         {
             lock (lockReceive)
             {
