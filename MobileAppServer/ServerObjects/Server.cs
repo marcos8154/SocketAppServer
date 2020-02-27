@@ -96,6 +96,8 @@ namespace MobileAppServer.ServerObjects
                 Interceptors = new List<IHandlerInterceptor>();
             if (DependencyInjectorMakers == null)
                 DependencyInjectorMakers = new List<IDependencyInjectorMaker>();
+            if (Extensions == null)
+                Extensions = new List<IExtensibleFrameworkInterface>();
 
             RegisterController("ServerInfoController", typeof(ServerInfoController));
 

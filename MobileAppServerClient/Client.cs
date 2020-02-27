@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MobileAppServerClient.ClientUtils;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -89,14 +90,9 @@ MAXPACKETSIZE={maxPacketSize}";
         {
             try
             {
-                ServerResponse response = ReadResponse();
-                if (response.Status == 500)
-                    throw new Exception(response.Message);
-
-                Response = response;
-                byte[] res = Convert.FromBase64String(response.Content.ToString());
+                byte[] responseBytes = ReceiveBytes();
                 Close();
-                return res;
+                return responseBytes;
             }
             catch
             {

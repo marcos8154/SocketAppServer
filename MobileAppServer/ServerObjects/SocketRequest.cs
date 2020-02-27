@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 
 namespace MobileAppServer.ServerObjects
@@ -11,17 +12,24 @@ namespace MobileAppServer.ServerObjects
     {
         internal Socket Client { get; set; }
 
+        public IPEndPoint LocalEndPoint { get; private set; }
+
+        public IPEndPoint RemoteEndPoint { get; private set; }
+
         public SocketRequest()
         {
-
         }
 
         internal SocketRequest(IController controller,
-            string action, List<RequestParameter> parameters)
+            string action, List<RequestParameter> parameters, Socket clientSocket)
         {
             Controller = controller;
             Action = action;
             requestParameters = parameters;
+            Client = clientSocket;
+
+            LocalEndPoint = clientSocket.LocalEndPoint as IPEndPoint;
+            RemoteEndPoint = clientSocket.RemoteEndPoint as IPEndPoint;
         }
 
         private List<RequestParameter> requestParameters = new List<RequestParameter>();
@@ -52,14 +60,17 @@ namespace MobileAppServer.ServerObjects
 
         internal void ProcessResponse(ActionResult result, Socket socket)
         {
-            CheckStatistics(result);
+            ComputeStatisticks(result);
             Client = socket;
             ProcessResponse(result);
         }
 
-        internal void CheckStatistics(ActionResult result)
+        internal void ComputeStatisticks(ActionResult result)
         {
+            if (result.Type == 1)
+                return;
             string json = JsonConvert.SerializeObject(result.Content);
+
             var bytes = Server.GlobalInstance.ServerEncoding.GetBytes(json);
             var lenght = bytes.Length;
             double percentBufferUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
@@ -144,33 +155,34 @@ Operation has stopped.";
         {
             try
             {
-                /*
+                if (response.Type == 0)
+                    SendJsonResponse(response);
                 if (response.Type == 1)
-                {
-                    byte[] file = (byte[])response.Content;
-              //      response.Content = response.Content;
-                    response.FileState = (file == null
-                        ? "EOF"
-                        : "BOF");
-
-                    string jsonFile = JsonConvert.SerializeObject(response);
-                    SendBytes(Server.GlobalInstance.ServerEncoding.GetBytes(jsonFile));
-                    if (file != null)
-                        SendBytes(file);
-                    return;
-                }
-                */
-                string json = JsonConvert.SerializeObject(response);
-                byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(json);
-                SendBytes(resultData);
-                json = null;
-                resultData = null;
+                    SendFileResponse(response);
             }
             catch (Exception ex)
             {
                 LogController.WriteLog(new ServerLog($"*** ERROR ON PROCESS RESPONSE:*** \n {ex.Message}", ServerLogType.ERROR));
                 ReleaseSession();
             }
+        }
+
+        private void SendFileResponse(ActionResult response)
+        {
+            byte[] resultData = (byte[])response.Content;
+            SendBytes(resultData);
+            resultData = null;
+            response = null;
+        }
+
+        private void SendJsonResponse(ActionResult response)
+        {
+            string json = JsonConvert.SerializeObject(response);
+            byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(json);
+            SendBytes(resultData);
+            json = null;
+            resultData = null;
+            response = null;
         }
     }
 }

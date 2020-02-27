@@ -34,7 +34,6 @@ namespace MobileAppServer.ServerObjects
                 request = new SocketRequest();
                 request.Client = socket;
                 request.Action = action;
-
                 request.Controller = GetController(controller);
 
                 var parameters = typedObjManager.GetParameters(RequestBody.Parameters,
@@ -192,19 +191,19 @@ Parameters: ";
                 //GLOBAL Interceptors
                 var globalInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals("") && i.ControllerName.Equals("")).ToList();
-                if (!PreHandleInterceptors(globalInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
+                if (!PreHandleInterceptors(globalInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters, socket)))
                     return string.Empty;
 
                 //CONTROLLER (all actions) Interceptors
                 var controllerInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals("") && i.ControllerName.Equals(controller.GetType().Name)).ToList();
-                if (!PreHandleInterceptors(controllerInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
+                if (!PreHandleInterceptors(controllerInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters, socket)))
                     return string.Empty;
 
                 //CONTROLLER (specific action) Interceptors
                 var controllerActionInterceptors = Server.GlobalInstance.Interceptors.Where(i =>
                     i.ActionName.Equals(method.Name) && i.ControllerName.Equals(controller.GetType().Name)).ToList();
-                if (!PreHandleInterceptors(controllerActionInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters)))
+                if (!PreHandleInterceptors(controllerActionInterceptors, new SocketRequest(request.Controller, request.Action, RequestBody.Parameters, socket)))
                     return string.Empty;
 
                 object[] methodParameters = new object[request.Parameters.Count];

@@ -110,6 +110,7 @@
     <Compile Include="ServerObjects\ServerSocketResponse.cs" />
     <Compile Include="ServerObjects\SocketSession.cs" />
     <Compile Include="ServerObjects\TypedObjectsRequestManager.cs" />
+    <Compile Include="ServerUtils\StringCompactor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Mappings\HowToMap.xml">
