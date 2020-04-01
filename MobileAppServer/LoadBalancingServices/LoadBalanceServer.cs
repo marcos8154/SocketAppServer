@@ -65,8 +65,8 @@ namespace MobileAppServer.LoadBalancingServices
                 bufferSize, maxConnectionAttempts, acceptableProcesses);
 
             AddSubServerInternal(server);
-      }
-        
+        }
+
         private Client BuildClient(SubServer server)
         {
             try
@@ -190,26 +190,39 @@ namespace MobileAppServer.LoadBalancingServices
             }
         }
 
+        private bool subServerAlreadyRequested = false;
         private void CheckAllocateNewInstance()
         {
+            if (subServerAlreadyRequested)
+                return;
             if (NotifiableSubServerRequirement != null)
             {
                 AddSubServerInternal(NotifiableSubServerRequirement.StartNewInstance(), true);
                 LogController.WriteLog("A new server instance was requested to meet the next requests", ServerLogType.ALERT);
+                Thread.Sleep(1000);
+                subServerAlreadyRequested = true;
             }
         }
+
+        private bool retried = false;
 
         public ActionResult RunAction(string receivedData)
         {
             MobileAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<MobileAppServerClient.RequestBody>(receivedData);
-            SubServer targetServer = GetAvailableSubServer();
-
             string cacheResultKey = BuildCacheResultKey(rb);
+            SubServer targetServer = GetAvailableSubServer();
 
             if (targetServer == null)
             {
                 CheckAllocateNewInstance();
-                return ResolveResultOnUreachableServer(cacheResultKey);
+
+                if (retried)
+                    return ResolveResultOnUreachableServer(cacheResultKey);
+                else
+                {
+                    retried = true;
+                    return RunAction(receivedData);
+                }
             }
 
             Client client = BuildClient(targetServer);

@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace MobileAppServer.ServerObjects
 {
-    internal class RequestProccess : AsyncTask<int, int, object>
+    public class RequestProccess : AsyncTask<int, int, object>
     {
         private Socket socket;
         // private string uri;
@@ -101,15 +101,7 @@ namespace MobileAppServer.ServerObjects
 
 ******** BEGIN REQUEST ********* 
 Controller: {RequestBody.Controller}
-Action: {RequestBody.Action}
-Parameters: ";
-                if (RequestBody.Parameters != null)
-                {
-                    RequestBody.Parameters.ForEach(p =>
-                    {
-                        log += $"\n'{p.Name}'='{p.Value}'";
-                    });
-                }
+Action: {RequestBody.Action}";
                 log += @"
 ********************************";
 
@@ -242,7 +234,7 @@ Parameters: ";
         public static object lck = new object();
         public static int ThreadCount = 0;
 
-        private static void UpThreadCount()
+        public static void UpThreadCount()
         {
             lock (lck)
             {
@@ -250,7 +242,7 @@ Parameters: ";
             }
         }
 
-        private static void DownThreadCount()
+        public static void DownThreadCount()
         {
             lock (lck)
             {

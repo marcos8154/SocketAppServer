@@ -102,8 +102,8 @@ namespace MobileAppServer.ServerObjects
 
         private static void Cache_Expired(Cache<T> cache)
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine($"Removing cache entry '{cache.Key}' from Cache Repository...");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+          //  Console.WriteLine($"Removing cache entry '{cache.Key}' from Cache Repository...");
             Console.ForegroundColor = ConsoleColor.DarkGray;
 
             lock (CacheList)

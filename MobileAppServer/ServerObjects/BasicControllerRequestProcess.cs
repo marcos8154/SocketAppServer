@@ -17,7 +17,6 @@ namespace MobileAppServer.ServerObjects
         {
             var srv = Server.GlobalInstance;
             LogController.WriteLog(new ServerLog($"Basic Server Module: Begin Request"));
-            LogController.WriteLog(new ServerLog($"Received Data: {receivedData}"));
 
             IBasicServerController controller = (IBasicServerController)Activator.CreateInstance(srv.BasicServerControllerType, null);
             try
