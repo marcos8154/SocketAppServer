@@ -1,17 +1,15 @@
 # SocketAppServer
 A simple, lightweight and fast MVC-like Socket server
 
+This framework will allow you to create a server that makes it easy to display data on intranet networks (and also the internet). The server will work in an "embedded" manner, with the premise of rapid deployment and startup in a production environment, without the need to configure application servers such as IIS or Apache.
+
+The main communication of the server is based on Socket TCP / IP, which requires a specific client to connect and consume it. But if this is a flaw, the framework also allows to enable HTTP communication, which facilitates and expands the integration with a greater variety of clients (including mobile devices)
 
 **How to Setup**
 
-First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.4.3** (or higher)
+First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.6.0** (or higher)
 
-The framework will add **NewtonSoft.Json** together, and also create a folder called **"Mappings"** in your project.
-
-The Mappings folder will contain all mapping XMLs for your server Controllers.
-
-**ATTENTION:** *ALL XML's in this folder must be copied to the project binaries folder at compile time.
-To do this, all XML files in the folder must be marked **"Copy if newer"** in the file properties window.*
+The framework will add **NewtonSoft.Json** together
 
 Now let's implement a basic code that makes our server startup
 
@@ -47,42 +45,6 @@ Now let's implement a basic code that makes our server startup
         }
 ```
 
-
-**How to map you Controllers and Actions**
-
-To map your Controllers and Actions, you must create a folder in your project called "Mappings", and within it, create configuration XML files whose xml name is the Controller name.
-
-The file syntax and structure should look similar to the example below:
-
-```XML
-<?xml version="1.0" encoding="utf-8" ?>
-<ControllerMapping class="FullNamespace.ControllerTypeName">
-	
-	<!-- 
-		this mapping is used for simple actions, WITHOUT
-		entities/models in parameters, ex.:
-		
-		public ActionResult ActionWithOutModelParameter(int param1, string param2, decimal param3) ...
-	-->
-	<RequestMapping value="ActionWithOutModelParameter"/>
-
-
-	<!-- 
-		this mapping is used for complex actions, WITH
-		entities/models in parameters, ex.:
-		
-		public ActionResult ActionWithModelParameter(Product product, Customer customer) ...
-		
-		NOTE: this feature requires model registration in server: 
-		    server.RegisterAllModels(Assembly.GetExecutingAssembly(), "FullNamespaceNameForModels");
-	-->
-	<RequestMapping value="ActionWithModelParameter">
-		<RequestParameter alias="product" entity="FullNamespace.Product" />
-		<RequestParameter alias="customer" entity="FullNamespace.Customer" />
-	</RequestMapping>
-	
-</ControllerMapping>
-```
 **Implementing actions on your server**
 
 Now that your server is properly mapped and configured, the next step is the most fun: D
@@ -180,3 +142,5 @@ If your server has actions that return objects, you can easily convert them on t
 ```C#
             List<Product> myProducts = (List<Product>) client.GetResult(typeof(List<Product>)).Entity;
 ```
+
+If you want to enable HTTP communication on your server, so you don't need to use the specific client, see the step-by-step here https://github.com/marcos8154/SocketAppServer/wiki/Enable-HTTP-communication-on-your-server
