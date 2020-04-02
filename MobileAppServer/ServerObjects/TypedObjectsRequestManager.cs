@@ -86,27 +86,26 @@ namespace MobileAppServer.ServerObjects
         internal ObjectRequestParameter GetObjectParameterType(string requestParameter, string actionName,
                string controllerName)
         {
-            StreamReader stream = null;
-
             try
             {
-                stream = new StreamReader(
-                    Directory.GetCurrentDirectory() + $@"\Mappings\{controllerName}.xml", Encoding.UTF8);
-                XmlDocument xml = new XmlDocument();
-                xml.Load(stream);
-                stream.Close();
-                stream.Dispose();
+                ControllerRegister register = Server
+                    .GlobalInstance
+                    .RegisteredControllers
+                    .FirstOrDefault(c => c.Name.Equals(controllerName));
 
-                XmlNode node = FindNode(xml.ChildNodes, "ControllerMapping");
-                foreach (XmlNode requestMappingNode in node.ChildNodes)
-                    if (requestMappingNode.Name.Equals("RequestMapping"))
-                        foreach (XmlNode requestMappingParameter in requestMappingNode.ChildNodes)
-                            if (requestParameter.StartsWith(requestMappingParameter.Attributes["alias"].Value))
-                                if (requestMappingParameter.ParentNode.Attributes["value"].Value == actionName)
-                                    return new ObjectRequestParameter(requestMappingParameter.Attributes["alias"].Value,
-                                        requestMappingParameter.Attributes["entity"].Value);
+                Type type = register.Type;
+                MethodInfo method = type.GetMethods().FirstOrDefault(m => m.Name.Equals(actionName));
+                if (method == null)
+                    return null;
 
-                return null;
+                if (!requestParameter.Contains("."))
+                    return null;
+
+                string parameter = requestParameter.Substring(0, requestParameter.IndexOf("."));
+
+                ParameterInfo parameterInfo = method.GetParameters().FirstOrDefault(p => p.Name.Equals(parameter));
+                ObjectRequestParameter objectParameter = new ObjectRequestParameter(parameterInfo.Name, parameterInfo.ParameterType.FullName);
+                return objectParameter;
             }
             catch (Exception ex)
             {
@@ -121,24 +120,17 @@ namespace MobileAppServer.ServerObjects
             LogController.WriteLog(new ServerLog($"Checking action '{controllerName}.{actionName}'...",
                 controllerName, actionName));
 
-            StreamReader stream = null;
             try
             {
-                stream = new StreamReader(
-                    Directory.GetCurrentDirectory() + $@"\Mappings\{controllerName}.xml", Encoding.UTF8);
-                XmlDocument xml = new XmlDocument();
-                xml.Load(stream);
-                stream.Close();
-                stream.Dispose();
+                ControllerRegister register = Server
+                .GlobalInstance
+                .RegisteredControllers
+                .FirstOrDefault(c => c.Name.Equals(controllerName));
 
-                XmlNode node = FindNode(xml.ChildNodes, "ControllerMapping");
-                foreach (XmlNode chNode in node.ChildNodes)
-                    if (chNode.Name.Equals("RequestMapping"))
-                        foreach (XmlAttribute a in chNode.Attributes)
-                            if (a.Name.Equals("value") && a.Value.Equals(actionName))
-                                return true;
+                Type type = register.Type;
+                MethodInfo method = type.GetMethod(actionName);
 
-                return false;
+                return true;
             }
             catch (Exception ex)
             {
@@ -146,21 +138,6 @@ namespace MobileAppServer.ServerObjects
                     controllerName, actionName, ServerLogType.ERROR));
                 return false;
             }
-        }
-
-        internal XmlNode FindNode(XmlNodeList list, string nodeName)
-        {
-            if (list.Count > 0)
-            {
-                foreach (XmlNode node in list)
-                {
-                    if (node.Name.Equals(nodeName)) return node;
-                    if (node.HasChildNodes)
-                        if (node.FirstChild.Name.Equals(nodeName)) return node.FirstChild;
-                    if (node.HasChildNodes) return FindNode(node.ChildNodes, nodeName);
-                }
-            }
-            return null;
         }
 
         internal List<RequestParameter> GetParameters(List<RequestParameter> parameters, string action,
@@ -189,27 +166,25 @@ namespace MobileAppServer.ServerObjects
                         if (!pInfo.Name.Equals(pName))
                             continue;
 
-                    // string objectParameterType = objRP.TypeName;
-
                     if (objectRequestParameter != null)
                     {
                         if (objectRequestParameter.Alias != currentObjRpAlias ||
                             entityParameterObject.GetType().Name.Equals(this.GetType().Name))
                         {
                             currentObjRpAlias = objectRequestParameter.Alias;
-
                             ModelRegister model = Server.GlobalInstance.RegisteredModels.FirstOrDefault(m => m.ModeName == objectRequestParameter.TypeName);
+                        
                             if (model == null)
                             {
-                                LogController.WriteLog(new ServerLog($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.", controller.GetType().Name, action, ServerLogType.ERROR));
-                                throw new Exception($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.");
+                                LogController.WriteLog(new ServerLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, action, ServerLogType.ERROR));
+                                throw new Exception($"Model type '{objectRequestParameter.TypeName} not found or not registered'");
                             }
 
                             Type type = model.ModelType;
                             if (type == null)
                             {
-                                LogController.WriteLog(new ServerLog($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.", controller.GetType().Name, action, ServerLogType.ERROR));
-                                throw new Exception($"Could not instantiate controller '{objectRequestParameter.TypeName}'. Check its mapping XML.");
+                                LogController.WriteLog(new ServerLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, action, ServerLogType.ERROR));
+                                throw new Exception($"Model type '{objectRequestParameter.TypeName} not found or not registered'");
                             }
 
                             entityParameterObject = Activator.CreateInstance(type);

@@ -9,7 +9,7 @@
         WindowState="Maximized"
         Title="MobileAppServer - ServerManager2" Height="600" Width="1024">
     <Grid>
-        <Grid HorizontalAlignment="Left" Margin="0,47,0,0" Width="287" Background="#FFF9F9F9">
+        <Grid HorizontalAlignment="Left" Margin="0,47,0,0" Width="287" Background="White">
             <Image Source="/Images/cpu.png" HorizontalAlignment="Left" Height="34" Margin="10,10,0,0" VerticalAlignment="Top" Width="36"/>
             <Label Content="Server Instances" Margin="51,10,24,0" VerticalAlignment="Top" FontFamily="Segoe UI Semibold" Foreground="#FF6C6C6C" Height="34" FontSize="16"/>
             <Border BorderBrush="#FFEEEEEE" BorderThickness="1" Height="1" Margin="0,49,0,0" VerticalAlignment="Top"/>

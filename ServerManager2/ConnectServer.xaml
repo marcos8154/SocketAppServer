@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Title="Connect to Server" Height="416.545" Width="261.767">
+        Title="Connect to Server" Height="303.211" Width="261.767">
     <Grid>
         <Label Content="Connection name" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBox Height="24" Margin="10,36,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>

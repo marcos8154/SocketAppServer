@@ -91,6 +91,9 @@ namespace MobileAppServer.ServerObjects
             if (MaxThreadsCount == 0)
                 MaxThreadsCount = 999999;
 
+            if (RegisteredModels == null)
+                RegisteredModels = new List<ModelRegister>();
+
             Requests = 0;
             if (Interceptors == null)
                 Interceptors = new List<IHandlerInterceptor>();
@@ -99,14 +102,14 @@ namespace MobileAppServer.ServerObjects
             if (Extensions == null)
                 Extensions = new List<IExtensibleFrameworkInterface>();
 
-            RegisterController("ServerInfoController", typeof(ServerInfoController));
+            RegisterController(typeof(ServerInfoController));
 
             Console.WriteLine($"Server started with {BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{ServerEncoding.EncodingName}'");
             if (MaxThreadsCount > 0)
                 Console.WriteLine($"Server max threads count: " + MaxThreadsCount);
 
-            foreach(IExtensibleFrameworkInterface extension in Extensions)
+            foreach (IExtensibleFrameworkInterface extension in Extensions)
             {
                 try
                 {
@@ -121,7 +124,7 @@ namespace MobileAppServer.ServerObjects
                     extension.Load(this);
                     LogController.WriteLog($"Extension '{extension.ExtensionName}' successfully loaded");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw ex;
                 }
@@ -156,7 +159,7 @@ namespace MobileAppServer.ServerObjects
             UserRepository = repository;
             TokenLifeTime = tokenLifetime;
 
-            RegisterController("AuthorizationController", typeof(AuthorizationController));
+            RegisterController(typeof(AuthorizationController));
 
             List<IHandlerInterceptor> list = new List<IHandlerInterceptor>();
             if (Interceptors.Count > 0)
@@ -193,20 +196,20 @@ namespace MobileAppServer.ServerObjects
             DependencyInjectorMakers.Add(injectorMaker);
         }
 
-        public void RegisterController(string name, Type type)
+        public void RegisterController(Type type)
         {
-            Console.WriteLine($"Registering controller '{name}'...");
+            Console.WriteLine($"Registering controller '{type.Name}'...");
 
             if (RegisteredControllers == null)
                 RegisteredControllers = new List<ControllerRegister>();
-            RegisteredControllers.Add(new ControllerRegister() { Name = name, Type = type });
+            RegisteredControllers.Add(new ControllerRegister() { Name = type.Name, Type = type });
         }
 
         public void RegisterAllControllers(Assembly assembly, string namespaceName)
         {
             Type[] controllers = GetTypesInNamespace(assembly, namespaceName);
             for (int i = 0; i < controllers.Length; i++)
-                RegisterController(controllers[i].Name, controllers[i]);
+                RegisterController(controllers[i]);
         }
 
         public void RegisterAllModels(Assembly assembly, string namespaceName)

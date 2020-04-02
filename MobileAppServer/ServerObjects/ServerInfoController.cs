@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -25,16 +26,12 @@ namespace MobileAppServer.ServerObjects
         {
             ServerInfo info = new ServerInfo();
 
-            DirectoryInfo dInfo = new DirectoryInfo(@".\Mappings\");
-            foreach (FileInfo fi in dInfo.GetFiles())
+            foreach (var controller in Server.GlobalInstance.RegisteredControllers)
             {
-                if (!fi.Extension.Equals(".xml"))
-                    continue;
-
                 ControllerInfo controllerInfo = new ControllerInfo();
-                controllerInfo.ControllerName = fi.Name.Replace(".xml", string.Empty);
+                controllerInfo.ControllerName = controller.Name;
 
-                info.ServerControllers.Add(GetControllerInfo(fi.Name));
+                info.ServerControllers.Add(GetControllerInfo(controller.Name));
             }
 
             return ActionResult.Json(new OperationResult(info, 600, "Server info"));
@@ -45,29 +42,21 @@ namespace MobileAppServer.ServerObjects
             return ActionResult.File(path);
         }
 
-        private ControllerInfo GetControllerInfo(string mappingName)
+        private ControllerInfo GetControllerInfo(string controllerName)
         {
-            StreamReader stream = null;
-
             try
             {
-                stream = new StreamReader(
-                    Directory.GetCurrentDirectory() + $@"\Mappings\{mappingName}", Encoding.UTF8);
-                XmlDocument xml = new XmlDocument();
-                xml.Load(stream);
-                stream.Close();
+                ControllerRegister register = Server
+                 .GlobalInstance
+                 .RegisteredControllers
+                 .FirstOrDefault(c => c.Name.Equals(controllerName));
+
+                Type type = register.Type;
 
                 ControllerInfo info = new ControllerInfo();
-                info.ControllerName = mappingName.Replace(".xml", string.Empty);
-                info.ControllerActions = ListActions(mappingName);
-
-                XmlNode node = new TypedObjectsRequestManager().FindNode(xml.ChildNodes, "ControllerMapping");
-                foreach (XmlAttribute attr in node.Attributes)
-                {
-                    if (attr.Name.Equals("class"))
-                        info.ControllerClass = attr.Value;
-                }
-
+                info.ControllerName = controllerName;
+                info.ControllerActions = ListActions(controllerName);
+                info.ControllerClass = type.FullName;
 
                 return info;
             }
@@ -77,24 +66,20 @@ namespace MobileAppServer.ServerObjects
             }
         }
 
-        private List<string> ListActions(string controllerMappingFileName)
+        private List<string> ListActions(string controllerName)
         {
-            StreamReader stream = null;
-
             List<string> result = new List<string>();
             try
             {
-                stream = new StreamReader(
-                    Directory.GetCurrentDirectory() + $@"\Mappings\{controllerMappingFileName}", Encoding.UTF8);
-                XmlDocument xml = new XmlDocument();
-                xml.Load(stream);
-                stream.Close();
+                ControllerRegister register = Server
+                 .GlobalInstance
+                 .RegisteredControllers
+                 .FirstOrDefault(c => c.Name.Equals(controllerName));
 
-                XmlNode node = new TypedObjectsRequestManager().FindNode(xml.ChildNodes, "ControllerMapping");
-                foreach (XmlNode chNode in node.ChildNodes)
-                    if (chNode.Name.Equals("RequestMapping"))
-                        foreach (XmlAttribute a in chNode.Attributes)
-                            result.Add(a.Value);
+                Type type = register.Type;
+                foreach (var method in type.GetMethods())
+                    if (method.ReturnType == typeof(ActionResult))
+                        result.Add(method.Name);
 
                 return result;
             }

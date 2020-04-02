@@ -22,9 +22,10 @@ namespace MobileAppServer
 
             //Buffer-Size input for server
             server.BufferSize = 400000;
-
+            server.RegisterController(typeof(TestController));
             //server global encoding for requests and responses
             server.ServerEncoding = Encoding.UTF8;
+            server.RegisterModelType(typeof(Entity));
             //start server :D
             server.Start();
 

@@ -27,11 +27,13 @@ namespace ServerManager2
         private void CkAuth_Checked(object sender, RoutedEventArgs e)
         {
             gridAuth.Visibility = Visibility.Visible;
+            Height = 416.545d;
         }
 
         private void CkAuth_Unchecked(object sender, RoutedEventArgs e)
         {
             gridAuth.Visibility = Visibility.Hidden;
+            Height = 303.211;
         }
     }
 }
