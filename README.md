@@ -5,6 +5,8 @@ This framework will allow you to create a server that makes it easy to display d
 
 The main communication of the server is based on Socket TCP / IP, which requires a specific client to connect and consume it. But if this is a flaw, the framework also allows to enable HTTP communication, which facilitates and expands the integration with a greater variety of clients (including mobile devices)
 
+For more informations and tutorials, see project Wiki here: https://github.com/marcos8154/SocketAppServer/wiki
+
 **How to Setup**
 
 First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.6.0** (or higher)
