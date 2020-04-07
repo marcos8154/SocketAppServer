@@ -11,6 +11,7 @@ namespace MobileAppServer.ServerUtils
 {
     public static class StringCompactor
     {
+        /*
         public static string ToDeCompactString(this string compressedText)
         {
             byte[] gzBuffer = Convert.FromBase64String(compressedText);
@@ -29,7 +30,6 @@ namespace MobileAppServer.ServerUtils
                 return Server.GlobalInstance.ServerEncoding.GetString(buffer);
             }
         }
-
 
         public static string ToCompactString(this string text)
         {
@@ -51,5 +51,6 @@ namespace MobileAppServer.ServerUtils
             System.Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gzBuffer, 0, 4);
             return Convert.ToBase64String(gzBuffer);
         }
+        */
     }
 }

@@ -14,8 +14,7 @@ namespace MobileAppServer.Security
 
         public InterceptorHandleResult PreHandle(SocketRequest socketRequest)
         {
-            if (socketRequest.Controller.GetType().Name.Equals("AuthorizationController") ||
-                socketRequest.Controller.GetType().Name.Equals("ServerInfoController"))
+            if (socketRequest.Controller.GetType().Name.Equals("AuthorizationController"))
                 return new InterceptorHandleResult(false, true, "", "");
             
             var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));
@@ -25,7 +24,7 @@ namespace MobileAppServer.Security
             string token = paramToken.Value.ToString();
             if (!TokenRepository.Instance.IsValid(token))
                 return new InterceptorHandleResult(true, false, "Invalid or expired token. Check 'authorization' parameter in request body", "");
-
+            
             return new InterceptorHandleResult(false, true, "Authorized", "");
         }
     }

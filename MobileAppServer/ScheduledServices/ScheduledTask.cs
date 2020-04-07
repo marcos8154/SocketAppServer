@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace MobileAppServer.ScheduledServices
 {
     public abstract class ScheduledTask
     {
-        internal bool RunOnServerStart { get; }
+        internal bool IsRunning { get; set; }
+        public bool RunOnServerStart { get; }
         internal string TaskName { get; private set; }
-        internal ScheduledTaskInterval Interval { get; }
+        public ScheduledTaskInterval Interval { get; internal set; }
 
         Timer timer = new Timer();
         public ScheduledTask(string taskName,
@@ -20,7 +22,7 @@ namespace MobileAppServer.ScheduledServices
             StartTimer(TryGetLastInterval());
         }
 
-        private ScheduledTaskInterval TryGetLastInterval()
+        public ScheduledTaskInterval TryGetLastInterval()
         {
             DateTime? nextEvent = ScheduleNextEventsRepository.Instance.GetNext(TaskName);
             ScheduledTaskInterval nextEventInterval = null;

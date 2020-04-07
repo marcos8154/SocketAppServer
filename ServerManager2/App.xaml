@@ -10,7 +10,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border Name="Border" Margin="0" Height="25" Padding="5,2,2,2" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderThickness="0,0,0,0.9" BorderBrush="#FFD4D4D4">
+                        <Border Name="Border" Margin="0"  Padding="5,2,2,2" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" BorderThickness="0,0,0,0.9" BorderBrush="#FFD4D4D4">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>

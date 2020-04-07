@@ -1,4 +1,7 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.CoreServices.Logging;
+using MobileAppServer.ManagedServices;
+using MobileAppServer.ServerObjects;
 using MobileAppServerClient;
 using Newtonsoft.Json;
 using System;
@@ -10,9 +13,11 @@ namespace MobileAppServer.LoadBalancingServices
 {
     internal class LoadBalanceServer : IBasicServerController
     {
+        internal static int AttemptsToGetSubServerAvailable { get; private set; }
         internal static bool EnabledCachedResultsForUnreachableServers { get; private set; }
         internal static INotifiableSubServerRequirement NotifiableSubServerRequirement { get; private set; }
         internal static int ServersLifetimeInMinutes { get; private set; }
+        private static ILoggingService Logger { get; set; }
 
         internal static void EnableSubServerAutoRequirement(INotifiableSubServerRequirement notifiable,
             int serversLifetimeInMinutes = 10)
@@ -21,9 +26,14 @@ namespace MobileAppServer.LoadBalancingServices
             ServersLifetimeInMinutes = serversLifetimeInMinutes;
         }
 
+        internal static void SetAttemptsToGetSubServerAvailable(int attempts)
+        {
+            AttemptsToGetSubServerAvailable = attempts;
+        }
+
         private static void SubServer_OnLifeTimeEnded(SubServer subServer)
         {
-            LogController.WriteLog($"Sub-server '{subServer.Address}:{subServer.Port}' is no longer needed and will be detached from the pool of sub-servers. A notification was issued for the target sub-server to be shut down", ServerLogType.ALERT);
+            Logger.WriteLog($"Sub-server '{subServer.Address}:{subServer.Port}' is no longer needed and will be detached from the pool of sub-servers. A notification was issued for the target sub-server to be shut down", ServerLogType.ALERT);
             SubServers.Remove(subServer);
         }
 
@@ -50,7 +60,7 @@ namespace MobileAppServer.LoadBalancingServices
                 }
             }
 
-            LogController.WriteLog($"Added sub-server node named as '{server.Address}:{server.Port}'", ServerLogType.INFO);
+            Logger.WriteLog($"Added sub-server node named as '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
         }
 
@@ -65,6 +75,12 @@ namespace MobileAppServer.LoadBalancingServices
                 bufferSize, maxConnectionAttempts, acceptableProcesses);
 
             AddSubServerInternal(server);
+        }
+
+        public LoadBalanceServer()
+        {
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            Logger = manager.GetService<ILoggingService>();
         }
 
         private Client BuildClient(SubServer server)
@@ -84,7 +100,7 @@ namespace MobileAppServer.LoadBalancingServices
 
         private int GetCurrentThreadCountOnServer(SubServer server, Client client)
         {
-            LogController.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
+            Logger.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
             MobileAppServerClient.RequestBody rb = MobileAppServerClient
                 .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
@@ -101,7 +117,7 @@ namespace MobileAppServer.LoadBalancingServices
             string key = $"unavailable-{server.Address}:{server.Port}";
             Cache<bool> cached = CacheRepository<bool>.Get(key);
             if (cached != null)
-                LogController.WriteLog($"The sub-server node '{server.Address}:{server.Port}' is unreachable. It is temporarily ignored but will be reconsidered in less than 120 seconds", ServerLogType.ALERT);
+                Logger.WriteLog($"The sub-server node '{server.Address}:{server.Port}' is unreachable. It is temporarily ignored but will be reconsidered in less than 120 seconds", ServerLogType.ALERT);
             return cached != null;
         }
 
@@ -116,7 +132,7 @@ namespace MobileAppServer.LoadBalancingServices
                 Client client = BuildClient(server);
                 if (client == null)
                 {
-                    LogController.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
+                    Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
                     try
                     {
                         client.Close();
@@ -140,23 +156,23 @@ namespace MobileAppServer.LoadBalancingServices
 
                 if (serverCurrentThreadsCount > server.AcceptableProcesses)
                 {
-                    LogController.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is too busy", ServerLogType.ALERT);
+                    Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is too busy", ServerLogType.ALERT);
                     //It is not necessary to close the client
                     //because it was already closed when making the request
                     continue;
                 }
 
-                LogController.WriteLog($"Elected sub-server: '{server.Address}:{server.Port}'");
+                Logger.WriteLog($"Elected sub-server: '{server.Address}:{server.Port}'");
                 return server;
             }
 
-            if (attemptsToGetServerAvailable == Server.GlobalInstance.AttemptsToGetSubServerAvailable)
+            if (attemptsToGetServerAvailable == AttemptsToGetSubServerAvailable)
             {
-                LogController.WriteLog($"It was not possible to choose a sub-server to fulfill the request after {attemptsToGetServerAvailable} attempts", ServerLogType.ERROR);
+                Logger.WriteLog($"It was not possible to choose a sub-server to fulfill the request after {attemptsToGetServerAvailable} attempts", ServerLogType.ERROR);
                 return null;
             }
 
-            LogController.WriteLog($"It was not possible to elect a sub-server to process the request, but a new attempt will be made ...", ServerLogType.ERROR);
+            Logger.WriteLog($"It was not possible to elect a sub-server to process the request, but a new attempt will be made ...", ServerLogType.ERROR);
             attemptsToGetServerAvailable += 1;
             Thread.Sleep(500);
             return GetAvailableSubServer();
@@ -198,7 +214,7 @@ namespace MobileAppServer.LoadBalancingServices
             if (NotifiableSubServerRequirement != null)
             {
                 AddSubServerInternal(NotifiableSubServerRequirement.StartNewInstance(), true);
-                LogController.WriteLog("A new server instance was requested to meet the next requests", ServerLogType.ALERT);
+                Logger.WriteLog("A new server instance was requested to meet the next requests", ServerLogType.ALERT);
                 Thread.Sleep(1000);
                 subServerAlreadyRequested = true;
             }

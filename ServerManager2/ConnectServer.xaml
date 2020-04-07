@@ -9,21 +9,21 @@
         ResizeMode="NoResize"
         Title="Connect to Server" Height="303.211" Width="261.767">
     <Grid>
-        <Label Content="Connection name" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox Height="24" Margin="10,36,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Label Content="Connection alias" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="146"/>
+        <TextBox x:Name="txAlias" Height="24" Margin="10,36,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
         <Label Content="Server address" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top"/>
-        <TextBox Height="24" Margin="10,95,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="txAddress" Height="24" Margin="10,95,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
         <Label Content="Server port" HorizontalAlignment="Left" Margin="10,128,0,0" VerticalAlignment="Top"/>
-        <TextBox Height="24" Margin="10,154,159,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="txPort" Height="24" Margin="10,154,159,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
         <CheckBox x:Name="ckAuth" Checked="CkAuth_Checked" Unchecked="CkAuth_Unchecked" Content="This server needs authentication" Margin="10,193,10,0" VerticalAlignment="Top"/>
         <Grid x:Name="gridAuth" Visibility="Hidden" Height="125" Margin="0,213,0,0" VerticalAlignment="Top">
             <Label Content="Username" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
-            <TextBox Height="24" Margin="10,31,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <PasswordBox Margin="10,86,10,0" VerticalAlignment="Top" Height="24"/>
+            <TextBox x:Name="txUser" Height="24" Margin="10,31,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+            <PasswordBox x:Name="txPassword" Margin="10,86,10,0" VerticalAlignment="Top" Height="24"/>
             <Label Content="Password" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top"/>
         </Grid>
-        <Button x:Name="btConnect" Style="{StaticResource ConfirmButton}" Content="Connect" HorizontalAlignment="Right" Margin="0,0,90,16" VerticalAlignment="Bottom" Width="81" Height="24"/>
-        <Button x:Name="btCancel" Style="{StaticResource NormalButton}" Content="Cancel" Margin="0,0,10,16" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="75"/>
+        <Button x:Name="btConnect" Style="{StaticResource ConfirmButton}" Content="Connect" HorizontalAlignment="Right" Margin="0,0,90,16" VerticalAlignment="Bottom" Width="81" Height="24" Click="btConnect_Click"/>
+        <Button x:Name="btCancel" Style="{StaticResource NormalButton}" Content="Cancel" Margin="0,0,10,16" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="75" Click="btCancel_Click"/>
 
     </Grid>
 </Window>

@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.CoreServices.Logging;
+using MobileAppServer.ManagedServices;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,14 +13,20 @@ namespace MobileAppServer.ServerObjects
 {
     public class SocketRequest
     {
-        internal Socket Client { get; set; }
-
+        internal Socket ClientSocket { get; set; }
         public IPEndPoint LocalEndPoint { get; private set; }
-
         public IPEndPoint RemoteEndPoint { get; private set; }
 
+
+        private ILoggingService logger = null;
+        private IEncodingConverterService encoder = null;
+        private ICoreServerService coreServer = null;
         public SocketRequest()
         {
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            logger = manager.GetService<ILoggingService>();
+            encoder = manager.GetService<IEncodingConverterService>();
+            coreServer = manager.GetService<ICoreServerService>();
         }
 
         internal SocketRequest(IController controller,
@@ -26,7 +35,7 @@ namespace MobileAppServer.ServerObjects
             Controller = controller;
             Action = action;
             requestParameters = parameters;
-            Client = clientSocket;
+            ClientSocket = clientSocket;
 
             LocalEndPoint = clientSocket.LocalEndPoint as IPEndPoint;
             RemoteEndPoint = clientSocket.RemoteEndPoint as IPEndPoint;
@@ -61,7 +70,7 @@ namespace MobileAppServer.ServerObjects
         internal void ProcessResponse(ActionResult result, Socket socket)
         {
             ComputeStatisticks(result);
-            Client = socket;
+            ClientSocket = socket;
             ProcessResponse(result);
         }
 
@@ -71,9 +80,10 @@ namespace MobileAppServer.ServerObjects
                 return;
             string json = JsonConvert.SerializeObject(result.Content);
 
-            var bytes = Server.GlobalInstance.ServerEncoding.GetBytes(json);
-            var lenght = bytes.Length;
-            double percentBufferUsed = (lenght / (double)Server.GlobalInstance.BufferSize) * 100;
+            int bufferSize = coreServer.GetConfiguration().BufferSize;
+            byte[] bytes = encoder.ConvertToByteArray(json);
+            int lenght = bytes.Length;
+            double percentBufferUsed = (lenght / (double)bufferSize) * 100;
             result.ResponseLenght = lenght;
             result.PercentUsage = percentBufferUsed;
 
@@ -81,7 +91,7 @@ namespace MobileAppServer.ServerObjects
             {
                 string msg = $@"
 The action response on the controller is using around {percentBufferUsed.ToString("N2")}% of the buffer quota configured on the server.
-Server Buffer Size: {Server.GlobalInstance.BufferSize}
+Server Buffer Size: {bufferSize}
 Response Size:      {lenght}
 Operation has stopped.";
 
@@ -122,8 +132,8 @@ Operation has stopped.";
 
         private void SendBytes(byte[] data)
         {
-            var session = Server.GlobalInstance.ClientSockets.FirstOrDefault(c => c.ClientSocket.Equals(Client));
-            Client.Send(data);
+            var session = coreServer.GetSession(ClientSocket);
+            ClientSocket.Send(data);
 
             ReleaseSession();
             /*
@@ -136,18 +146,14 @@ Operation has stopped.";
 
         private void ReleaseSession()
         {
-            var session = Server.GlobalInstance.ClientSockets.FirstOrDefault(c => c.ClientSocket.Equals(Client));
-            if (session != null)
-            {
-                session.Close();
-                Server.GlobalInstance.ClientSockets.Remove(session);
-            }
+            var session = coreServer.GetSession(ClientSocket);
+            coreServer.RemoveSession(session);
 
-            if (Client != null)
+            if (ClientSocket != null)
             {
-                Client.Close();
-                Client.Dispose();
-                Client = null;
+                ClientSocket.Close();
+                ClientSocket.Dispose();
+                ClientSocket = null;
             }
         }
 
@@ -162,7 +168,7 @@ Operation has stopped.";
             }
             catch (Exception ex)
             {
-                LogController.WriteLog(new ServerLog($"*** ERROR ON PROCESS RESPONSE:*** \n {ex.Message}", ServerLogType.ERROR));
+                logger.WriteLog($"*** ERROR ON PROCESS RESPONSE:*** \n {ex.Message}", ServerLogType.ERROR);
                 ReleaseSession();
             }
         }
@@ -178,7 +184,7 @@ Operation has stopped.";
         private void SendJsonResponse(ActionResult response)
         {
             string json = JsonConvert.SerializeObject(response);
-            byte[] resultData = Server.GlobalInstance.ServerEncoding.GetBytes(json);
+            byte[] resultData = encoder.ConvertToByteArray(json);
             SendBytes(resultData);
             json = null;
             resultData = null;

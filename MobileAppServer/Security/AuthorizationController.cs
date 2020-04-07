@@ -1,4 +1,6 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.ManagedServices;
+using MobileAppServer.ServerObjects;
 
 namespace MobileAppServer.Security
 {
@@ -16,7 +18,10 @@ namespace MobileAppServer.Security
 
         public ActionResult Authorize(string user, string password)
         {
-            var serverUser = Server.GlobalInstance.UserRepository.Authenticate(user, password);
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            ISecurityManagementService service = manager.GetService<ISecurityManagementService>();
+
+            var serverUser = service.Authenticate(user, password);
             if (serverUser == null)
                 return ActionResult.Json(new OperationResult(string.Empty, 500, "Invalid user"), 500, "Invalid user");
             var token = TokenRepository.Instance.AddToken(serverUser);

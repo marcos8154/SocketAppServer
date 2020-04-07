@@ -1,4 +1,7 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.CoreServices.Logging;
+using MobileAppServer.ManagedServices;
+using MobileAppServer.ServerObjects;
 using System.Text;
 
 namespace MobileAppServer.LoadBalancingServices
@@ -19,6 +22,8 @@ namespace MobileAppServer.LoadBalancingServices
         public int ServerLifetimeInMinutes { get; private set; }
         public INotifiableSubServerRequirement NotifiableRequirement { get; private set; }
 
+        private ILoggingService Logger { get; set; }
+
         public SubServer(string address, int port, Encoding encoding,
             int bufferSize, int maxConnectionAttempts,
             int acceptableProcesses)
@@ -29,6 +34,8 @@ namespace MobileAppServer.LoadBalancingServices
             BufferSize = bufferSize;
             MaxConnectionAttempts = maxConnectionAttempts;
             AcceptableProcesses = acceptableProcesses;
+
+            Logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
         }
 
         public SubServer(string address, int port, Encoding encoding,
@@ -45,6 +52,8 @@ namespace MobileAppServer.LoadBalancingServices
             AcceptableProcesses = acceptableProcesses;
             ServerLifetimeInMinutes = serverLifetimeInMinutes;
             NotifiableRequirement = notifiableRequirement;
+
+            Logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
         }
 
         internal void EnableLifetime(INotifiableSubServerRequirement notifiableRequirement,
@@ -69,10 +78,9 @@ namespace MobileAppServer.LoadBalancingServices
                 lifetime.Stop();
                 lifetime.Dispose();
                 lifetime = null;
-                LogController.WriteLog($"Lifetime refreshed to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
+                Logger.WriteLog($"Lifetime refreshed to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
             }
-            else LogController.WriteLog($"Lifetime started to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
-
+            else Logger.WriteLog($"Lifetime started to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
 
             elapsedMinutesLifetime = 0;
             lifetime = new System.Timers.Timer();
@@ -88,7 +96,7 @@ namespace MobileAppServer.LoadBalancingServices
             
             if(elapsedMinutesLifetime >= ServerLifetimeInMinutes)
             {
-                LogController.WriteLog($"Lifetime ended to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
+                Logger.WriteLog($"Lifetime ended to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
                 NotifiableRequirement.StopInstance(this);
                 OnLifeTimeEnded?.Invoke(this);
                 lifetime.Stop();

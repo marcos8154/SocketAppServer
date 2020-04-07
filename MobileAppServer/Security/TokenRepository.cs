@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Policy;
@@ -24,7 +25,7 @@ namespace MobileAppServer.Security
             Tokens = new List<ServerToken>();
         }
 
-        private List<ServerToken> Tokens { get; set; }
+        internal List<ServerToken> Tokens { get; set; }
 
         public bool IsValid(string token)
         {
@@ -48,9 +49,15 @@ namespace MobileAppServer.Security
 
         public ServerToken AddToken(ServerUser user)
         {
+
             ServerToken token = new ServerToken(user);
             Tokens.Add(token);
             return token;
+        }
+
+        internal ServerToken GetToken(Guid sessionId)
+        {
+            return Tokens.FirstOrDefault(token => token.SessionId.Equals(sessionId));
         }
     }
 }

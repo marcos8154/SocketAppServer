@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.CoreServices.ControllerManagement;
+using MobileAppServer.CoreServices.CoreServer;
+using MobileAppServer.ManagedServices;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,22 +15,31 @@ namespace MobileAppServer.ServerObjects
 {
     internal class ServerInfoController : IController
     {
+        private IControllerManager controllerManager = null;
+        private ICoreServerService coreServer = null;
+        public ServerInfoController()
+        {
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            controllerManager = manager.GetService<IControllerManager>();
+            coreServer = manager.GetService<ICoreServerService>();
+        }
+
         public ActionResult Reboot()
         {
-            Server.GlobalInstance.SendReboot();
+            coreServer.Reboot();
             return ActionResult.Json(true, 600, "Ok");
         }
 
         public ActionResult GetCurrentThreadsCount()
         {
-            return ActionResult.Json(RequestProccess.ThreadCount);
+            return ActionResult.Json(RequestProcessor.ThreadCount);
         }
 
         public ActionResult FullServerInfo()
         {
             ServerInfo info = new ServerInfo();
 
-            foreach (var controller in Server.GlobalInstance.RegisteredControllers)
+            foreach (ControllerRegister controller in controllerManager.GetRegisteredControllers())
             {
                 ControllerInfo controllerInfo = new ControllerInfo();
                 controllerInfo.ControllerName = controller.Name;
@@ -46,10 +59,7 @@ namespace MobileAppServer.ServerObjects
         {
             try
             {
-                ControllerRegister register = Server
-                 .GlobalInstance
-                 .RegisteredControllers
-                 .FirstOrDefault(c => c.Name.Equals(controllerName));
+                ControllerRegister register = controllerManager.GetControllerRegister(controllerName);
 
                 Type type = register.Type;
 
@@ -71,10 +81,7 @@ namespace MobileAppServer.ServerObjects
             List<string> result = new List<string>();
             try
             {
-                ControllerRegister register = Server
-                 .GlobalInstance
-                 .RegisteredControllers
-                 .FirstOrDefault(c => c.Name.Equals(controllerName));
+                ControllerRegister register = controllerManager.GetControllerRegister(controllerName);
 
                 Type type = register.Type;
                 foreach (var method in type.GetMethods())

@@ -1,4 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.CoreServices.ControllerManagement;
+using MobileAppServer.CoreServices.DomainModelsManagement;
+using MobileAppServer.CoreServices.Logging;
+using MobileAppServer.ManagedServices;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +16,17 @@ namespace MobileAppServer.ServerObjects
 {
     internal class TypedObjectsRequestManager
     {
+        private ILoggingService logger = null;
+        private IControllerManager controllerManager = null;
+        private IDomainModelsManager modelsManager = null;
+        public TypedObjectsRequestManager()
+        {
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            logger = manager.GetService<ILoggingService>();
+            controllerManager = manager.GetService<IControllerManager>();
+            modelsManager = manager.GetService<IDomainModelsManager>();
+        }
+
         internal RequestParameter GetRequestParameterFromType(ParameterInfo pInfo,
             string pName, string pValue)
         {
@@ -88,10 +104,7 @@ namespace MobileAppServer.ServerObjects
         {
             try
             {
-                ControllerRegister register = Server
-                    .GlobalInstance
-                    .RegisteredControllers
-                    .FirstOrDefault(c => c.Name.Equals(controllerName));
+                ControllerRegister register = controllerManager.GetControllerRegister(controllerName);
 
                 Type type = register.Type;
                 MethodInfo method = type.GetMethods().FirstOrDefault(m => m.Name.Equals(actionName));
@@ -109,23 +122,20 @@ namespace MobileAppServer.ServerObjects
             }
             catch (Exception ex)
             {
-                LogController.WriteLog(new ServerLog($"*** CHECK PARAMETER '{requestParameter}' FOR ACTION '{controllerName}.{actionName}' ERROR: *** \n{ex.Message}",
-                    controllerName, actionName, ServerLogType.ERROR));
+                logger.WriteLog($"*** CHECK PARAMETER '{requestParameter}' FOR ACTION '{controllerName}.{actionName}' ERROR: *** \n{ex.Message}",
+                    controllerName, actionName, ServerLogType.ERROR);
                 return null;
             }
         }
 
         internal bool ExistsAction(string actionName, string controllerName)
         {
-            LogController.WriteLog(new ServerLog($"Checking action '{controllerName}.{actionName}'...",
-                controllerName, actionName));
+            logger.WriteLog($"Checking action '{controllerName}.{actionName}'...",
+                controllerName, actionName);
 
             try
             {
-                ControllerRegister register = Server
-                .GlobalInstance
-                .RegisteredControllers
-                .FirstOrDefault(c => c.Name.Equals(controllerName));
+                ControllerRegister register = controllerManager.GetControllerRegister(controllerName);
 
                 Type type = register.Type;
                 MethodInfo method = type.GetMethod(actionName);
@@ -134,8 +144,8 @@ namespace MobileAppServer.ServerObjects
             }
             catch (Exception ex)
             {
-                LogController.WriteLog(new ServerLog($"*** CHECK ACTION '{controllerName}.{actionName}' ERROR: *** \n {ex.Message}",
-                    controllerName, actionName, ServerLogType.ERROR));
+                logger.WriteLog($"*** CHECK ACTION '{controllerName}.{actionName}' ERROR: *** \n {ex.Message}",
+                    controllerName, actionName, ServerLogType.ERROR);
                 return false;
             }
         }
@@ -143,7 +153,9 @@ namespace MobileAppServer.ServerObjects
         internal List<RequestParameter> GetParameters(List<RequestParameter> parameters, string action,
           IController controller)
         {
-            LogController.WriteLog(new ServerLog($"Checking parameter list form action '{controller.GetType().Name}.{action}'...", controller.GetType().Name, action));
+            logger.WriteLog($"Checking parameter list form action '{controller.GetType().Name}.{action}'...",
+                controller.GetType().Name, action);
+
             if (parameters == null)
                 return new List<RequestParameter>();
 
@@ -153,7 +165,9 @@ namespace MobileAppServer.ServerObjects
             MethodInfo method = controller.GetType().GetMethod(action);
             foreach (RequestParameter parameter in parameters)
             {
-                LogController.WriteLog(new ServerLog($"Setting parameter '{parameter.Name}' for action '{controller.GetType().Name}.{action}'...", controller.GetType().Name, action));
+                logger.WriteLog($"Setting parameter '{parameter.Name}' for action '{controller.GetType().Name}.{action}'...", 
+                    controller.GetType().Name, action);
+
                 string pName = parameter.Name;
                 string pValue = parameter.Value.ToString();
 
@@ -172,18 +186,20 @@ namespace MobileAppServer.ServerObjects
                             entityParameterObject.GetType().Name.Equals(this.GetType().Name))
                         {
                             currentObjRpAlias = objectRequestParameter.Alias;
-                            ModelRegister model = Server.GlobalInstance.RegisteredModels.FirstOrDefault(m => m.ModeName == objectRequestParameter.TypeName);
-                        
+                            ModelRegister model = modelsManager.GetModelRegister(objectRequestParameter.TypeName);
+
                             if (model == null)
                             {
-                                LogController.WriteLog(new ServerLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, action, ServerLogType.ERROR));
+                                logger.WriteLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, action, 
+                                    ServerLogType.ERROR);
                                 throw new Exception($"Model type '{objectRequestParameter.TypeName} not found or not registered'");
                             }
 
                             Type type = model.ModelType;
                             if (type == null)
                             {
-                                LogController.WriteLog(new ServerLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, action, ServerLogType.ERROR));
+                                logger.WriteLog($"Model type '{objectRequestParameter.TypeName} not found or not registered'", controller.GetType().Name, 
+                                    action, ServerLogType.ERROR);
                                 throw new Exception($"Model type '{objectRequestParameter.TypeName} not found or not registered'");
                             }
 

@@ -35,5 +35,15 @@ namespace ServerManager2
             gridAuth.Visibility = Visibility.Hidden;
             Height = 303.211;
         }
+
+        private void btCancel_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void btConnect_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

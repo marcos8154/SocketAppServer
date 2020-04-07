@@ -1,5 +1,8 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.CoreServices;
+using MobileAppServer.ManagedServices;
+using MobileAppServer.ServerObjects;
 using System;
+using System.Collections.Generic;
 using System.Security.Policy;
 using System.Text;
 
@@ -7,7 +10,7 @@ namespace MobileAppServer.Security
 {
     internal class ServerToken
     {
-        public Guid Guid { get; private set; }
+        public Guid SessionId { get; private set; }
 
         public ServerUser User { get; private set; }
 
@@ -22,20 +25,37 @@ namespace MobileAppServer.Security
             return (ExpireAt < DateTime.Now);
         }
 
+        private List<UserActivity> userActivities;
+
+        public IReadOnlyCollection<UserActivity> GetActivities()
+        {
+            return userActivities.AsReadOnly();
+        }
+
+        public void RegisterActivity(UserActivity activity)
+        {
+            userActivities.Add(activity);
+        }
+
         private string cryptoPasswd;
 
+        ISecurityManagementService securityManagementService = null;
         public ServerToken(ServerUser user)
         {
+            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            securityManagementService = manager.GetService<ISecurityManagementService>();
+
+            userActivities = new List<UserActivity>();
             User = user;
-            Guid = Guid.NewGuid();
+            SessionId = Guid.NewGuid();
             CreatedAt = DateTime.Now;
-            ExpireAt = CreatedAt.AddMinutes(Server.GlobalInstance.TokenLifeTime);
+            ExpireAt = CreatedAt.AddMinutes(securityManagementService.GetDefinitions().TokenLifeTime);
             CreateHash();
         }
 
         private string CreateContentString()
         {
-            string str = $"{Guid.ToString()}";
+            string str = $"{SessionId.ToString()}";
             if (!string.IsNullOrEmpty(User.Identifier))
                 str += $"|{User.Identifier}";
             if (!string.IsNullOrEmpty(User.Name))
@@ -59,14 +79,14 @@ namespace MobileAppServer.Security
 
         private string GetCryptoPassword()
         {
-            string passwd = Server.GlobalInstance.TokenCryptPassword;
+            string passwd = securityManagementService.GetDefinitions().TokenCryptPassword;
             if (string.IsNullOrEmpty(passwd))
             {
                 if (!string.IsNullOrEmpty(cryptoPasswd))
                     return cryptoPasswd;
 
                 string cpuId = CPUID.GetCPUIdentifier();
-                string guid = Guid.ToString().Replace("-", "");
+                string guid = SessionId.ToString().Replace("-", "");
 
                 string str = CreateContentString();
                 byte[] sha256 = Encoding.ASCII.GetBytes(str);

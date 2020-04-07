@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerManager2.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,12 +24,25 @@ namespace ServerManager2
         public MainWindow()
         {
             InitializeComponent();
+            listConnections.Items.Add(new ConnectionUC());
+            listConnections.Items.Add(new ConnectionUC());
+            listConnections.Items.Add(new ConnectionUC());
+            listConnections.Items.Add(new ConnectionUC());
         }
 
         private void BtConnect_Click(object sender, RoutedEventArgs e)
         {
             ConnectServer cs = new ConnectServer();
             cs.ShowDialog();
+        }
+
+        private void listConnections_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (ConnectionUC item in listConnections.Items)
+                item.SetUnselected();
+
+            var selected = (ConnectionUC)listConnections.SelectedItem;
+            selected.SetSelected();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace MobileAppServer.CoreServices.Logging
 {
     public interface ILoggerWrapper
     {

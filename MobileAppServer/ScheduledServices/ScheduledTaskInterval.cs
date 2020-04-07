@@ -10,10 +10,10 @@ namespace MobileAppServer.ScheduledServices
 {
     public class ScheduledTaskInterval
     {
-        internal double Interval { get; private set; }
-        internal int Days { get; }
-        internal int Hours { get; }
-        internal int Minutes { get; }
+        public double Interval { get; private set; }
+        public int Days { get; private set; }
+        public int Hours { get; private set; }
+        public int Minutes { get; private set; }
 
         public ScheduledTaskInterval(int days, int hours, int minutes)
         {
@@ -21,6 +21,11 @@ namespace MobileAppServer.ScheduledServices
             Days = days;
             Hours = hours;
             Minutes = minutes;
+        }
+
+        public override string ToString()
+        {
+            return $"Interval: {Days} days, {Hours} hours and {Minutes} minutes";
         }
     }
 }

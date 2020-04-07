@@ -25,21 +25,29 @@ namespace MobileAppServer.Security
             if (!TokenRepository.Instance.IsValid(token))
                 return new InterceptorHandleResult(true, false, "Invalid or expired token. Check 'authorization' parameter in request body", "");
 
+            InterceptorHandleResult result = null;
+
             var userToken = TokenRepository.Instance.GetToken(token);
             var user = userToken.User;
-            if(user.IsRolesAccessControllerEnabled)
+            if (user.IsRolesAccessControllerEnabled)
             {
                 var role = user.Roles.FirstOrDefault(r => r.Controller.Equals(controllerName) && r.ActionName.Equals(actionName));
                 if (role == null)
-                    return new InterceptorHandleResult(false, true, "Access granted", "");
+                    result = new InterceptorHandleResult(false, true, "Access granted", "");
 
                 if (role.EnableAccess)
-                    return new InterceptorHandleResult(false, true, "Access granted", "");
+                    result = new InterceptorHandleResult(false, true, "Access granted", "");
                 else
-                    return new InterceptorHandleResult(true, false, "Access danied", "");
+                    result = new InterceptorHandleResult(true, false, "Access danied", "");
             }
+            else
+                result = new InterceptorHandleResult(false, true, "Access granted", "");
 
-            return new InterceptorHandleResult(false, true, "Access granted", "");
+            userToken.RegisterActivity(new UserActivity(DateTime.Now,
+                socketRequest.Controller.GetType().Name, socketRequest.Action,
+                result.ResponseSuccess));
+
+            return result;
         }
     }
 }

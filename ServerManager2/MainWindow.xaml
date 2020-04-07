@@ -14,7 +14,7 @@
             <Label Content="Server Instances" Margin="51,10,24,0" VerticalAlignment="Top" FontFamily="Segoe UI Semibold" Foreground="#FF6C6C6C" Height="34" FontSize="16"/>
             <Border BorderBrush="#FFEEEEEE" BorderThickness="1" Height="1" Margin="0,49,0,0" VerticalAlignment="Top"/>
             <Button x:Name="btConnect" Style="{StaticResource ConfirmButton}" Content="Connect new Server" Margin="10,0,10,10" VerticalAlignment="Bottom" Height="28" Click="BtConnect_Click"/>
-            <ListBox Margin="0,50,0,53" BorderBrush="Transparent"/>
+            <ListBox x:Name="listConnections" SelectionChanged="listConnections_SelectionChanged" ItemContainerStyle="{StaticResource listBoxItemBlue}" Margin="0,50,0,53" BorderBrush="Transparent"/>
         </Grid>
 
         <Grid Height="47" VerticalAlignment="Top" Background="#FF3469F5">

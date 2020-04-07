@@ -7,9 +7,9 @@ namespace MobileAppServerClient
 {
     public class ControllerInfo
     {
-        public string ControllerName { get; set; }
-        public string ControllerClass { get; set; }
-        public List<string> ControllerActions { get; set; }
+        public string ControllerName { get; private set; }
+        public string ControllerClass { get; private set; }
+        public List<string> ControllerActions { get; private set; }
 
         public ControllerInfo()
         {

@@ -5,13 +5,28 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8E1334BB-C53B-4B0C-8239-9156251A3AAE}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MobileAppServer</RootNamespace>
     <AssemblyName>MobileAppServer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -23,6 +38,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -54,41 +71,73 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreServices\AppServerConfigurator.cs" />
+    <Compile Include="CoreServices\ControllerManagement\ControllerManagerImpl.cs" />
+    <Compile Include="CoreServices\CoreServer\CoreServerImpl.cs" />
+    <Compile Include="CoreServices\CoreServer\RequestPreProcessor.cs" />
+    <Compile Include="CoreServices\CoreServer\ServerConfiguration.cs" />
+    <Compile Include="CoreServices\CoreServer\ServerEncodingConverterServiceImpl.cs" />
+    <Compile Include="CoreServices\DIManagement\DependencyInjectorManagerImpl.cs" />
+    <Compile Include="CoreServices\DomainModelsManagement\DomainModelsManager.cs" />
+    <Compile Include="CoreServices\EFIManagement\EFIManagerImpl.cs" />
+    <Compile Include="CoreServices\IControllerManager.cs" />
+    <Compile Include="CoreServices\ICoreServerService.cs" />
+    <Compile Include="CoreServices\IDependencyInjectionService.cs" />
+    <Compile Include="CoreServices\IDomainModelsManager.cs" />
+    <Compile Include="CoreServices\IEFIManager.cs" />
+    <Compile Include="CoreServices\IEncodingConverterService.cs" />
+    <Compile Include="CoreServices\IInterceptorManagerService.cs" />
+    <Compile Include="CoreServices\ILoggingService.cs" />
+    <Compile Include="CoreServices\InterceptorManagement\InterceptorManagementServiceImpl.cs" />
+    <Compile Include="CoreServices\IScheduledTaskManager.cs" />
+    <Compile Include="CoreServices\ISecurityManagementService.cs" />
+    <Compile Include="CoreServices\ScheduledTaskManagement\ScheduledTaskManagerImpl.cs" />
+    <Compile Include="CoreServices\SecurityManagement\SecurityManagementServiceImpl.cs" />
     <Compile Include="EFI\IExtensibleFrameworkInterface.cs" />
+    <Compile Include="Hosting\ISocketServerHostBuilder.cs" />
+    <Compile Include="Hosting\SocketHostBuilderImpl.cs" />
+    <Compile Include="Hosting\SocketServerHost.cs" />
     <Compile Include="LoadBalancingServices\INotifiableSubServerRequiriment.cs" />
     <Compile Include="LoadBalancingServices\LoadBalanceConfigurator.cs" />
     <Compile Include="LoadBalancingServices\LoadBalanceServer.cs" />
     <Compile Include="LoadBalancingServices\SubServer.cs" />
+    <Compile Include="ManagedServices\IServiceManager.cs" />
+    <Compile Include="ManagedServices\ManagedServiceBinding.cs" />
+    <Compile Include="ManagedServices\ServiceManagerFactory.cs" />
+    <Compile Include="ManagedServices\ServiceManagerImpl.cs" />
     <Compile Include="ScheduledServices\ScheduledTask.cs" />
     <Compile Include="ScheduledServices\ScheduledTaskInterval.cs" />
     <Compile Include="ScheduledServices\ScheduleNextEvent.cs" />
     <Compile Include="ScheduledServices\ScheduleNextEventsRepository.cs" />
     <Compile Include="ScheduledServices\ScheduledTaskExecutorService.cs" />
+    <Compile Include="Security\BasicSecurityDefinitions.cs" />
     <Compile Include="Security\Crypto.cs" />
     <Compile Include="Security\IUserServerRepository.cs" />
     <Compile Include="Security\AuthorizationController.cs" />
+    <Compile Include="Security\LoggedUserInfo.cs" />
     <Compile Include="Security\SecurityTokenInterceptor.cs" />
     <Compile Include="Security\ServerToken.cs" />
     <Compile Include="Security\ServerUser.cs" />
     <Compile Include="Security\TokenRepository.cs" />
+    <Compile Include="Security\UserActivity.cs" />
     <Compile Include="Security\UserRole.cs" />
     <Compile Include="Security\UserRoleValidationInterceptor.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />
-    <Compile Include="ServerObjects\BasicControllerRequestProcess.cs" />
+    <Compile Include="CoreServices\CoreServer\BasicControllerRequestProcessor.cs" />
     <Compile Include="ServerObjects\CacheRepository.cs" />
     <Compile Include="ServerObjects\ControllerInfo.cs" />
-    <Compile Include="ServerObjects\ControllerRegister.cs" />
+    <Compile Include="CoreServices\ControllerManagement\ControllerRegister.cs" />
     <Compile Include="ServerObjects\CPUID.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
     <Compile Include="ServerObjects\IDependencyInjectorMaker.cs" />
     <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
-    <Compile Include="ServerObjects\ILoggerWrapper.cs" />
+    <Compile Include="CoreServices\Logging\ILoggerWrapper.cs" />
     <Compile Include="ServerObjects\InterceptorHandleResult.cs" />
-    <Compile Include="ServerObjects\IBasicServerController.cs" />
+    <Compile Include="CoreServices\IBasicServerController.cs" />
     <Compile Include="ServerObjects\JsonResult.cs" />
-    <Compile Include="ServerObjects\LogController.cs" />
-    <Compile Include="ServerObjects\ModelRegister.cs" />
+    <Compile Include="CoreServices\Logging\LoggingServiceImpl.cs" />
+    <Compile Include="CoreServices\DomainModelsManagement\ModelRegister.cs" />
     <Compile Include="ServerObjects\ObjectRequestParameter.cs" />
     <Compile Include="ServerObjects\OperationResult.cs" />
     <Compile Include="ServerObjects\RequestBody.cs" />
@@ -97,26 +146,33 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerObjects\AsyncTask.cs" />
     <Compile Include="ServerObjects\IController.cs" />
-    <Compile Include="ServerObjects\RequestPreProcess.cs" />
-    <Compile Include="ServerObjects\RequestProccess.cs" />
+    <Compile Include="CoreServices\CoreServer\RequestProcessor.cs" />
     <Compile Include="ServerObjects\ResponseStatus.cs" />
-    <Compile Include="ServerObjects\Server.cs" />
     <Compile Include="ServerObjects\ServerAlert.cs" />
     <Compile Include="ServerObjects\ServerInfo.cs" />
     <Compile Include="ServerObjects\ServerInfoController.cs" />
-    <Compile Include="ServerObjects\ServerLog.cs" />
-    <Compile Include="ServerObjects\ServerLogType.cs" />
+    <Compile Include="CoreServices\Logging\ServerLog.cs" />
+    <Compile Include="CoreServices\Logging\ServerLogType.cs" />
     <Compile Include="ServerObjects\SocketRequest.cs" />
     <Compile Include="ServerObjects\ServerSocketResponse.cs" />
-    <Compile Include="ServerObjects\SocketSession.cs" />
+    <Compile Include="CoreServices\CoreServer\SocketSession.cs" />
     <Compile Include="ServerObjects\TypedObjectsRequestManager.cs" />
     <Compile Include="ServerUtils\StringCompactor.cs" />
+    <Compile Include="Startup.cs" />
+    <Compile Include="TelemetryServices\Events\ActionExecution.cs" />
+    <Compile Include="TelemetryServices\ITelemetryServicesProvider.cs" />
     <Compile Include="TestController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

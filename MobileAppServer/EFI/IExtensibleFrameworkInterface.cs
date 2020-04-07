@@ -10,6 +10,6 @@ namespace MobileAppServer.EFI
 
         string ExtensionPublisher { get; }
 
-        void Load(Server server);
+        void Load();
     }
 }
