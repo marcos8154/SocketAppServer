@@ -18,9 +18,9 @@ namespace MobileAppServer.ServerObjects
 
         public ServerInfo()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             ISecurityManagementService securityManagement = manager.GetService<ISecurityManagementService>();
-            ICoreServerService coreServer = manager.GetService<ICoreServerService>();
+            ICoreServerService coreServer = manager.GetService<ICoreServerService>("realserver");
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);

@@ -45,7 +45,8 @@ namespace MobileAppServer.ScheduledServices
                 DateTime nextEvent = DateTime.Now
                 .AddDays(baseInterval.Days)
                 .AddHours(baseInterval.Hours)
-                .AddMinutes(baseInterval.Minutes);
+                .AddMinutes(baseInterval.Minutes)
+                .AddSeconds(baseInterval.Seconds);
 
                 var events = GetNextEvents();
                 var evt = events.FirstOrDefault(e => e.TaskName.Equals(taskName));

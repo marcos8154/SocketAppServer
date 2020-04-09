@@ -12,17 +12,22 @@ namespace MobileAppServer.CoreServices.SecurityManagement
     {
         private IControllerManager controllerManager;
         private IInterceptorManagerService interceptorManager;
+        private ICoreServerService coreServer;
         public SecurityManagementServiceImpl()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             controllerManager = manager.GetService<IControllerManager>();
             interceptorManager = manager.GetService<IInterceptorManagerService>();
+            coreServer = ServiceManager.GetInstance().GetService<ICoreServerService>("realserver");
         }
 
         private bool securityEnabled = false;
         private BasicSecurityDefinitions definitions;
         public void EnableSecurity(IServerUserRepository userRepository, int tokenLifetime = 3, string tokenCryptPassword = "")
         {
+            if (coreServer.IsLoadBalanceEnabled())
+                throw new InvalidOperationException("Authentication features cannot be enabled on a load balancing server");
+
             if (securityEnabled)
                 throw new Exception("Aready enabled.");
 
@@ -39,7 +44,8 @@ namespace MobileAppServer.CoreServices.SecurityManagement
 
         public BasicSecurityDefinitions GetDefinitions()
         {
-            return definitions;
+            return new BasicSecurityDefinitions(definitions.Repository,
+                definitions.TokenLifeTime, "");
         }
 
         public IReadOnlyCollection<LoggedUserInfo> GetLoggedUsers()

@@ -17,10 +17,10 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public BasicControllerRequestProcess(RequestPreProcessor preProcessor)
         {
-            serviceManager = ServiceManagerFactory.GetInstance();
+            serviceManager = ServiceManager.GetInstance();
             logger = serviceManager.GetService<ILoggingService>();
             basicController = serviceManager.GetService<IBasicServerController>();
-            coreServer = serviceManager.GetService<ICoreServerService>();
+            coreServer = serviceManager.GetService<ICoreServerService>("realserver");
             encoder = serviceManager.GetService<IEncodingConverterService>();
 
             this.preProcessor = preProcessor;

@@ -13,7 +13,7 @@ namespace MobileAppServer.ScheduledServices
         private ILoggingService logger = null;
         public ScheduledTaskExecutorService()
         {
-            logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
+            logger = ServiceManager.GetInstance().GetService<ILoggingService>();
         }
 
         public override bool DoInBackGround(ScheduledTask task)
@@ -24,9 +24,7 @@ namespace MobileAppServer.ScheduledServices
             task.IsRunning = true;
             try
             {
-                logger.WriteLog($"ScheduledTask execution started: \nTaskName:{ task.TaskName}", ServerLogType.INFO);
                 task.RunTask();
-                logger.WriteLog($"ScheduledTask execution success: \nTaskName:{ task.TaskName}", ServerLogType.INFO);
                 task.IsRunning = false;
                 return true;
             }
@@ -43,6 +41,10 @@ namespace MobileAppServer.ScheduledServices
 
         public override void OnPostExecute(bool result)
         {
+            if (Task == null)
+                return;
+            if (!Task.SaveState)
+                return;
             ScheduleNextEventsRepository.Instance.SetNext(Task.TaskName,
                 Task.Interval);
         }

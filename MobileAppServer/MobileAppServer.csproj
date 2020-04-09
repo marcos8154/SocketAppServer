@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8E1334BB-C53B-4B0C-8239-9156251A3AAE}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MobileAppServer</RootNamespace>
     <AssemblyName>MobileAppServer</AssemblyName>
@@ -74,6 +74,7 @@
     <Compile Include="CoreServices\AppServerConfigurator.cs" />
     <Compile Include="CoreServices\ControllerManagement\ControllerManagerImpl.cs" />
     <Compile Include="CoreServices\CoreServer\CoreServerImpl.cs" />
+    <Compile Include="CoreServices\CoreServer\HWServiceImpl.cs" />
     <Compile Include="CoreServices\CoreServer\RequestPreProcessor.cs" />
     <Compile Include="CoreServices\CoreServer\ServerConfiguration.cs" />
     <Compile Include="CoreServices\CoreServer\ServerEncodingConverterServiceImpl.cs" />
@@ -86,13 +87,17 @@
     <Compile Include="CoreServices\IDomainModelsManager.cs" />
     <Compile Include="CoreServices\IEFIManager.cs" />
     <Compile Include="CoreServices\IEncodingConverterService.cs" />
+    <Compile Include="CoreServices\IHardwareServices.cs" />
     <Compile Include="CoreServices\IInterceptorManagerService.cs" />
     <Compile Include="CoreServices\ILoggingService.cs" />
     <Compile Include="CoreServices\InterceptorManagement\InterceptorManagementServiceImpl.cs" />
     <Compile Include="CoreServices\IScheduledTaskManager.cs" />
     <Compile Include="CoreServices\ISecurityManagementService.cs" />
+    <Compile Include="CoreServices\ITelemetryManagement.cs" />
+    <Compile Include="CoreServices\ProxyServices\ProxyCoreServer.cs" />
     <Compile Include="CoreServices\ScheduledTaskManagement\ScheduledTaskManagerImpl.cs" />
     <Compile Include="CoreServices\SecurityManagement\SecurityManagementServiceImpl.cs" />
+    <Compile Include="CoreServices\TelemetryManagement\TelemetryManagementImpl.cs" />
     <Compile Include="EFI\IExtensibleFrameworkInterface.cs" />
     <Compile Include="Hosting\ISocketServerHostBuilder.cs" />
     <Compile Include="Hosting\SocketHostBuilderImpl.cs" />
@@ -103,7 +108,7 @@
     <Compile Include="LoadBalancingServices\SubServer.cs" />
     <Compile Include="ManagedServices\IServiceManager.cs" />
     <Compile Include="ManagedServices\ManagedServiceBinding.cs" />
-    <Compile Include="ManagedServices\ServiceManagerFactory.cs" />
+    <Compile Include="ManagedServices\ServiceManager.cs" />
     <Compile Include="ManagedServices\ServiceManagerImpl.cs" />
     <Compile Include="ScheduledServices\ScheduledTask.cs" />
     <Compile Include="ScheduledServices\ScheduledTaskInterval.cs" />
@@ -157,9 +162,20 @@
     <Compile Include="ServerObjects\ServerSocketResponse.cs" />
     <Compile Include="CoreServices\CoreServer\SocketSession.cs" />
     <Compile Include="ServerObjects\TypedObjectsRequestManager.cs" />
+    <Compile Include="ServerUtils\LambdaExt.cs" />
+    <Compile Include="ServerUtils\ParameterRebinder.cs" />
     <Compile Include="ServerUtils\StringCompactor.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="TelemetryServices\Events\ActionExecution.cs" />
+    <Compile Include="TelemetryServices\Events\ActionError.cs" />
+    <Compile Include="TelemetryServices\Events\ActionExecutionTime.cs" />
+    <Compile Include="TelemetryServices\Events\HardwareUsage.cs" />
+    <Compile Include="TelemetryServices\Events\DependencyInjectorExecutionTime.cs" />
+    <Compile Include="TelemetryServices\Events\InterceptorExecutionTime.cs" />
+    <Compile Include="TelemetryServices\Impl\DefaultTelemetryServicesProvider.cs" />
+    <Compile Include="TelemetryServices\Impl\HWUsageCollectorTask.cs" />
+    <Compile Include="TelemetryServices\Impl\TelemetryDataCollectorImpl.cs" />
+    <Compile Include="TelemetryServices\Impl\TelemetryProcessorTask.cs" />
+    <Compile Include="TelemetryServices\ITelemetryDataCollector.cs" />
     <Compile Include="TelemetryServices\ITelemetryServicesProvider.cs" />
     <Compile Include="TestController.cs" />
   </ItemGroup>

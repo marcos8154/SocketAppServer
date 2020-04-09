@@ -1,8 +1,11 @@
 ﻿using MobileAppServer.CoreServices.Logging;
 using MobileAppServer.ManagedServices;
 using MobileAppServer.ServerObjects;
+using MobileAppServer.TelemetryServices;
+using MobileAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,12 +16,14 @@ namespace MobileAppServer.CoreServices.ControllerManagement
     public class ControllerManagerImpl : IControllerManager
     {
         private IServiceManager serviceManager = null;
+        private ITelemetryDataCollector telemetry;
         private List<ControllerRegister> controllers = null;
 
         public ControllerManagerImpl()
         {
             controllers = new List<ControllerRegister>();
-            serviceManager = ServiceManagerFactory.GetInstance();
+            serviceManager = ServiceManager.GetInstance();
+            telemetry = serviceManager.GetService<ITelemetryDataCollector>();
         }
 
         public ControllerRegister GetControllerRegister(string name)
@@ -50,16 +55,24 @@ namespace MobileAppServer.CoreServices.ControllerManagement
                 ControllerRegister register = GetControllerRegister(name);
                 IDependencyInjectorMaker injector = null;
 
+                object[] injectArgs = null;
                 if (!name.Equals("ServerInfoController"))
                 {
                     IDependencyInjectionService diService = serviceManager.GetService<IDependencyInjectionService>();
                     injector = diService.GetInjectorMaker(name);
+
+                    if (injector != null)
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        injectArgs = injector.BuildInjectValues(requestBody);
+                        sw.Stop();
+
+                        telemetry.Collect(new DependencyInjectorExecutionTime(injector.ControllerName, sw.ElapsedMilliseconds));
+                    }
                 }
 
-                IController controller = (injector == null
-                      ? (IController)Activator.CreateInstance(register.Type)
-                      : (IController)Activator.CreateInstance(register.Type, injector.BuildInjectValues(requestBody)));
-
+                IController controller = (IController)Activator.CreateInstance(register.Type, injectArgs);
                 return controller;
             }
             catch (Exception ex)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MobileAppServer.ManagedServices
 {
-    public sealed class ServiceManagerFactory
+    public sealed class ServiceManager
     {
         private static IServiceManager _instance = null;
         public static IServiceManager GetInstance()

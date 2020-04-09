@@ -12,7 +12,7 @@ namespace MobileAppServer.CoreServices.CoreServer
         private ICoreServerService coreServer = null;
         public ServerEncodingConverterServiceImpl()
         {
-            coreServer = ServiceManagerFactory.GetInstance().GetService<ICoreServerService>();
+            coreServer = ServiceManager.GetInstance().GetService<ICoreServerService>("realserver");
         }
 
         public byte[] ConvertToByteArray(string str)

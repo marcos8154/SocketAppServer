@@ -18,7 +18,7 @@ namespace MobileAppServer.Security
 
         public ActionResult Authorize(string user, string password)
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             ISecurityManagementService service = manager.GetService<ISecurityManagementService>();
 
             var serverUser = service.Authenticate(user, password);

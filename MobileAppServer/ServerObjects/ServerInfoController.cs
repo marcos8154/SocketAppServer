@@ -19,9 +19,9 @@ namespace MobileAppServer.ServerObjects
         private ICoreServerService coreServer = null;
         public ServerInfoController()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             controllerManager = manager.GetService<IControllerManager>();
-            coreServer = manager.GetService<ICoreServerService>();
+            coreServer = manager.GetService<ICoreServerService>("realserver");
         }
 
         public ActionResult Reboot()

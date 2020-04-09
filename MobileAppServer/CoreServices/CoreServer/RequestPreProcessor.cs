@@ -20,9 +20,9 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public RequestPreProcessor(IAsyncResult AR)
         {
-            IServiceManager serviceManager = ServiceManagerFactory.GetInstance();
+            IServiceManager serviceManager = ServiceManager.GetInstance();
             logger = serviceManager.GetService<ILoggingService>();
-            coreServer = serviceManager.GetService<ICoreServerService>();
+            coreServer = serviceManager.GetService<ICoreServerService>("realserver");
             encoder = serviceManager.GetService<IEncodingConverterService>();
 
             ClientSocket = (Socket)AR.AsyncState;

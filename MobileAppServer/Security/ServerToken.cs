@@ -42,7 +42,7 @@ namespace MobileAppServer.Security
         ISecurityManagementService securityManagementService = null;
         public ServerToken(ServerUser user)
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             securityManagementService = manager.GetService<ISecurityManagementService>();
 
             userActivities = new List<UserActivity>();

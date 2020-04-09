@@ -25,6 +25,7 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         private IServiceManager serviceManager;
         private ILoggingService loggingService;
+        private ISecurityManagementService security; 
         private Socket serverSocket;
         private ServerConfiguration configuration;
         private List<SocketSession> clientSessions;
@@ -32,8 +33,7 @@ namespace MobileAppServer.CoreServices.CoreServer
         public CoreServerImpl()
         {
             clientSessions = new List<SocketSession>();
-            serviceManager = ServiceManagerFactory.GetInstance();
-            loggingService = serviceManager.GetService<ILoggingService>();
+       
         }
 
         public ServerConfiguration GetConfiguration()
@@ -41,7 +41,6 @@ namespace MobileAppServer.CoreServices.CoreServer
             return configuration;
         }
 
-  
         public void AcceptCallback(IAsyncResult AR)
         {
             lock (lockAccept)
@@ -101,8 +100,6 @@ namespace MobileAppServer.CoreServices.CoreServer
             serverSocket.BeginAccept(AcceptCallback, null);
         }
 
- 
-
         public void ReceiveCallback(IAsyncResult AR)
         {
             lock (lockReceive)
@@ -153,10 +150,17 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         private void Initialize()
         {
+            serviceManager = ServiceManager.GetInstance();
+            loggingService = serviceManager.GetService<ILoggingService>();
+            security = serviceManager.GetService<ISecurityManagementService>();
+
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             IControllerManager manager = serviceManager.GetService<IControllerManager>();
             manager.RegisterController(typeof(ServerInfoController));
+
+            ITelemetryManagement telemetry = serviceManager.GetService<ITelemetryManagement>();
+            telemetry.Initialize();
 
             Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
             Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
@@ -167,6 +171,10 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public void EnableBasicServerProcessorMode(Type basicProcessorType)
         {
+            if (basicProcessorType == typeof(LoadBalanceServer))
+                if (security.IsAuthenticationEnabled())
+                    throw new InvalidOperationException("Load balancing cannot be enabled when authentication services are enabled");
+
             serviceManager.Bind<IBasicServerController>(basicProcessorType, false);
             isBasicServerEnabled = true;
             isLoadBalanceEnabled = (basicProcessorType == typeof(LoadBalanceServer));

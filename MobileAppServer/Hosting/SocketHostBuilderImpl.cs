@@ -19,7 +19,7 @@ namespace MobileAppServer.Hosting
 
             ServerConfiguration config = configurator.GetServerConfiguration();
 
-            ICoreServerService server = manager.GetService<ICoreServerService>();
+            ICoreServerService server = manager.GetService<ICoreServerService>("realserver");
             server.SetConfiguration(config);
             server.Start();
         }

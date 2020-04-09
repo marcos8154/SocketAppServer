@@ -20,8 +20,8 @@ namespace MobileAppServer.ServerObjects
 
         public static void AddLock(IController controller, string actionName)
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
-            ICoreServerService coreServer = manager.GetService<ICoreServerService>();
+            IServiceManager manager = ServiceManager.GetInstance();
+            ICoreServerService coreServer = manager.GetService<ICoreServerService>("realserver");
 
             if (coreServer.GetConfiguration().IsSingleThreaded)
                 throw new Exception("Action blocking not allowed for single-threaded servers");

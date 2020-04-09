@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MobileAppServer.CoreServices
 {
-    public interface ICoreServerService
+    internal interface ICoreServerService
     {
         void RunServerStartupTasks();
         void SetConfiguration(ServerConfiguration configuration);

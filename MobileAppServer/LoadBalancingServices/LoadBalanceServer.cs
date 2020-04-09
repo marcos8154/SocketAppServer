@@ -79,7 +79,7 @@ namespace MobileAppServer.LoadBalancingServices
 
         public LoadBalanceServer()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             Logger = manager.GetService<ILoggingService>();
         }
 

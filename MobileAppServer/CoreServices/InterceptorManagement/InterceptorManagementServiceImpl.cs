@@ -1,6 +1,10 @@
-﻿using MobileAppServer.ServerObjects;
+﻿using MobileAppServer.ManagedServices;
+using MobileAppServer.ServerObjects;
+using MobileAppServer.TelemetryServices;
+using MobileAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -11,10 +15,12 @@ namespace MobileAppServer.CoreServices.InterceptorManagement
     internal class InterceptorManagementServiceImpl : IInterceptorManagerService
     {
         private List<IHandlerInterceptor> Interceptors { get; set; }
+        private ITelemetryDataCollector telemetry;
 
         public InterceptorManagementServiceImpl()
         {
             Interceptors = new List<IHandlerInterceptor>();
+            telemetry = ServiceManager.GetInstance().GetService<ITelemetryDataCollector>();
         }
 
         public void AddInterceptor(IHandlerInterceptor interceptor)
@@ -58,7 +64,14 @@ namespace MobileAppServer.CoreServices.InterceptorManagement
         {
             foreach (var interceptor in interceptors)
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
                 var handleResult = interceptor.PreHandle(request);
+                sw.Stop();
+
+                telemetry.Collect(new InterceptorExecutionTime(interceptor.ControllerName,
+                    interceptor.ActionName, sw.ElapsedMilliseconds));
+
                 if (handleResult.CancelActionInvoke)
                 {
                     var response = (handleResult.ResponseSuccess

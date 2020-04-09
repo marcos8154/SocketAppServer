@@ -2,6 +2,8 @@
 using MobileAppServer.CoreServices.Logging;
 using MobileAppServer.ManagedServices;
 using MobileAppServer.ServerObjects;
+using MobileAppServer.TelemetryServices;
+using MobileAppServer.TelemetryServices.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,6 +22,7 @@ namespace MobileAppServer.CoreServices.CoreServer
         private ILoggingService logger = null;
         private IControllerManager controllerManager = null;
         private IInterceptorManagerService interceptorManager;
+        private ITelemetryDataCollector telemetry;
         private IController controller = null;
         private Socket socket;
         private MethodInfo method = null;
@@ -29,10 +32,11 @@ namespace MobileAppServer.CoreServices.CoreServer
         #region constructor
         internal RequestProcessor(string uriRequest, Socket clientSocket)
         {
-            IServiceManager serviceManager = ServiceManagerFactory.GetInstance();
+            IServiceManager serviceManager = ServiceManager.GetInstance();
             logger = serviceManager.GetService<ILoggingService>();
             controllerManager = serviceManager.GetService<IControllerManager>();
             interceptorManager = serviceManager.GetService<IInterceptorManagerService>();
+            telemetry = serviceManager.GetService<ITelemetryDataCollector>();
 
             socket = clientSocket;
             try
@@ -71,6 +75,8 @@ Action: {RequestBody.Action}";
         public override object DoInBackGround(int p)
         {
             SocketRequest request = null;
+            string controllerName = null;
+            string actionName = null;
             try
             {
                 request = GetRequestSocket();
@@ -83,6 +89,9 @@ Action: {RequestBody.Action}";
                 controller = request.Controller;
                 method = controller.GetType().GetMethod(request.Action);
 
+                controllerName = controller.GetType().Name;
+                actionName = method.Name;
+
                 if (ActionHasLock(request, controller, method.Name))
                     return string.Empty;
 
@@ -94,11 +103,13 @@ Action: {RequestBody.Action}";
                 for (int i = 0; i < request.Parameters.Count; i++)
                     methodParameters[i] = request.Parameters[i].Value;
 
-                logger.WriteLog($"Invoking action '{controller.GetType().Name}.{method.Name}'...", controller.GetType().Name, method.Name);
+                logger.WriteLog($"Invoking action '{controllerName}.{actionName}'...", controllerName, actionName);
                 Stopwatch w = new Stopwatch();
                 w.Start();
                 ActionResult result = (ActionResult)method.Invoke(controller, methodParameters);
                 w.Stop();
+
+                telemetry.Collect(new ActionExecutionTime(controllerName, actionName, w.ElapsedMilliseconds));
 
                 if (w.ElapsedMilliseconds > 10000)
                     ServerAlertManager.CreateAlert(new ServerAlert(request.Controller.GetType().Name, request.Action,
@@ -113,12 +124,17 @@ Action: {RequestBody.Action}";
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
+                if (ex.InnerException != null)
+                    msg += $" {ex.InnerException.Message}";
                 if (controller != null &&
                     method != null)
                     ActionLocker.ReleaseLock(controller, method.Name);
 
+                telemetry.Collect(new ActionError(controllerName, actionName, msg));
+
                 if (request != null)
-                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: \n{ ex.Message}"), socket);
+                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), socket);
                 return string.Empty;
             }
         }

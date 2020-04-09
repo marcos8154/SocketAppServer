@@ -23,10 +23,10 @@ namespace MobileAppServer.ServerObjects
         private ICoreServerService coreServer = null;
         public SocketRequest()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             logger = manager.GetService<ILoggingService>();
             encoder = manager.GetService<IEncodingConverterService>();
-            coreServer = manager.GetService<ICoreServerService>();
+            coreServer = manager.GetService<ICoreServerService>("realserver");
         }
 
         internal SocketRequest(IController controller,

@@ -48,7 +48,7 @@ namespace MobileAppServer.ManagedServices
 
         public void Unbind(string alias)
         {
-            var bind = Bindings.FirstOrDefault(b => b.Name.Equals(alias));
+            var bind = Bindings.FirstOrDefault(b => alias.Equals(b.Name));
             if (bind == null)
                 throw new Exception("Service instance not found.");
 
@@ -90,7 +90,7 @@ namespace MobileAppServer.ManagedServices
         {
             try
             {
-                var bind = Bindings.FirstOrDefault(b => b.Name.Equals(alias));
+                var bind = Bindings.FirstOrDefault(b => alias.Equals(b.Name));
                 if (bind == null)
                     throw new Exception("Service instance not found.");
 
@@ -127,7 +127,8 @@ namespace MobileAppServer.ManagedServices
         {
             try
             {
-                var bind = Bindings.FirstOrDefault(b => b.InterfaceType.Equals(typeof(T)));
+                var bind = Bindings.FirstOrDefault(b => b.InterfaceType.Equals(typeof(T)) &&
+                    string.IsNullOrEmpty(b.Name));
                 if (bind == null)
                     throw new Exception("Service instance not found.");
                 return GetServiceInternal<T>(bind, args);

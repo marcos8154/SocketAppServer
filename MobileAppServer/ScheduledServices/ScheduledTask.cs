@@ -10,13 +10,15 @@ namespace MobileAppServer.ScheduledServices
         public bool RunOnServerStart { get; }
         internal string TaskName { get; private set; }
         public ScheduledTaskInterval Interval { get; internal set; }
+        public bool SaveState { get; }
 
         Timer timer = new Timer();
         public ScheduledTask(string taskName,
-            bool runOnServerStart, ScheduledTaskInterval interval)
+            bool runOnServerStart, ScheduledTaskInterval interval, bool saveState = true)
         {
             TaskName = taskName;
             Interval = interval;
+            SaveState = saveState;
             RunOnServerStart = runOnServerStart;
 
             StartTimer(TryGetLastInterval());
@@ -30,7 +32,8 @@ namespace MobileAppServer.ScheduledServices
             {
                 var nextDate = (nextEvent - DateTime.Now);
                 nextEventInterval = new ScheduledTaskInterval((int)nextDate.Value.Days,
-                  (int)nextDate.Value.TotalHours, (int)nextDate.Value.TotalMinutes);
+                  (int)nextDate.Value.TotalHours, (int)nextDate.Value.TotalMinutes,
+                  (int)nextDate.Value.TotalSeconds);
 
                 if (nextEventInterval.Interval <= 0)
                     nextEvent = null;

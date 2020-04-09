@@ -19,7 +19,6 @@ namespace MobileAppServer.ManagedServices
             InterfaceType = interfaceType;
             Implementation = implementation;
             Singleton = singleton;
-            Name = implementation.Name;
         }
 
         internal ManagedServiceBinding(string name,

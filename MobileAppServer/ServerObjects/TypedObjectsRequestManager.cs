@@ -21,7 +21,7 @@ namespace MobileAppServer.ServerObjects
         private IDomainModelsManager modelsManager = null;
         public TypedObjectsRequestManager()
         {
-            IServiceManager manager = ServiceManagerFactory.GetInstance();
+            IServiceManager manager = ServiceManager.GetInstance();
             logger = manager.GetService<ILoggingService>();
             controllerManager = manager.GetService<IControllerManager>();
             modelsManager = manager.GetService<IDomainModelsManager>();

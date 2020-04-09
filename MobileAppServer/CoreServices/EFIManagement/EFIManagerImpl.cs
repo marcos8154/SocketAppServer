@@ -17,7 +17,7 @@ namespace MobileAppServer.CoreServices.EFIManagement
         public EFIManagerImpl()
         {
             Extensions = new List<IExtensibleFrameworkInterface>();
-            logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
+            logger = ServiceManager.GetInstance().GetService<ILoggingService>();
         }
 
         public void AddExtension(IExtensibleFrameworkInterface extension)

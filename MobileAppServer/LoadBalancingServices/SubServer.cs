@@ -35,7 +35,7 @@ namespace MobileAppServer.LoadBalancingServices
             MaxConnectionAttempts = maxConnectionAttempts;
             AcceptableProcesses = acceptableProcesses;
 
-            Logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
+            Logger = ServiceManager.GetInstance().GetService<ILoggingService>();
         }
 
         public SubServer(string address, int port, Encoding encoding,
@@ -53,7 +53,7 @@ namespace MobileAppServer.LoadBalancingServices
             ServerLifetimeInMinutes = serverLifetimeInMinutes;
             NotifiableRequirement = notifiableRequirement;
 
-            Logger = ServiceManagerFactory.GetInstance().GetService<ILoggingService>();
+            Logger = ServiceManager.GetInstance().GetService<ILoggingService>();
         }
 
         internal void EnableLifetime(INotifiableSubServerRequirement notifiableRequirement,

@@ -5,19 +5,17 @@ using MobileAppServer.CoreServices.DomainModelsManagement;
 using MobileAppServer.CoreServices.EFIManagement;
 using MobileAppServer.CoreServices.InterceptorManagement;
 using MobileAppServer.CoreServices.Logging;
+using MobileAppServer.CoreServices.ProxyServices;
 using MobileAppServer.CoreServices.ScheduledTaskManagement;
 using MobileAppServer.CoreServices.SecurityManagement;
+using MobileAppServer.CoreServices.TelemetryManagement;
 using MobileAppServer.LoadBalancingServices;
 using MobileAppServer.ManagedServices;
 using MobileAppServer.ScheduledServices;
 using MobileAppServer.Security;
 using MobileAppServer.ServerObjects;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MobileAppServer.CoreServices
 {
@@ -26,19 +24,21 @@ namespace MobileAppServer.CoreServices
         internal IServiceManager Services { get; set; }
         public AppServerConfigurator()
         {
-            Services = ServiceManagerFactory.GetInstance();
+            Services = ServiceManager.GetInstance();
 
             Services.Bind<ILoggingService>(typeof(LoggingServiceImpl), true);
             Services.Bind<IControllerManager>(typeof(ControllerManagerImpl), true);
             Services.Bind<IDomainModelsManager>(typeof(DomainModelsManager), true);
             Services.Bind<IEFIManager>(typeof(EFIManagerImpl), false);
-            Services.Bind<ICoreServerService>(typeof(CoreServerImpl), true);
+            Services.Bind<ICoreServerService>("realserver", typeof(CoreServerImpl), true);
+            Services.Bind<ICoreServerService>(typeof(ProxyCoreServer), true);
+            Services.Bind<IHardwareServices>(typeof(HWServiceImpl), true);
             Services.Bind<IInterceptorManagerService>(typeof(InterceptorManagementServiceImpl), true);
             Services.Bind<IDependencyInjectionService>(typeof(DependencyInjectorManagerImpl), true);
             Services.Bind<ISecurityManagementService>(typeof(SecurityManagementServiceImpl), true);
             Services.Bind<IScheduledTaskManager>(typeof(ScheduledTaskManagerImpl), true);
             Services.Bind<IEncodingConverterService>(typeof(ServerEncodingConverterServiceImpl), false);
-
+            Services.Bind<ITelemetryManagement>(typeof(TelemetryManagementImpl), true);
         }
 
         public abstract void ConfigureServices(IServiceManager serviceManager);
@@ -54,7 +54,7 @@ namespace MobileAppServer.CoreServices
         protected LoadBalanceConfigurator EnableLoadBalanceServer(int maxAttemptsToGetAvailableSubServer = 3,
           bool cacheResultsForUnreachableServers = false)
         {
-            ICoreServerService coreServer = Services.GetService<ICoreServerService>();
+            ICoreServerService coreServer = Services.GetService<ICoreServerService>("realserver");
             coreServer.EnableBasicServerProcessorMode(typeof(LoadBalanceServer));
 
             if (cacheResultsForUnreachableServers)
