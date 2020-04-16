@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManager2", "ServerMan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Standard", "SocketAppServer.Standard\SocketAppServer.Standard.csproj", "{947A305A-2092-4035-AECC-84149A3457F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServerClient.Standard", "SocketAppServerClient.Standar\SocketAppServerClient.Standard.csproj", "{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServerClient.Standard", "SocketAppServerClient.Standard\SocketAppServerClient.Standard.csproj", "{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
