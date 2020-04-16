@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace SocketAppServer.CoreServices
 {
-    internal interface ICoreServerService
+    public interface ICoreServerService
     {
         void RunServerStartupTasks();
         void SetConfiguration(ServerConfiguration configuration);
