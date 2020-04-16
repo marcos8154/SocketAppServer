@@ -10,9 +10,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServerTest", "Mobi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServer", "MobileAppServer\SocketAppServer.csproj", "{8E1334BB-C53B-4B0C-8239-9156251A3AAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServerClient", "MobileAppServerClient\MobileAppServerClient.csproj", "{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServerClient", "MobileAppServerClient\SocketAppServerClient.csproj", "{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManager2", "ServerManager2\ServerManager2.csproj", "{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Standard", "SocketAppServer.Standard\SocketAppServer.Standard.csproj", "{947A305A-2092-4035-AECC-84149A3457F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServerClient.Standard", "SocketAppServerClient.Standar\SocketAppServerClient.Standard.csproj", "{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +40,14 @@ Global
 		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{947A305A-2092-4035-AECC-84149A3457F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{947A305A-2092-4035-AECC-84149A3457F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{947A305A-2092-4035-AECC-84149A3457F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{947A305A-2092-4035-AECC-84149A3457F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

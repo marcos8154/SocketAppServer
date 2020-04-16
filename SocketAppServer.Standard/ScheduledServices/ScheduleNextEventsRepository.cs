@@ -1,0 +1,103 @@
+/*
+MIT License
+
+Copyright (c) 2020 Marcos Vinícius
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace SocketAppServer.ScheduledServices
+{
+    internal class ScheduleNextEventsRepository
+    {
+        private string defaultDir = $@"{Directory.GetCurrentDirectory()}\ScheduledTasks\";
+
+        private ScheduleNextEventsRepository()
+        {
+            if (!Directory.Exists(defaultDir))
+                Directory.CreateDirectory(defaultDir);
+        }
+
+        private static ScheduleNextEventsRepository _instance;
+
+        public static ScheduleNextEventsRepository Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new ScheduleNextEventsRepository();
+                return _instance;
+            }
+        }
+
+        internal DateTime? GetNext(string taskName)
+        {
+            var events = GetNextEvents();
+            var evt = events.FirstOrDefault(e => e.TaskName.Equals(taskName));
+            if(evt == null)
+                return null;
+            return evt.NextEvent;
+        }
+
+        private static object locker = new object();
+        internal void SetNext(string taskName, ScheduledTaskInterval baseInterval)
+        {
+            lock (locker)
+            {
+                DateTime nextEvent = DateTime.Now
+                .AddDays(baseInterval.Days)
+                .AddHours(baseInterval.Hours)
+                .AddMinutes(baseInterval.Minutes)
+                .AddSeconds(baseInterval.Seconds);
+
+                var events = GetNextEvents();
+                var evt = events.FirstOrDefault(e => e.TaskName.Equals(taskName));
+                if (evt == null)
+                    events.Add(new ScheduleNextEvent(taskName, nextEvent));
+                else
+                    evt.NextEvent = nextEvent;
+
+                SaveNextEvents(events);
+            }
+        }
+
+        private List<ScheduleNextEvent> GetNextEvents()
+        {
+            string file = $@"{defaultDir}\next_events.stn";
+            if (!File.Exists(file))
+                return new List<ScheduleNextEvent>();
+
+            string json = File.ReadAllText(file);
+            return JsonConvert.DeserializeObject<List<ScheduleNextEvent>>(json);
+        }
+
+        private void SaveNextEvents(List<ScheduleNextEvent> nextEvents)
+        {
+            string file = $@"{defaultDir}\next_events.stn";
+            string json = JsonConvert.SerializeObject(nextEvents);
+            File.WriteAllText(file, json);
+        }
+    }
+}

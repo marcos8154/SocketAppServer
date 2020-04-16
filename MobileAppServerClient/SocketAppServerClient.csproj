@@ -7,8 +7,8 @@
     <ProjectGuid>{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MobileAppServerClient</RootNamespace>
-    <AssemblyName>MobileAppServerClient</AssemblyName>
+    <RootNamespace>SocketAppServerClient</RootNamespace>
+    <AssemblyName>SocketAppServerClient</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

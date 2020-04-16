@@ -127,9 +127,9 @@
     <Folder Include="Interfaces\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MobileAppServerClient\MobileAppServerClient.csproj">
+    <ProjectReference Include="..\MobileAppServerClient\SocketAppServerClient.csproj">
       <Project>{d70a4664-cc13-442b-ab28-dcac82e1c7a9}</Project>
-      <Name>MobileAppServerClient</Name>
+      <Name>SocketAppServerClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
