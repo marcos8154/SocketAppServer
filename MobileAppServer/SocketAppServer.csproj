@@ -55,11 +55,11 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MobileAppServerClient, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MobileAppServer.Client.1.2.6\lib\net45\MobileAppServerClient.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SocketAppServerClient, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SocketAppServer.Client.2.0.0\lib\net45\SocketAppServerClient.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -147,7 +147,6 @@
     <Compile Include="ServerObjects\OperationResult.cs" />
     <Compile Include="ServerObjects\RequestBody.cs" />
     <Compile Include="ServerObjects\RequestParameter.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerObjects\AsyncTask.cs" />
     <Compile Include="ServerObjects\IController.cs" />
@@ -165,7 +164,6 @@
     <Compile Include="ServerUtils\LambdaExt.cs" />
     <Compile Include="ServerUtils\ParameterRebinder.cs" />
     <Compile Include="ServerUtils\StringCompactor.cs" />
-    <Compile Include="Startup.cs" />
     <Compile Include="TelemetryServices\Events\ActionError.cs" />
     <Compile Include="TelemetryServices\Events\ActionExecutionTime.cs" />
     <Compile Include="TelemetryServices\Events\HardwareUsage.cs" />
@@ -177,7 +175,6 @@
     <Compile Include="TelemetryServices\Impl\TelemetryProcessorTask.cs" />
     <Compile Include="TelemetryServices\ITelemetryDataCollector.cs" />
     <Compile Include="TelemetryServices\ITelemetryServicesProvider.cs" />
-    <Compile Include="TestController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENCE.MD" />

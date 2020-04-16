@@ -26,7 +26,7 @@ using SocketAppServer.CoreServices;
 using SocketAppServer.CoreServices.Logging;
 using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
-using MobileAppServerClient;
+using SocketAppServerClient;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -126,7 +126,7 @@ namespace SocketAppServer.LoadBalancingServices
         {
             Logger.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
-            MobileAppServerClient.RequestBody rb = MobileAppServerClient
+            SocketAppServerClient.RequestBody rb = SocketAppServerClient
                 .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
             client.SendRequest(rb);
 
@@ -202,7 +202,7 @@ namespace SocketAppServer.LoadBalancingServices
             return GetAvailableSubServer();
         }
 
-        private string BuildCacheResultKey(MobileAppServerClient.RequestBody rb)
+        private string BuildCacheResultKey(SocketAppServerClient.RequestBody rb)
         {
             string cacheResultKey = $"{rb.Controller}-{rb.Action}";
             if (rb.Parameters != null)
@@ -216,7 +216,7 @@ namespace SocketAppServer.LoadBalancingServices
             {
                 if (EnabledCachedResultsForUnreachableServers)
                 {
-                    Cache<MobileAppServerClient.OperationResult> cached = CacheRepository<MobileAppServerClient.OperationResult>.Get(cacheResultKey);
+                    Cache<SocketAppServerClient.OperationResult> cached = CacheRepository<SocketAppServerClient.OperationResult>.Get(cacheResultKey);
                     if (cached != null)
                         return ActionResult.Json(cached.Value);
                     else
@@ -248,7 +248,7 @@ namespace SocketAppServer.LoadBalancingServices
 
         public ActionResult RunAction(string receivedData)
         {
-            MobileAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<MobileAppServerClient.RequestBody>(receivedData);
+            SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData);
             string cacheResultKey = BuildCacheResultKey(rb);
             SubServer targetServer = GetAvailableSubServer();
 
@@ -268,10 +268,10 @@ namespace SocketAppServer.LoadBalancingServices
             Client client = BuildClient(targetServer);
             client.SendRequest(rb);
 
-            MobileAppServerClient.OperationResult result = client.GetResult();
+            SocketAppServerClient.OperationResult result = client.GetResult();
 
             if (EnabledCachedResultsForUnreachableServers)
-                CacheRepository<MobileAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
+                CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
 
             if (targetServer.HasLifetime())
                 targetServer.RefreshLifetime();

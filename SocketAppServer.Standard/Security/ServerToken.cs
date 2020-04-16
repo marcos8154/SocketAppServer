@@ -27,7 +27,7 @@ using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
-using System.Security.Policy;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SocketAppServer.Security
@@ -96,9 +96,7 @@ namespace SocketAppServer.Security
         private void CreateHash()
         {
             string str = CreateContentString();
-            byte[] sha256 = Encoding.ASCII.GetBytes(str);
-            string hash = Hash.CreateSHA256(sha256).ToString().Replace("-", "");
-            UserToken = new Crypto(hash, GetCryptoPassword()).Crypt();
+            UserToken = new Crypto(str, GetCryptoPassword()).Crypt();
         }
 
         private string GetCryptoPassword()
@@ -109,7 +107,6 @@ namespace SocketAppServer.Security
                 if (!string.IsNullOrEmpty(cryptoPasswd))
                     return cryptoPasswd;
 
-                string cpuId = CPUID.GetCPUIdentifier();
                 string guid = SessionId.ToString().Replace("-", "");
 
                 string str = CreateContentString();
@@ -118,7 +115,7 @@ namespace SocketAppServer.Security
                 int lenght = sha256.Length;
                 string random = new Random(lenght).Next().ToString();
 
-                cryptoPasswd = $"{cpuId}{guid}{random}";
+                cryptoPasswd = $"{guid}{random}";
                 return cryptoPasswd;
             }
             else return passwd;
