@@ -22,16 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.CoreServer;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.CoreServer;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer
+namespace SocketAppServer
 {
     public class Startup : AppServerConfigurator
     {
@@ -39,11 +39,14 @@ namespace MobileAppServer
         {
             RegisterController(typeof(TestController));
             RegisterModel(typeof(Entity));
+            RegisterModel(typeof(Address));
+            DisableTelemetryServices();
         }
 
         public override ServerConfiguration GetServerConfiguration()
         {
-            return new ServerConfiguration(Encoding.UTF8, 4000);
+            return new ServerConfiguration(Encoding.UTF8, 4000, 10000000,
+                false, 1000);
         }
     }
 }

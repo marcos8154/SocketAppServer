@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
 using System.Security.Policy;
 using System.Text;
 
-namespace MobileAppServer.Security
+namespace SocketAppServer.Security
 {
     internal class ServerToken
     {

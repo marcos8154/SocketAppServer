@@ -22,24 +22,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class SocketRequest
     {
         internal Socket ClientSocket { get; set; }
-        public IPEndPoint LocalEndPoint { get; private set; }
-        public IPEndPoint RemoteEndPoint { get; private set; }
+        public IPEndPoint LocalEndPoint
+        {
+            get
+            {
+                if (ClientSocket == null)
+                    return null;
+                return (ClientSocket.LocalEndPoint as IPEndPoint);
+            }
+
+        }
+
+        public IPEndPoint RemoteEndPoint
+        {
+            get
+            {
+                if (ClientSocket == null)
+                    return null;
+                return (ClientSocket.RemoteEndPoint as IPEndPoint);
+            }
+        }
 
 
         private ILoggingService logger = null;
@@ -60,9 +80,6 @@ namespace MobileAppServer.ServerObjects
             Action = action;
             requestParameters = parameters;
             ClientSocket = clientSocket;
-
-            LocalEndPoint = clientSocket.LocalEndPoint as IPEndPoint;
-            RemoteEndPoint = clientSocket.RemoteEndPoint as IPEndPoint;
         }
 
         private List<RequestParameter> requestParameters = new List<RequestParameter>();
@@ -86,6 +103,7 @@ namespace MobileAppServer.ServerObjects
                 return new ReadOnlyCollection<RequestParameter>(requestParameters);
             }
         }
+
         public IController Controller { get; internal set; }
         public string Action { get; internal set; }
         public bool HasErrors { get; internal set; }
@@ -102,10 +120,19 @@ namespace MobileAppServer.ServerObjects
         {
             if (result.Type == 1)
                 return;
-            string json = JsonConvert.SerializeObject(result.Content);
+            StringBuilder json = new StringBuilder();
+            
+            using(StringWriter sw = new StringWriter(json))
+            {
+                using(JsonWriter jw = new JsonTextWriter(sw))
+                {
+                    JsonSerializer js = new JsonSerializer();
+                    js.Serialize(jw, result.Content);
+                }
+            }
 
             int bufferSize = coreServer.GetConfiguration().BufferSize;
-            byte[] bytes = encoder.ConvertToByteArray(json);
+            byte[] bytes = encoder.ConvertToByteArray(json.ToString());
             int lenght = bytes.Length;
             double percentBufferUsed = (lenght / (double)bufferSize) * 100;
             result.ResponseLenght = lenght;
@@ -171,7 +198,7 @@ Operation has stopped.";
         private void ReleaseSession()
         {
             var session = coreServer.GetSession(ClientSocket);
-            coreServer.RemoveSession(session);
+            coreServer.RemoveSession(ref session);
 
             if (ClientSocket != null)
             {

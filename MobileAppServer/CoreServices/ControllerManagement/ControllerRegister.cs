@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.CoreServices.ControllerManagement
+namespace SocketAppServer.CoreServices.ControllerManagement
 {
     public class ControllerRegister
     {

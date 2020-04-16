@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Impl
+namespace SocketAppServer.TelemetryServices.Impl
 {
     public class TelemetryDataCollectorImpl : ITelemetryDataCollector
     {
@@ -43,11 +43,16 @@ namespace MobileAppServer.TelemetryServices.Impl
 
         public TelemetryDataCollectorImpl()
         {
-            errors = new List<ActionError>();
-            actionExecutions = new List<ActionExecutionTime>();
-            dependencyInjectors = new List<DependencyInjectorExecutionTime>();
-            hardwareUsages = new List<HardwareUsage>();
-            interceptorExecutions = new List<InterceptorExecutionTime>();
+            InitializeEventLists();
+        }
+
+        private void InitializeEventLists()
+        {
+            errors = new List<ActionError>(100);
+            actionExecutions = new List<ActionExecutionTime>(100);
+            dependencyInjectors = new List<DependencyInjectorExecutionTime>(100);
+            hardwareUsages = new List<HardwareUsage>(100);
+            interceptorExecutions = new List<InterceptorExecutionTime>(100);
         }
 
         public void Collect(object eventObj)
@@ -67,58 +72,63 @@ namespace MobileAppServer.TelemetryServices.Impl
             }
         }
 
-        public List<ActionError> GetActionErros()
+        public IEnumerable<ActionError> GetActionErros()
         {
             lock (lckObj)
             {
-                ActionError[] result = new ActionError[errors.Count];
-                errors.CopyTo(result);
+                foreach (var error in errors)
+                    yield return error;
                 errors.Clear();
-                return result.ToList();
+                errors = null;
+                errors = new List<ActionError>(100);
             }
         }
 
-        public List<ActionExecutionTime> GetActionExecutions()
+        public IEnumerable<ActionExecutionTime> GetActionExecutions()
         {
             lock (lckObj)
             {
-                ActionExecutionTime[] result = new ActionExecutionTime[actionExecutions.Count];
-                actionExecutions.CopyTo(result);
+                foreach (var action in actionExecutions)
+                    yield return action;
                 actionExecutions.Clear();
-                return result.ToList();
+                actionExecutions = null;
+                actionExecutions = new List<ActionExecutionTime>(100);
             }
         }
 
-        public List<DependencyInjectorExecutionTime> GetDependencyInjectors()
+        public IEnumerable<DependencyInjectorExecutionTime> GetDependencyInjectors()
         {
             lock (lckObj)
             {
-                DependencyInjectorExecutionTime[] result = new DependencyInjectorExecutionTime[dependencyInjectors.Count];
-                dependencyInjectors.CopyTo(result);
+                foreach (var di in dependencyInjectors)
+                    yield return di;
                 dependencyInjectors.Clear();
-                return result.ToList();
+                dependencyInjectors = null;
+                dependencyInjectors = new List<DependencyInjectorExecutionTime>(100);
             }
         }
 
-        public List<HardwareUsage> GetHardwareUsages()
+        public IEnumerable<HardwareUsage> GetHardwareUsages()
         {
             lock (lckObj)
             {
-                HardwareUsage[] result = new HardwareUsage[hardwareUsages.Count];
-                hardwareUsages.CopyTo(result);
+                foreach (var hw in hardwareUsages)
+                    yield return hw;
                 hardwareUsages.Clear();
-                return result.ToList();
+                hardwareUsages = null;
+                hardwareUsages = new List<HardwareUsage>(100);
             }
         }
 
-        public List<InterceptorExecutionTime> GetInterceptorExecutions()
+        public IEnumerable<InterceptorExecutionTime> GetInterceptorExecutions()
         {
             lock (lckObj)
             {
-                InterceptorExecutionTime[] result = new InterceptorExecutionTime[interceptorExecutions.Count];
-                interceptorExecutions.CopyTo(result);
+                foreach (var intercp in interceptorExecutions)
+                    yield return intercp;
                 interceptorExecutions.Clear();
-                return result.ToList();
+                interceptorExecutions = null;
+                interceptorExecutions = new List<InterceptorExecutionTime>(100);
             }
         }
     }

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public abstract class ActionResult
     {
@@ -41,7 +41,7 @@ namespace MobileAppServer.ServerObjects
 
         public static ActionResult Json(object obj, int status = ResponseStatus.SUCCESS, string message = "Request success")
         {
-            return new  JsonResult(obj, status, message);
+            return new JsonResult(ref obj, ref status, ref message);
         }
 
         public static ActionResult File(string filePath, int status = ResponseStatus.SUCCESS, string message = "Request success")

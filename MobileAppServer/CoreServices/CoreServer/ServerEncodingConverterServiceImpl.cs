@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     internal class ServerEncodingConverterServiceImpl : IEncodingConverterService
     {

@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.LoadBalancingServices;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices;
+using SocketAppServer.LoadBalancingServices;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     internal class ServerInfo
     {

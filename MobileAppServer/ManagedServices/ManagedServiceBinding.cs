@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.ManagedServices
+namespace SocketAppServer.ManagedServices
 {
     public class ManagedServiceBinding
     {

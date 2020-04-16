@@ -22,16 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.CoreServer;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices.CoreServer;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.ProxyServices
+namespace SocketAppServer.CoreServices.ProxyServices
 {
     internal class ProxyCoreServer : ICoreServerService
     {
@@ -104,7 +105,7 @@ namespace MobileAppServer.CoreServices.ProxyServices
             throw new InvalidOperationException("External modules cannot make this call in the server's kernel");
         }
 
-        public void RemoveSession(SocketSession session)
+        public void RemoveSession(ref SocketSession session)
         {
             throw new InvalidOperationException("External modules cannot make this call in the server's kernel");
         }
@@ -122,6 +123,16 @@ namespace MobileAppServer.CoreServices.ProxyServices
         public void Start()
         {
             throw new InvalidOperationException("External modules cannot make this call in the server's kernel");
+        }
+
+        public string GetServerVersion()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }
+
+        public void DisableTelemetryServices()
+        {
+            realServer.DisableTelemetryServices();
         }
     }
 }

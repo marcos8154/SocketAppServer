@@ -24,7 +24,7 @@ SOFTWARE.
 
 using System.Management;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class CPUID
     {

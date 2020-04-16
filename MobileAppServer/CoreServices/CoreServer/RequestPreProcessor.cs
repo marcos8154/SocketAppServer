@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     public class RequestPreProcessor : IDisposable
     {
@@ -38,38 +38,96 @@ namespace MobileAppServer.CoreServices.CoreServer
         private ICoreServerService coreServer = null;
         private IEncodingConverterService encoder = null;
 
-        internal Socket ClientSocket { get; private set; }
+        RequestProcessor requestProcessor = null;
+        BasicControllerRequestProcess basicControllerRequestProcessor = null;
+
+        internal Socket clientSocket = null;
         private SocketSession session = null;
         private string uriRequest = null;
 
+        private IAsyncResult asyncResult;
+
         public RequestPreProcessor(IAsyncResult AR)
+        {
+            asyncResult = AR;
+        }
+
+        private bool Initialize()
         {
             IServiceManager serviceManager = ServiceManager.GetInstance();
             logger = serviceManager.GetService<ILoggingService>();
             coreServer = serviceManager.GetService<ICoreServerService>("realserver");
             encoder = serviceManager.GetService<IEncodingConverterService>();
 
-            ClientSocket = (Socket)AR.AsyncState;
+            clientSocket = (Socket)asyncResult.AsyncState;
             int received;
 
-            session = TryGetSession();
+            TryGetSession();
             if (session == null)
             {
                 Dispose();
-                return;
+                return false;
             }
 
-            received = Receive(AR);
+            received = Receive();
             if (received == 0)
-                return;
+                return false;
 
             byte[] receivedBuffer = new byte[received];
             Array.Copy(session.SessionStorage, receivedBuffer, received);
             uriRequest = encoder.ConvertToString(receivedBuffer);
 
-            if (coreServer.IsBasicServerEnabled())
+            return true;
+        }
+
+        private void TryGetSession()
+        {
+            for (int i = 0; i < 3; i++)
             {
-                BasicControllerProcess();
+                session = coreServer.GetSession(clientSocket);
+                if (session != null)
+                    return;
+                else Thread.Sleep(100);
+            }
+        }
+
+        private int Receive()
+        {
+            try
+            {
+                int received = clientSocket.EndReceive(asyncResult);
+                return received;
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLog($"[INTERNAL]: EndReceive async-reader client socket was thrown: {ex.Message}", ServerLogType.ERROR);
+                Dispose();
+                return 0;
+            }
+        }
+
+        private void BasicControllerProcess()
+        {
+            basicControllerRequestProcessor = new BasicControllerRequestProcess(this);
+            if (coreServer.GetConfiguration().IsSingleThreaded)
+            {
+                basicControllerRequestProcessor.DoInBackGround(uriRequest);
+                Dispose();
+            }
+            else
+            {
+                basicControllerRequestProcessor.OnCompleted += BasicControllerRequestProc_OnCompleted;
+                WaitPendingRequestsCompletations();
+                basicControllerRequestProcessor.Execute(uriRequest);
+            }
+        }
+
+        internal void Process()
+        {
+            bool initialized = Initialize();
+            if (!initialized)
+            {
+                Dispose();
                 return;
             }
 
@@ -79,76 +137,51 @@ namespace MobileAppServer.CoreServices.CoreServer
                 return;
             }
 
-            Process();
-        }
-
-        private SocketSession TryGetSession()
-        {
-            SocketSession s = null;
-            for (int i = 0; i < 3; i++)
+            if (coreServer.IsBasicServerEnabled())
             {
-                s = GetSession(ClientSocket);
-                if (s != null)
-                    return s;
-                else Thread.Sleep(100);
+                BasicControllerProcess();
+                return;
             }
-            return null;
-        }
 
-        private int Receive(IAsyncResult AR)
-        {
-            try
-            {
-                int received = ClientSocket.EndReceive(AR);
-                return received;
-            }
-            catch (Exception ex)
-            {
-                Dispose();
-                return 0;
-            }
-        }
-
-        private void BasicControllerProcess()
-        {
-            BasicControllerRequestProcess requestProcess = new BasicControllerRequestProcess(this);
-            if (coreServer.GetConfiguration().IsSingleThreaded)
-                requestProcess.DoInBackGround(uriRequest);
-            else
-            {
-                WaitPendingRequestsCompletations();
-                requestProcess.Execute(uriRequest);
-            }
-        }
-
-        private void Process()
-        {
-            RequestProcessor process = new RequestProcessor(uriRequest, ClientSocket);
-            process.OnCompleted += Process_OnCompleted;
+            requestProcessor = new RequestProcessor(ref uriRequest, ref clientSocket);
 
             if (coreServer.GetConfiguration().IsSingleThreaded)
             {
-                process.DoInBackGround(0);
+                requestProcessor.DoInBackGround(0);
+                requestProcessor.OnPostExecute(0);
                 Dispose();
             }
             else
             {
+                requestProcessor.OnCompleted += RequestProcessor_OnCompleted;
                 WaitPendingRequestsCompletations();
-                process.Execute(0);
+                requestProcessor.Execute(0);
             }
         }
 
-        private SocketSession GetSession(Socket clientSocket)
+        private void WaitPendingRequestsCompletations()
         {
-            try
+            int maxThreadsCount = coreServer.GetConfiguration().MaxThreadsCount;
+            while (maxThreadsCount > 0 &&
+                RequestProcessor.ThreadCount >= maxThreadsCount)
             {
-                SocketSession session = coreServer.GetSession(clientSocket);
-                return session;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                logger.WriteLog("\nThe number of current threads has exceeded the limit configured for this server. Waiting for pending requests completation...", ServerLogType.ALERT);
+                Console.ForegroundColor = ConsoleColor.White;
+                Thread.Sleep(300);
             }
-            catch (Exception ex)
-            {
-                return null;
-            }
+        }
+
+        private void BasicControllerRequestProc_OnCompleted(string result)
+        {
+            Dispose();
+            basicControllerRequestProcessor.OnCompleted -= BasicControllerRequestProc_OnCompleted;
+        }
+
+        private void RequestProcessor_OnCompleted(object result)
+        {
+            Dispose();
+            requestProcessor.OnCompleted -= RequestProcessor_OnCompleted;
         }
 
         public void Dispose()
@@ -164,37 +197,11 @@ namespace MobileAppServer.CoreServices.CoreServer
                 return;
             if (disposing)
             {
+                uriRequest = null;
                 if (session != null)
-                    coreServer.RemoveSession(session);
-
-                if (ClientSocket != null)
-                {
-                    try
-                    {
-                        ClientSocket.Close();
-                        ClientSocket.Dispose();
-                        ClientSocket = null;
-                    }
-                    catch { }
-                }
+                    coreServer.RemoveSession(ref session);
             }
             disposed = true;
-        }
-
-        private void WaitPendingRequestsCompletations()
-        {
-            int maxThreadsCount = coreServer.GetConfiguration().MaxThreadsCount;
-            while (maxThreadsCount > 0 &&
-                RequestProcessor.ThreadCount >= maxThreadsCount)
-            {
-                logger.WriteLog("\nNumber of current threads has exceeded the set limit. Waiting for tasks to finish...", ServerLogType.ALERT);
-                Thread.Sleep(300);
-            }
-        }
-
-        private void Process_OnCompleted(object result)
-        {
-            Dispose();
         }
     }
 }

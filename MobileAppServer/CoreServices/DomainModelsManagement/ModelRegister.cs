@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.CoreServices.DomainModelsManagement
+namespace SocketAppServer.CoreServices.DomainModelsManagement
 {
     public class ModelRegister
     {
@@ -36,6 +36,11 @@ namespace MobileAppServer.CoreServices.DomainModelsManagement
 
         internal ModelRegister(string name, Type type)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new Exception("Name cannot be null");
+            if (type == null)
+                throw new Exception("Type cannot be null");
+
             ModeName = name;
             ModelType = type;
         }

@@ -22,16 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
-using MobileAppServer.TelemetryServices;
-using MobileAppServer.TelemetryServices.Impl;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.TelemetryServices;
+using SocketAppServer.TelemetryServices.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.TelemetryManagement
+namespace SocketAppServer.CoreServices.TelemetryManagement
 {
     public class TelemetryManagementImpl : ITelemetryManagement
     {

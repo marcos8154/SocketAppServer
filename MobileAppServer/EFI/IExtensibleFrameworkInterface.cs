@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ServerObjects;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 
-namespace MobileAppServer.EFI
+namespace SocketAppServer.EFI
 {
     public interface IExtensibleFrameworkInterface
     {
@@ -34,6 +35,8 @@ namespace MobileAppServer.EFI
 
         string ExtensionPublisher { get; }
 
-        void Load();
+        string MinServerVersion { get; }
+
+        void Load(IServiceManager manager);
     }
 }

@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
-using MobileAppServer.Security;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.SecurityManagement
+namespace SocketAppServer.CoreServices.SecurityManagement
 {
     internal class SecurityManagementServiceImpl : ISecurityManagementService
     {

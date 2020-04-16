@@ -22,23 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices
+namespace SocketAppServer.TelemetryServices
 {
     internal interface ITelemetryDataCollector
     {
         void Collect(object eventObj);
 
-        List<ActionError> GetActionErros();
-        List<ActionExecutionTime> GetActionExecutions();
-        List<DependencyInjectorExecutionTime> GetDependencyInjectors();
-        List<HardwareUsage> GetHardwareUsages();
-        List<InterceptorExecutionTime> GetInterceptorExecutions();
+        IEnumerable<ActionError> GetActionErros();
+        IEnumerable<ActionExecutionTime> GetActionExecutions();
+        IEnumerable<DependencyInjectorExecutionTime> GetDependencyInjectors();
+        IEnumerable<HardwareUsage> GetHardwareUsages();
+        IEnumerable<InterceptorExecutionTime> GetInterceptorExecutions();
     }
 }

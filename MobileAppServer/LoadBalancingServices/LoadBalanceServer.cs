@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using MobileAppServerClient;
 using Newtonsoft.Json;
 using System;
@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace MobileAppServer.LoadBalancingServices
+namespace SocketAppServer.LoadBalancingServices
 {
     internal class LoadBalanceServer : IBasicServerController
     {

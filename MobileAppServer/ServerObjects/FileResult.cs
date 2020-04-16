@@ -28,7 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class FileResult : ActionResult
     {

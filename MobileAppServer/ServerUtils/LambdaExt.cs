@@ -29,7 +29,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.ServerUtils
+namespace SocketAppServer.ServerUtils
 {
     public static class LambdaExt
     {

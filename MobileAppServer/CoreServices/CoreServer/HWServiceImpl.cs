@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
-using MobileAppServer.TelemetryServices;
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.TelemetryServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     internal class HWServiceImpl : IHardwareServices
     {
@@ -45,26 +45,39 @@ namespace MobileAppServer.CoreServices.CoreServer
             coreServer = manager.GetService<ICoreServerService>();
         }
 
-        public double AverageCPUUsage(int lastHours = 3)
+        public double AverageCPUUsage(int minutes = 3)
         {
-            DateTime startDate = DateTime.Now.AddHours(-lastHours);
+            if (telemetry == null)
+                return 0;
+
+            DateTime startDate = DateTime.Now.AddMinutes(-minutes);
             DateTime endDate = DateTime.Now;
             IEnumerable<HardwareUsage> events = telemetry.GetHardwareUsages(startDate, endDate);
-            return events.Average(evt => evt.CPUUsage);
+
+            if (events.Count() > 0)
+                return events.LastOrDefault().CPUUsage;//events.Average(evt => evt.CPUUsage);
+            else
+                return 0;
         }
 
-        public double AverageMemoryUsage(int lastHours = 3)
+        public double AverageMemoryUsage(int minutes = 3)
         {
-            DateTime startDate = DateTime.Now.AddHours(-lastHours);
+            if (telemetry == null)
+                return 0;
+
+            DateTime startDate = DateTime.Now.AddMinutes(-minutes);
             DateTime endDate = DateTime.Now;
             IEnumerable<HardwareUsage> events = telemetry.GetHardwareUsages(startDate, endDate);
-            return events.Average(evt => evt.MemoryUsageMegabytes);
+            if (events.Count() > 0)
+                return events.LastOrDefault().MemoryUsageMegabytes;// events.Average(evt => evt.MemoryUsageMegabytes);
+            else
+                return 0;
         }
 
         public void ReleaseMemory()
         {
             int retrieves = 0;
-            while(coreServer.CurrentThreadsCount() > 0 && retrieves < 3)
+            while (coreServer.CurrentThreadsCount() > 0 && retrieves < 3)
             {
                 Thread.Sleep(1000);
                 retrieves += 1;

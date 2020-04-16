@@ -1,5 +1,5 @@
 /*
-MIT License
+The MIT License
 
 Copyright (c) 2020 Marcos Vinícius
 
@@ -22,14 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.Hosting;
-using MobileAppServer.LoadBalancingServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.Hosting;
+using SocketAppServer.LoadBalancingServices;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Timers;
 
-namespace MobileAppServer
+namespace SocketAppServer
 {
     public class Program
     {
@@ -39,5 +40,8 @@ namespace MobileAppServer
                 .UseStartup<Startup>()
                 .Run();
         }
+
     }
+
+
 }

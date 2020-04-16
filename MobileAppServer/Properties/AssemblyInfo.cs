@@ -29,13 +29,13 @@ using System.Runtime.InteropServices;
 // As informações gerais sobre um assembly são controladas por
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
 // associada a um assembly.
-[assembly: AssemblyTitle("MobileAppServer")]
-[assembly: AssemblyDescription("Mobile Socket App Server")]
+[assembly: AssemblyTitle("SocketAppServer")]
+[assembly: AssemblyDescription("Simple, fast and lightweight Socket App Server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MobileAppServer")]
+[assembly: AssemblyCompany("SocketAppServer")]
+[assembly: AssemblyProduct("SocketAppServer")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("SocketAppServer")]
 [assembly: AssemblyCulture("")]
 
 // Definir ComVisible como false torna invisíveis os tipos neste assembly

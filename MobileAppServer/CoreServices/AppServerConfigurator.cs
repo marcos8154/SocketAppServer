@@ -22,26 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.ControllerManagement;
-using MobileAppServer.CoreServices.CoreServer;
-using MobileAppServer.CoreServices.DIManagement;
-using MobileAppServer.CoreServices.DomainModelsManagement;
-using MobileAppServer.CoreServices.EFIManagement;
-using MobileAppServer.CoreServices.InterceptorManagement;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.CoreServices.ProxyServices;
-using MobileAppServer.CoreServices.ScheduledTaskManagement;
-using MobileAppServer.CoreServices.SecurityManagement;
-using MobileAppServer.CoreServices.TelemetryManagement;
-using MobileAppServer.LoadBalancingServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ScheduledServices;
-using MobileAppServer.Security;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices.ControllerManagement;
+using SocketAppServer.CoreServices.CoreServer;
+using SocketAppServer.CoreServices.DIManagement;
+using SocketAppServer.CoreServices.DomainModelsManagement;
+using SocketAppServer.CoreServices.EFIManagement;
+using SocketAppServer.CoreServices.InterceptorManagement;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.CoreServices.ProxyServices;
+using SocketAppServer.CoreServices.ScheduledTaskManagement;
+using SocketAppServer.CoreServices.SecurityManagement;
+using SocketAppServer.CoreServices.TelemetryManagement;
+using SocketAppServer.LoadBalancingServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ScheduledServices;
+using SocketAppServer.Security;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Reflection;
 
-namespace MobileAppServer.CoreServices
+namespace SocketAppServer.CoreServices
 {
     public abstract class AppServerConfigurator
     {
@@ -86,6 +86,16 @@ namespace MobileAppServer.CoreServices
 
             LoadBalanceServer.SetAttemptsToGetSubServerAvailable(maxAttemptsToGetAvailableSubServer);
             return new LoadBalanceConfigurator();
+        }
+
+        /// <summary>
+        /// Disables standard telemetry services on the server
+        /// WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code
+        /// </summary>
+        protected void DisableTelemetryServices()
+        {
+            ICoreServerService coreServer = Services.GetService<ICoreServerService>();
+            coreServer.DisableTelemetryServices();
         }
 
         /// <summary>
@@ -171,7 +181,6 @@ namespace MobileAppServer.CoreServices
             IDomainModelsManager manager = Services.GetService<IDomainModelsManager>();
             manager.RegisterAllModels(assembly, namespaceName);
         }
-
 
         /// <summary>
         /// Adds a scheduled task on the server

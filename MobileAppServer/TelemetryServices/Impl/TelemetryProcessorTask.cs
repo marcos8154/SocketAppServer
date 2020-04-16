@@ -22,17 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ScheduledServices;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ScheduledServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Impl
+namespace SocketAppServer.TelemetryServices.Impl
 {
     public class TelemetryProcessorTask : ScheduledTask
     {
@@ -47,23 +47,27 @@ namespace MobileAppServer.TelemetryServices.Impl
             collector = manager.GetService<ITelemetryDataCollector>();
             logging = manager.GetService<ILoggingService>();
         }
+        private object lck = new object();
 
         public override void RunTask()
         {
-            try
+            lock (lck)
             {
-                telemetry.ActionExecutionTime(collector.GetActionExecutions());
-                telemetry.ActionError(collector.GetActionErros());
-                telemetry.HWUsage(collector.GetHardwareUsages());
-                telemetry.DependencyInjectionExecutiontime(collector.GetDependencyInjectors());
-                telemetry.InterceptorExecutionTime(collector.GetInterceptorExecutions());
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                if (ex.InnerException != null)
-                    msg += $"\n{ex.InnerException.Message}";
-                logging.WriteLog($"TelemetryProcessorTask error: {msg}", ServerLogType.ERROR);
+                try
+                {
+                    telemetry.ActionExecutionTime(collector.GetActionExecutions());
+                    telemetry.ActionError(collector.GetActionErros());
+                    telemetry.HWUsage(collector.GetHardwareUsages());
+                    telemetry.DependencyInjectionExecutiontime(collector.GetDependencyInjectors());
+                    telemetry.InterceptorExecutionTime(collector.GetInterceptorExecutions());
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message;
+                    if (ex.InnerException != null)
+                        msg += $"\n{ex.InnerException.Message}";
+                    logging.WriteLog($"TelemetryProcessorTask error: {msg}", ServerLogType.ERROR);
+                }
             }
         }
     }

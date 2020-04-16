@@ -22,37 +22,71 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer
+namespace SocketAppServer
 {
     internal class TestController : IController
     {
-        public ActionResult SimpleAction(string param1, int param2)
+        private SqlConnection GetConnection()
         {
-            int count = 0;
-            byte[] array = null;
-            while (count < 10)
+            SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder();
+            sb.DataSource = "localhost";
+            sb.UserID = "sa";
+            sb.Password = "81547686";
+            sb.InitialCatalog = "sas_tests";
+
+            SqlConnection conn = new SqlConnection(sb.ConnectionString);
+            conn.Open();
+            return conn;
+        }
+
+        public ActionResult SimpleAction(SocketRequest request)
+        {
+            return ActionResult.Json(new OperationResult(true, 600, $""));
+        }
+
+        public ActionResult SaveEntity(Entity entity, Address address,
+            List<Entity> entities,
+            bool active, string alias,
+            string anotherParameter)
+        {
+            string sqlEntity = $@"insert into Entities(Name, Phone) values ('{entity.Name}', '{entity.Phone}')";
+            string sqlAddress = $"insert into Addresses(Street, City) values ('{address.Street}', '{address.City}')";
+
+            using (SqlConnection conn = GetConnection())
             {
-                 array = File.ReadAllBytes(@"C:\oraclexe\app\oracle\oradata\XE\UNDOTBS1.DBF");
+                using (SqlTransaction tx = conn.BeginTransaction())
+                {
+                    using (SqlCommand cmdEntity = new SqlCommand(sqlEntity, conn, tx))
+                        cmdEntity.ExecuteNonQuery();
 
-                count += 1;
+                    using (SqlCommand cmdAddress = new SqlCommand(sqlAddress, conn, tx))
+                        cmdAddress.ExecuteNonQuery();
+
+                    tx.Commit();
+                }
+
+                conn.Close();
             }
-            return ActionResult.Json(new OperationResult(true, 600, $"p1:{param1}, p2:{param2}"));
-        }
 
-        public ActionResult SaveEntity(Entity entity)
-        {
-            return ActionResult.Json(new OperationResult(entity, 600, "Entity Saved."));
+            return ActionResult.Json(new OperationResult(new { Entity = entity, EntityAddress = address }, 600, "Entity Saved.")); ;
         }
+    }
+
+    internal class Address
+    {
+        public string Street { get; set; }
+        public string City { get; set; }
     }
 
     internal class Entity

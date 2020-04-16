@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.LoadBalancingServices
+namespace SocketAppServer.LoadBalancingServices
 {
     /// <summary>
     /// Load balancing service configurator for the current server

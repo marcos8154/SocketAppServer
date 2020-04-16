@@ -22,34 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.LoadBalancingServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.LoadBalancingServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     internal class CoreServerImpl : ICoreServerService
     {
         private object lockAccept = new object();
         private object lockReceive = new object();
         private object lockRemoveSession = new object();
+        private object lckSession = new object();
 
         private bool isBasicServerEnabled;
         private bool isLoadBalanceEnabled;
+        private bool telemetryServicesDisabled;
 
         private IServiceManager serviceManager;
         private ILoggingService loggingService;
-        private ISecurityManagementService security; 
+        private ISecurityManagementService security;
         private Socket serverSocket;
         private ServerConfiguration configuration;
         private List<SocketSession> clientSessions;
@@ -57,7 +61,6 @@ namespace MobileAppServer.CoreServices.CoreServer
         public CoreServerImpl()
         {
             clientSessions = new List<SocketSession>();
-       
         }
 
         public ServerConfiguration GetConfiguration()
@@ -69,13 +72,10 @@ namespace MobileAppServer.CoreServices.CoreServer
         {
             lock (lockAccept)
             {
-                Socket socket;
-
                 try
                 {
-                    socket = serverSocket.EndAccept(AR);
+                    Socket socket = serverSocket.EndAccept(AR);
                     var session = new SocketSession(socket, configuration.BufferSize);
-
                     clientSessions.Add(session);
                     socket.BeginReceive(session.SessionStorage, 0, configuration.BufferSize, SocketFlags.None, ReceiveCallback, socket);
                     serverSocket.BeginAccept(AcceptCallback, null);
@@ -94,7 +94,7 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public IReadOnlyCollection<SocketSession> GetCurrentSessions()
         {
-            return clientSessions.AsReadOnly();
+            return clientSessions.ToList().AsReadOnly();
         }
 
         public bool IsServerStarted()
@@ -127,7 +127,10 @@ namespace MobileAppServer.CoreServices.CoreServer
         public void ReceiveCallback(IAsyncResult AR)
         {
             lock (lockReceive)
-                new RequestPreProcessor(AR);
+            {
+                RequestPreProcessor preProcessor = new RequestPreProcessor(AR);
+                preProcessor.Process();
+            }
         }
 
         public void SetConfiguration(ServerConfiguration configuration)
@@ -183,8 +186,21 @@ namespace MobileAppServer.CoreServices.CoreServer
             IControllerManager manager = serviceManager.GetService<IControllerManager>();
             manager.RegisterController(typeof(ServerInfoController));
 
-            ITelemetryManagement telemetry = serviceManager.GetService<ITelemetryManagement>();
-            telemetry.Initialize();
+            if (telemetryServicesDisabled)
+            {
+                string alert = "WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code";
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(alert);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                serviceManager.Unbind<ITelemetryManagement>();
+                loggingService.WriteLog(alert, ServerLogType.ALERT);
+            }
+            else
+            {
+                ITelemetryManagement telemetry = serviceManager.GetService<ITelemetryManagement>();
+                telemetry.Initialize();
+            }
 
             Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
             Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
@@ -211,22 +227,46 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public SocketSession GetSession(Socket clientSocket)
         {
-            return GetCurrentSessions().FirstOrDefault(s => s.ClientSocket.Equals(clientSocket));
+            lock (lckSession)
+            {
+                try
+                {
+                    return GetCurrentSessions().FirstOrDefault(s => s.ClientSocket.Equals(clientSocket));
+                }
+                catch
+                {
+                    return GetSession(clientSocket);
+                }
+            }
         }
 
-        public void RemoveSession(SocketSession session)
+        public void RemoveSession(ref SocketSession session)
         {
             lock (lockRemoveSession)
             {
                 clientSessions.Remove(session);
-                session.Close();
-                session = null;
+                if (session != null)
+                {
+                    session.Close();
+                    session = null;
+                }
             }
         }
 
         public bool IsLoadBalanceEnabled()
         {
             return isLoadBalanceEnabled;
+        }
+
+        public string GetServerVersion()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }
+
+
+        public void DisableTelemetryServices()
+        {
+            telemetryServicesDisabled = true;
         }
     }
 }

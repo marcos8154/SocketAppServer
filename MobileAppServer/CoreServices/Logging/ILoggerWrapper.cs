@@ -28,11 +28,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MobileAppServer.CoreServices.Logging
+namespace SocketAppServer.CoreServices.Logging
 {
     public interface ILoggerWrapper
     {
-        void Register(ServerLog log);
+        void Register(ref ServerLog log);
 
         List<ServerLog> List(Expression<Func<ServerLog, bool>> query);
     }

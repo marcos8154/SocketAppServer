@@ -28,9 +28,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Events
+namespace SocketAppServer.TelemetryServices.Events
 {
-    public class HardwareUsage
+    public struct HardwareUsage
     {
         public double CPUUsage { get; private set; }
 

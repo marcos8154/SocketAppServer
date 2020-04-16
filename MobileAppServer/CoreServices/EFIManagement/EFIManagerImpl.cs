@@ -22,16 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.EFI;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.EFI;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.EFIManagement
+namespace SocketAppServer.CoreServices.EFIManagement
 {
     internal class EFIManagerImpl : IEFIManager
     {
@@ -40,7 +40,7 @@ namespace MobileAppServer.CoreServices.EFIManagement
 
         public EFIManagerImpl()
         {
-            Extensions = new List<IExtensibleFrameworkInterface>();
+            Extensions = new List<IExtensibleFrameworkInterface>(5);
             logger = ServiceManager.GetInstance().GetService<ILoggingService>();
         }
 
@@ -51,6 +51,9 @@ namespace MobileAppServer.CoreServices.EFIManagement
 
         public void LoadAll()
         {
+            IServiceManager manager = ServiceManager.GetInstance();
+            ICoreServerService coreServer = manager.GetService<ICoreServerService>();
+            double serverVersion = double.Parse(coreServer.GetServerVersion());
             foreach (IExtensibleFrameworkInterface extension in Extensions)
             {
                 try
@@ -62,8 +65,12 @@ namespace MobileAppServer.CoreServices.EFIManagement
                     if (string.IsNullOrEmpty(extension.ExtensionPublisher))
                         throw new Exception($"Cannot be load unknown publisher extension for '{extension.ExtensionName}'");
 
+                    double minServerVersion = double.Parse(extension.MinServerVersion);
+                    if (serverVersion < minServerVersion)
+                        throw new Exception($"The extension '{extension.ExtensionName}' could not be loaded because it requires server v{extension.MinServerVersion}");
+
                     logger.WriteLog($"Loading extension '{extension.ExtensionName}', version {extension.ExtensionVersion} by {extension.ExtensionPublisher}", ServerLogType.INFO);
-                    extension.Load();
+                    extension.Load(manager);
                     logger.WriteLog($"Extension '{extension.ExtensionName}' successfully loaded");
                 }
                 catch (Exception ex)

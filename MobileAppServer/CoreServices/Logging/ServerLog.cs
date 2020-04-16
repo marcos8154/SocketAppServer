@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.CoreServices.Logging
+namespace SocketAppServer.CoreServices.Logging
 {
     public sealed class ServerLog
     {
@@ -56,6 +56,7 @@ namespace MobileAppServer.CoreServices.Logging
 
         public ServerLog(string logText, string controller, string action, ServerLogType type = ServerLogType.INFO)
         {
+            EventDate = DateTime.Now;
             LogText = logText;
             ControllerName = controller;
             ActionName = action;
@@ -64,7 +65,7 @@ namespace MobileAppServer.CoreServices.Logging
 
         public ServerLog()
         {
-
+            EventDate = DateTime.Now;
         }
     }
 }

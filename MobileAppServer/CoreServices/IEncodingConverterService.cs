@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices
+namespace SocketAppServer.CoreServices
 {
     public interface IEncodingConverterService
     {

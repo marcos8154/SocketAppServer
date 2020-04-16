@@ -22,10 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.CoreServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Impl
+namespace SocketAppServer.TelemetryServices.Impl
 {
     internal class DefaultTelemetryServicesProvider : ITelemetryServicesProvider
     {
@@ -45,20 +46,39 @@ namespace MobileAppServer.TelemetryServices.Impl
          * respective method of reading sets
          * */
         private List<ActionError> mem_errors = null;
+        private object lck_mem_errors = new object();
+
         private List<ActionExecutionTime> mem_actionExec = null;
+        private object lck_mem_actionExec = new object();
+
         private List<DependencyInjectorExecutionTime> mem_dependencyInjectors = null;
+        private object lck_mem_dependencyInjectors = new object();
+
         private List<HardwareUsage> mem_hardwareUsages = null;
+        private object lck_mem_hardwareUsages = new object();
+
         private List<InterceptorExecutionTime> mem_interceptors = null;
+        private object lck_mem_interceptors = new object();
         #endregion
 
         private ICoreServerService coreServer = null;
+        private IScheduledTaskManager taskManager = null;
+
         public DefaultTelemetryServicesProvider()
         {
-            coreServer = ServiceManager.GetInstance().GetService<ICoreServerService>();
+            IServiceManager serviceManager = ServiceManager.GetInstance();
+            coreServer = serviceManager.GetService<ICoreServerService>();
+            taskManager = serviceManager.GetService<IScheduledTaskManager>();
+        }
+
+        private void RefreshTelemetryData()
+        {
+            var task = taskManager.GetTaskInfo("TelemetryProcessor");
+            taskManager.RunTaskSync(task);
         }
 
         #region data write/read methods
-        private string TransformToCSVLine<T>(T eventObj) where T : class
+        private string TransformToCSVLine<T>(T eventObj) where T : struct
         {
             StringBuilder sb = new StringBuilder();
             foreach (PropertyInfo info in eventObj.GetType().GetProperties())
@@ -67,7 +87,7 @@ namespace MobileAppServer.TelemetryServices.Impl
         }
 
         private void WriteToFile<T>(IEnumerable<T> events, string fileName)
-            where T : class
+            where T : struct
         {
             if (events.Count() == 0)
                 return;
@@ -95,164 +115,229 @@ namespace MobileAppServer.TelemetryServices.Impl
                 Directory.CreateDirectory(@".\Telemetry.Data\");
             fileName = $@".\Telemetry.Data\{fileName}.tlm";
 
+            if (!File.Exists(fileName))
+                return new List<string>(0);
+
             return File.ReadLines(fileName, coreServer.GetConfiguration().ServerEncoding);
         }
         #endregion
 
         #region Interface StandardMethods
-        public void ActionError(IEnumerable<ActionError> error)
+        public void ActionError(IEnumerable<ActionError> errors)
         {
-            if (mem_errors != null)
-                mem_errors.AddRange(error);
-            WriteToFile<ActionError>(error, "br.com.SocketAppServer.TelemetryServices.ActionErrors");
+            lock (lck_mem_errors)
+            {
+                if (mem_errors != null)
+                    foreach (var error in errors)
+                        mem_errors.Add(error);
+                WriteToFile<ActionError>(errors, "br.com.SocketAppServer.TelemetryServices.ActionErrors");
+            }
         }
 
         public void ActionExecutionTime(IEnumerable<ActionExecutionTime> actions)
         {
-            if (mem_actionExec != null)
-                mem_actionExec.AddRange(actions);
-            WriteToFile<ActionExecutionTime>(actions, "br.com.SocketAppServer.TelemetryServices.ActionExecutions");
+            lock (lck_mem_actionExec)
+            {
+                if (mem_actionExec != null)
+                    foreach (var action in actions)
+                        mem_actionExec.Add(action);
+                WriteToFile(actions, "br.com.SocketAppServer.TelemetryServices.ActionExecutions");
+            }
         }
 
-        public void HWUsage(IEnumerable<HardwareUsage> usage)
+        public void HWUsage(IEnumerable<HardwareUsage> usages)
         {
-            if (mem_hardwareUsages != null)
-                mem_hardwareUsages.AddRange(usage);
-            WriteToFile<HardwareUsage>(usage, "br.com.SocketAppServer.TelemetryServices.HWUsage");
+            lock (lck_mem_hardwareUsages)
+            {
+                if (mem_hardwareUsages != null)
+                    foreach (var usage in usages)
+                        mem_hardwareUsages.Add(usage);
+                WriteToFile(usages, "br.com.SocketAppServer.TelemetryServices.HWUsage");
+            }
         }
 
         public void DependencyInjectionExecutiontime(IEnumerable<DependencyInjectorExecutionTime> dependencyInjectors)
         {
-            if (mem_dependencyInjectors != null)
-                mem_dependencyInjectors.AddRange(dependencyInjectors);
-            WriteToFile<DependencyInjectorExecutionTime>(dependencyInjectors, "br.com.SocketAppServer.DependencyInjectorExecutionTime.ActionErrors");
+            lock (lck_mem_dependencyInjectors)
+            {
+                if (mem_dependencyInjectors != null)
+                    foreach (var di in dependencyInjectors)
+                        mem_dependencyInjectors.Add(di);
+                WriteToFile<DependencyInjectorExecutionTime>(dependencyInjectors, "br.com.SocketAppServer.DependencyInjectorExecutionTime.ActionErrors");
+            }
         }
 
         public void InterceptorExecutionTime(IEnumerable<InterceptorExecutionTime> interceptors)
         {
-            WriteToFile<InterceptorExecutionTime>(interceptors, "br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
+            lock (lck_mem_interceptors)
+            {
+                if (mem_interceptors != null)
+                    foreach (var intercp in interceptors)
+                        mem_interceptors.Add(intercp);
+                WriteToFile<InterceptorExecutionTime>(interceptors, "br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
+            }
         }
 
-        public IEnumerable<ActionError> GetActionErros(DateTime startDate, DateTime endDate, string controllerName, string actionName)
+        public IEnumerable<ActionError> GetActionErrors(DateTime startDate, DateTime endDate, string controllerName, string actionName)
         {
-            if (mem_errors == null)
+            lock (lck_mem_errors)
             {
-                mem_errors = new List<ActionError>();
-                IEnumerable<ActionError> result = new List<ActionError>();
-                IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.ActionError");
-                foreach (var line in content)
+                RefreshTelemetryData();
+
+                if (mem_errors == null)
                 {
-                    string[] parts = line.Split('|');
-                    mem_errors.Add(new ActionError(parts[0], parts[1], parts[2]));
+                    mem_errors = new List<ActionError>(1000);
+                    IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.ActionError");
+                    foreach (var line in content)
+                    {
+                        string[] parts = line.Split('|');
+                        mem_errors.Add(new ActionError(parts[0], parts[1], parts[2]));
+                    }
                 }
+
+                var query = (from evt in mem_errors
+                             where
+                             evt.CalledTime >= startDate &&
+                             evt.CalledTime <= endDate &&
+                             evt.ActionName.Equals(actionName) &&
+                             evt.ControllerName.Equals(controllerName)
+                             select evt);
+
+                return query.AsEnumerable();
             }
-
-            var query = (from evt in mem_errors
-                         where
-                         evt.CalledTime >= startDate &&
-                         evt.CalledTime <= endDate &&
-                         evt.ActionName.Equals(actionName) &&
-                         evt.ControllerName.Equals(controllerName)
-                         select evt);
-
-            return query.AsEnumerable();
         }
 
         public IEnumerable<ActionExecutionTime> GetActionExecutionTimes(DateTime startDate, DateTime endDate, string controllerName, string actionName)
         {
-            if (mem_actionExec == null)
+            lock (lck_mem_actionExec)
             {
-                mem_actionExec = new List<ActionExecutionTime>();
-                IEnumerable<ActionExecutionTime> result = new List<ActionExecutionTime>();
-                IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.ActionExecutionTime");
-                foreach (var line in content)
+                RefreshTelemetryData();
+
+                if (mem_actionExec == null)
                 {
-                    string[] parts = line.Split('|');
-                    mem_actionExec.Add(new ActionExecutionTime(parts[0], parts[1], long.Parse(parts[2])));
+                    mem_actionExec = new List<ActionExecutionTime>(1000);
+                    IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.ActionExecutionTime");
+                    foreach (var line in content)
+                    {
+                        string[] parts = line.Split('|');
+                        mem_actionExec.Add(new ActionExecutionTime(parts[0], parts[1], long.Parse(parts[2])));
+                    }
                 }
+
+                var query = (from evt in mem_actionExec
+                             where
+                             evt.CollectTime >= startDate &&
+                             evt.CollectTime <= endDate &&
+                             evt.ActionName.Equals(actionName) &&
+                             evt.ControllerName.Equals(controllerName)
+                             select evt);
+
+                return query.AsEnumerable();
             }
-
-            var query = (from evt in mem_actionExec
-                         where
-                         evt.CollectTime >= startDate &&
-                         evt.CollectTime <= endDate &&
-                         evt.ActionName.Equals(actionName) &&
-                         evt.ControllerName.Equals(controllerName)
-                         select evt);
-
-            return query.AsEnumerable();
         }
 
         public IEnumerable<DependencyInjectorExecutionTime> GetDependencyInjectorExecutionTimes(DateTime startDate, DateTime endDate, string controllerName)
         {
-            if (mem_dependencyInjectors == null)
+            lock (lck_mem_dependencyInjectors)
             {
-                mem_dependencyInjectors = new List<DependencyInjectorExecutionTime>();
-                IEnumerable<DependencyInjectorExecutionTime> result = new List<DependencyInjectorExecutionTime>();
-                IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.DependencyInjectorExecutionTime");
-                foreach (var line in content)
+                RefreshTelemetryData();
+
+                if (mem_dependencyInjectors == null)
                 {
-                    string[] parts = line.Split('|');
-                    mem_dependencyInjectors.Add(new DependencyInjectorExecutionTime(parts[0], long.Parse(parts[1])));
+                    mem_dependencyInjectors = new List<DependencyInjectorExecutionTime>(1000);
+                    IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.DependencyInjectorExecutionTime");
+                    foreach (var line in content)
+                    {
+                        string[] parts = line.Split('|');
+                        mem_dependencyInjectors.Add(new DependencyInjectorExecutionTime(parts[0], long.Parse(parts[1])));
+                    }
                 }
+
+                var query = (from evt in mem_dependencyInjectors
+                             where
+                             evt.CalledTime >= startDate &&
+                             evt.CalledTime <= endDate &&
+                             evt.ControllerName.Equals(controllerName)
+                             select evt);
+
+                return query.AsEnumerable();
             }
-
-            var query = (from evt in mem_dependencyInjectors
-                         where
-                         evt.CalledTime >= startDate &&
-                         evt.CalledTime <= endDate &&
-                         evt.ControllerName.Equals(controllerName)
-                         select evt);
-
-            return query.AsEnumerable();
         }
 
         public IEnumerable<HardwareUsage> GetHardwareUsages(DateTime startDate, DateTime endDate)
         {
-            if (mem_hardwareUsages == null)
+            lock (lck_mem_hardwareUsages)
             {
-                mem_hardwareUsages = new List<HardwareUsage>();
-                IEnumerable<HardwareUsage> result = new List<HardwareUsage>();
-                IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.HardwareUsage");
-                foreach (var line in content)
+                RefreshTelemetryData();
+
+                if (mem_hardwareUsages == null)
                 {
-                    string[] parts = line.Split('|');
-                    mem_hardwareUsages.Add(new HardwareUsage(double.Parse(parts[0]), double.Parse(parts[1]), int.Parse(parts[2])));
+                    mem_hardwareUsages = new List<HardwareUsage>(1000);
+                    IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.HardwareUsage");
+                    foreach (var line in content)
+                    {
+                        string[] parts = line.Split('|');
+                        mem_hardwareUsages.Add(new HardwareUsage(double.Parse(parts[0]), double.Parse(parts[1]), int.Parse(parts[2])));
+                    }
                 }
+
+                var query = (from evt in mem_hardwareUsages
+                             where
+                             evt.CollectedTime >= startDate &&
+                             evt.CollectedTime <= endDate
+                             select evt);
+
+                return query.AsEnumerable();
             }
-
-            var query = (from evt in mem_hardwareUsages
-                         where
-                         evt.CollectedTime >= startDate &&
-                         evt.CollectedTime <= endDate
-                         select evt);
-
-            return query.AsEnumerable();
         }
 
         public IEnumerable<InterceptorExecutionTime> GetInterceptorExecutionTimes(DateTime startDate, DateTime endDate, string controllerName, string actionName)
         {
-            if (mem_interceptors == null)
+            lock (lck_mem_interceptors)
             {
-                mem_interceptors = new List<InterceptorExecutionTime>();
-                IEnumerable<InterceptorExecutionTime> result = new List<InterceptorExecutionTime>();
-                IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
-                foreach (var line in content)
+                RefreshTelemetryData();
+
+                if (mem_interceptors == null)
                 {
-                    string[] parts = line.Split('|');
-                    mem_interceptors.Add(new InterceptorExecutionTime(parts[0], parts[1], long.Parse(parts[2])));
+                    mem_interceptors = new List<InterceptorExecutionTime>(1000);
+                    IEnumerable<string> content = ReadTelemetryFile("br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
+                    foreach (var line in content)
+                    {
+                        string[] parts = line.Split('|');
+                        mem_interceptors.Add(new InterceptorExecutionTime(parts[0], parts[1], long.Parse(parts[2])));
+                    }
                 }
+
+                var query = (from evt in mem_interceptors
+                             where
+                             evt.CollectTime >= startDate &&
+                             evt.CollectTime <= endDate &&
+                             evt.ControllerName.Equals(controllerName) &&
+                             evt.ActionName.Equals(actionName)
+                             select evt);
+
+                return query.AsEnumerable();
             }
+        }
 
-            var query = (from evt in mem_interceptors
-                         where
-                         evt.CollectTime >= startDate &&
-                         evt.CollectTime <= endDate &&
-                         evt.ControllerName.Equals(controllerName) &&
-                         evt.ActionName.Equals(actionName)
-                         select evt);
+        public int RequestsSuccessCount(string controllerName, string actionName, int lastMinutes = 10)
+        {
+            lock (lck_mem_actionExec)
+            {
+                IEnumerable<ActionExecutionTime> execs = GetActionExecutionTimes(DateTime.Now.AddMinutes(-lastMinutes),
+                    DateTime.Now, controllerName, actionName);
+                return execs.Count();
+            }
+        }
 
-            return query.AsEnumerable();
+        public int RequestErrorsCount(string controllerName, string actionName, int lastMinutes = 10)
+        {
+            lock (lck_mem_errors)
+            {
+                IEnumerable<ActionError> errors = GetActionErrors(DateTime.Now.AddMinutes(-lastMinutes),
+                  DateTime.Now, controllerName, actionName);
+                return errors.Count();
+            }
         }
         #endregion
     }

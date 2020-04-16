@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ServerObjects;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Security.Cryptography;
 
-namespace MobileAppServer.Security
+namespace SocketAppServer.Security
 {
     public class Crypto
     {

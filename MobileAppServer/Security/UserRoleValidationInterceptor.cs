@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ServerObjects;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Linq;
 
-namespace MobileAppServer.Security
+namespace SocketAppServer.Security
 {
     internal class UserRoleValidationInterceptor : IHandlerInterceptor
     {

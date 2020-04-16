@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ScheduledServices;
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.CoreServices;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ScheduledServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,17 +34,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Impl
+namespace SocketAppServer.TelemetryServices.Impl
 {
     internal class HWUsageCollectorTask : ScheduledTask
     {
-        private ITelemetryDataCollector dataCollector;
+        private ITelemetryDataCollector telemetry;
         private ICoreServerService coreServer;
         public HWUsageCollectorTask()
             : base("HWUsageCollector", true, new ScheduledTaskInterval(0, 0, 0, 1), false)
         {
             IServiceManager manager = ServiceManager.GetInstance();
-            dataCollector = manager.GetService<ITelemetryDataCollector>();
+            telemetry = manager.GetService<ITelemetryDataCollector>();
             coreServer = manager.GetService<ICoreServerService>();
         }
 
@@ -53,7 +53,8 @@ namespace MobileAppServer.TelemetryServices.Impl
             double cpu = GetCPU();
             double memory = GetMemory();
 
-            dataCollector.Collect(new HardwareUsage(cpu, memory, coreServer.CurrentThreadsCount()));
+            if (telemetry != null)
+                telemetry.Collect(new HardwareUsage(cpu, memory, coreServer.CurrentThreadsCount()));
         }
 
         private double GetMemory()

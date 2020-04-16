@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ServerObjects;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.DIManagement
+namespace SocketAppServer.CoreServices.DIManagement
 {
     internal class DependencyInjectorManagerImpl : IDependencyInjectionService
     {
@@ -37,7 +37,7 @@ namespace MobileAppServer.CoreServices.DIManagement
 
         public DependencyInjectorManagerImpl()
         {
-            dependencyInjectors = new List<IDependencyInjectorMaker>();
+            dependencyInjectors = new List<IDependencyInjectorMaker>(10);
         }
 
         public void AddDependencyInjector(IDependencyInjectorMaker injectorMaker)

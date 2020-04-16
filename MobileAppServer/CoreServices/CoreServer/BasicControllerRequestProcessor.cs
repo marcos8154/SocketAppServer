@@ -22,15 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
+    /// <summary>
+    /// Basic request processor, works dedicated with a single controller type and does not support advanced features like the standard processor (RequestProcessor)
+    /// </summary>
     public class BasicControllerRequestProcess : AsyncTask<string, string, string>
     {
         private IServiceManager serviceManager = null;
@@ -54,8 +57,6 @@ namespace MobileAppServer.CoreServices.CoreServer
 
         public override string DoInBackGround(string receivedData)
         {
-            logger.WriteLog($"Basic Server Module: Begin Request");
-
             try
             {
                 Stopwatch s = new Stopwatch();
@@ -66,11 +67,11 @@ namespace MobileAppServer.CoreServices.CoreServer
                 string resultToJson = JsonConvert.SerializeObject(result);
 
                 byte[] resultBytes = coreServer.GetConfiguration().ServerEncoding.GetBytes(resultToJson);
-                preProcessor.ClientSocket.Send(resultBytes);
+                preProcessor.clientSocket.Send(resultBytes);
             }
             catch (Exception ex)
             {
-                preProcessor.ClientSocket.Send(encoder.ConvertToByteArray($"Error: {ex.Message}"));
+                preProcessor.clientSocket.Send(encoder.ConvertToByteArray($"Error: {ex.Message}"));
                 logger.WriteLog($"Basic Server Module Error: {ex.Message}", ServerLogType.ERROR);
             }
 

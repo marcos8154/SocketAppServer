@@ -22,13 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System;
 
-namespace MobileAppServer.ScheduledServices
+namespace SocketAppServer.ScheduledServices
 {
     internal class ScheduledTaskExecutorService : AsyncTask<ScheduledTask, string, bool>
     {
@@ -48,6 +48,7 @@ namespace MobileAppServer.ScheduledServices
             task.IsRunning = true;
             try
             {
+           //     telemetrizar o tempo de execução das tasks
                 task.RunTask();
                 task.IsRunning = false;
                 return true;

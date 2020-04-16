@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     public class ServerConfiguration
     {
@@ -59,6 +59,14 @@ namespace MobileAppServer.CoreServices.CoreServer
             IsSingleThreaded = isSingleThreaded;
             MaxThreadsCount = maxThreadsCount;
             IsConsoleApplication = isConsoleApplication;
+        }
+
+        public ServerConfiguration()
+        {
+            //SocketAPI.Server
+            //SocketAppServer
+            //SocketAPI.NET
+            //Socket.API
         }
     }
 }

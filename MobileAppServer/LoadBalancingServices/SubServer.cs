@@ -22,13 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System.Text;
 
-namespace MobileAppServer.LoadBalancingServices
+namespace SocketAppServer.LoadBalancingServices
 {
     public class SubServer
     {
@@ -102,9 +102,9 @@ namespace MobileAppServer.LoadBalancingServices
                 lifetime.Stop();
                 lifetime.Dispose();
                 lifetime = null;
-                Logger.WriteLog($"Lifetime refreshed to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
+                Logger.WriteLog($"Lifetime refreshed to sub-server '{Address}:{Port}'", ServerLogType.INFO);
             }
-            else Logger.WriteLog($"Lifetime started to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
+            else Logger.WriteLog($"Lifetime started to sub-server '{Address}:{Port}'", ServerLogType.INFO);
 
             elapsedMinutesLifetime = 0;
             lifetime = new System.Timers.Timer();
@@ -120,7 +120,7 @@ namespace MobileAppServer.LoadBalancingServices
             
             if(elapsedMinutesLifetime >= ServerLifetimeInMinutes)
             {
-                Logger.WriteLog($"Lifetime ended to sub-server '{Address}:{Port}'", ServerLogType.ALERT);
+                Logger.WriteLog($"Lifetime ended to sub-server '{Address}:{Port}'", ServerLogType.INFO);
                 NotifiableRequirement.StopInstance(this);
                 OnLifeTimeEnded?.Invoke(this);
                 lifetime.Stop();

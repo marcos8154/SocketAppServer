@@ -39,6 +39,10 @@ namespace MobileAppServerTest
             txAction.Text = cache.Action;
             txController.Text = cache.Controller;
 
+            if (cache != null)
+                if (cache.Parameters != null)
+                    cache.Parameters.Add(new ServerRequestParameter());
+
             if (cache.Parameters.Count > 0)
                 dataGrid.DataSource = cache.Parameters;
 
@@ -56,7 +60,10 @@ namespace MobileAppServerTest
             RequestCache cache = new RequestCache();
             cache.Action = txAction.Text;
             cache.Controller = txController.Text;
-            cache.Parameters = ((IEnumerable)dataGrid.DataSource).Cast<ServerRequestParameter>().ToList();
+            cache.Parameters = ((IEnumerable)dataGrid.DataSource)
+                .Cast<ServerRequestParameter>()
+                .Where(p => !string.IsNullOrEmpty(p.Key))
+                .ToList();
 
             string json = JsonConvert.SerializeObject(cache);
             File.WriteAllText(file, json);
@@ -67,7 +74,10 @@ namespace MobileAppServerTest
             button1.Enabled = false;
             button1.Text = "Sending request...";
 
-            var list = ((IEnumerable)dataGrid.DataSource).Cast<ServerRequestParameter>().ToList();
+            var list = ((IEnumerable)dataGrid.DataSource)
+                .Cast<ServerRequestParameter>()
+                .Where(p => !string.IsNullOrEmpty(p.Key))
+                .ToList();
             string controller = txController.Text;
             string action = txAction.Text;
 
@@ -139,7 +149,7 @@ namespace MobileAppServerTest
             if (string.IsNullOrEmpty(dialog.FileName))
                 return;
 
-            
+
             File.WriteAllBytes(dialog.FileName, res);
         }
     }

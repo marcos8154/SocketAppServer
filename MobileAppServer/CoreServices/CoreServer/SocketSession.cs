@@ -25,7 +25,7 @@ SOFTWARE.
 using System.Net;
 using System.Net.Sockets;
 
-namespace MobileAppServer.CoreServices.CoreServer
+namespace SocketAppServer.CoreServices.CoreServer
 {
     public class SocketSession
     {

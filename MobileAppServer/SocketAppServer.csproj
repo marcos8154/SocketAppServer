@@ -5,10 +5,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8E1334BB-C53B-4B0C-8239-9156251A3AAE}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MobileAppServer</RootNamespace>
-    <AssemblyName>MobileAppServer</AssemblyName>
+    <RootNamespace>SocketAppServer</RootNamespace>
+    <AssemblyName>SocketAppServer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -55,8 +55,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MobileAppServerClient, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MobileAppServer.Client.1.2.5\lib\net45\MobileAppServerClient.dll</HintPath>
+    <Reference Include="MobileAppServerClient, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MobileAppServer.Client.1.2.6\lib\net45\MobileAppServerClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -180,6 +180,7 @@
     <Compile Include="TestController.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENCE.MD" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

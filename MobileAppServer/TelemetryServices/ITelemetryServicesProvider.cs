@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices
+namespace SocketAppServer.TelemetryServices
 {
     /// <summary>
     /// The telemetry service provider allows the storage, search and maintenance of the events collected
@@ -70,7 +70,7 @@ namespace MobileAppServer.TelemetryServices
         /// Retrieves a set of ActionError events persisted in a repository managed by the provider's implementation
         /// </summary>
         /// <returns></returns>
-        IEnumerable<ActionError> GetActionErros(DateTime startDate, DateTime endDate, string controllerName, string actionName);
+        IEnumerable<ActionError> GetActionErrors(DateTime startDate, DateTime endDate, string controllerName, string actionName);
 
         /// <summary>
         /// Retrieves a set of ActionExecutionTime events persisted in a repository managed by the provider's implementation
@@ -95,5 +95,10 @@ namespace MobileAppServer.TelemetryServices
         /// </summary>
         /// <returns></returns>
         IEnumerable<InterceptorExecutionTime> GetInterceptorExecutionTimes(DateTime startDate , DateTime endDate , string controllerName , string actionName );
+
+
+        int RequestsSuccessCount(string controllerName, string actionName, int lastMinutes = 10);
+
+        int RequestErrorsCount(string controllerName, string actionName, int lastMinutes = 10);
     }
 }

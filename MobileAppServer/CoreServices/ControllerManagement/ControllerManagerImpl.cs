@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices.Logging;
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
-using MobileAppServer.TelemetryServices;
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
+using SocketAppServer.TelemetryServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,7 +35,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.ControllerManagement
+namespace SocketAppServer.CoreServices.ControllerManagement
 {
     public class ControllerManagerImpl : IControllerManager
     {
@@ -45,7 +45,7 @@ namespace MobileAppServer.CoreServices.ControllerManagement
 
         public ControllerManagerImpl()
         {
-            controllers = new List<ControllerRegister>();
+            controllers = new List<ControllerRegister>(10);
             serviceManager = ServiceManager.GetInstance();
             telemetry = serviceManager.GetService<ITelemetryDataCollector>();
         }
@@ -92,7 +92,8 @@ namespace MobileAppServer.CoreServices.ControllerManagement
                         injectArgs = injector.BuildInjectValues(requestBody);
                         sw.Stop();
 
-                        telemetry.Collect(new DependencyInjectorExecutionTime(injector.ControllerName, sw.ElapsedMilliseconds));
+                        if (telemetry != null)
+                            telemetry.Collect(new DependencyInjectorExecutionTime(injector.ControllerName, sw.ElapsedMilliseconds));
                     }
                 }
 

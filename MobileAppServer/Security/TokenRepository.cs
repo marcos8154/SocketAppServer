@@ -28,7 +28,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Policy;
 
-namespace MobileAppServer.Security
+namespace SocketAppServer.Security
 {
     internal class TokenRepository
     {

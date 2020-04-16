@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.DomainModelsManagement
+namespace SocketAppServer.CoreServices.DomainModelsManagement
 {
     internal class DomainModelsManager : IDomainModelsManager
     {
@@ -37,7 +37,7 @@ namespace MobileAppServer.CoreServices.DomainModelsManagement
 
         public DomainModelsManager()
         {
-            registeredModels = new List<ModelRegister>();
+            registeredModels = new List<ModelRegister>(10);
         }
 
         public ModelRegister GetModelRegister(string typeName)

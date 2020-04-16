@@ -28,16 +28,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
-
-    public class OperationResult
+    public struct OperationResult
     {
         public int Status { get; set; }
         public string Message { get; set; }
         public object Entity { get; set; }
 
-        public OperationResult(object entity, int status, string message)
+        public OperationResult( object entity, int status, string message)
         {
             Status = status;
             Entity = entity;

@@ -28,9 +28,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Events
+namespace SocketAppServer.TelemetryServices.Events
 {
-    public class DependencyInjectorExecutionTime
+    public struct DependencyInjectorExecutionTime
     {
         public string ControllerName { get; private set; }
         public string ElapsedMs { get; }

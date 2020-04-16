@@ -28,7 +28,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class TaskParams
     {

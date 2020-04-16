@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ServerObjects;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +30,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices
+namespace SocketAppServer.CoreServices
 {
+    /// <summary>
+    /// Basic request processor, works dedicated with a single controller type and does not support advanced features like the standard processor (RequestProcessor)
+    /// </summary>
     public interface IBasicServerController
     {
         ActionResult RunAction(string receivedData);

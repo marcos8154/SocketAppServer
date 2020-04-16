@@ -27,22 +27,24 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class JsonResult : ActionResult
     {
         public double bytesUsed = 0;
 
-        public JsonResult(object obj, int status, string message)
+        public JsonResult(ref object obj, ref  int status, ref string message)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                StringWriter writer = new StringWriter(sb);
-                using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                using (StringWriter writer = new StringWriter(sb))
                 {
-                    var serializer = new JsonSerializer();
-                    serializer.Serialize(writer, obj);
+                    using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                    {
+                        var serializer = new JsonSerializer();
+                        serializer.Serialize(writer, obj);
+                    }
                 }
 
                 string json = sb.ToString();//JsonConvert.SerializeObject(obj);

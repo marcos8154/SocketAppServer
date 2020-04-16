@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ScheduledServices;
+using SocketAppServer.ScheduledServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.ScheduledTaskManagement
+namespace SocketAppServer.CoreServices.ScheduledTaskManagement
 {
     internal class ScheduledTaskManagerImpl : IScheduledTaskManager
     {
@@ -37,7 +37,7 @@ namespace MobileAppServer.CoreServices.ScheduledTaskManagement
 
         public ScheduledTaskManagerImpl()
         {
-            Tasks = new List<ScheduledTask>();
+            Tasks = new List<ScheduledTask>(10);
         }
 
         public void AddScheduledTask(ScheduledTask task)
@@ -59,7 +59,7 @@ namespace MobileAppServer.CoreServices.ScheduledTaskManagement
             return Tasks.Select(t => t.TaskName).ToList();
         }
 
-        public void RunTaskNow(ScheduledTask task)
+        public void RunTaskAsync(ScheduledTask task)
         {
             if (task == null)
                 throw new Exception("Task is null.");
@@ -70,7 +70,21 @@ namespace MobileAppServer.CoreServices.ScheduledTaskManagement
         public void RunServerStartupTasks()
         {
             var startupTasks = Tasks.Where(t => t.RunOnServerStart).ToList();
-            startupTasks.ForEach(t => RunTaskNow(t));
+            startupTasks.ForEach(t => RunTaskAsync(t));
+        }
+
+        private object lckSyncRun = new object();
+
+        public void RunTaskSync(ScheduledTask task)
+        {
+            if (task.IsRunning)
+                return;
+            lock (lckSyncRun)
+            {
+                task.IsRunning = true;
+                task.RunTask();
+                task.IsRunning = false;
+            }
         }
     }
 }

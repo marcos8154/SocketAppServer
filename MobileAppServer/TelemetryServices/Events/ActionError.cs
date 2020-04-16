@@ -28,9 +28,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.TelemetryServices.Events
+namespace SocketAppServer.TelemetryServices.Events
 {
-    public class ActionError
+    public struct ActionError
     {
         public string ControllerName { get; private set; }
         public string ActionName { get; private set; }

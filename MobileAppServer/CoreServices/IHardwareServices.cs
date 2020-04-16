@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices
+namespace SocketAppServer.CoreServices
 {
     /// <summary>
     /// Obtains basic hardware information about the current server process

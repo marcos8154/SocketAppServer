@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.LoadBalancingServices
+namespace SocketAppServer.LoadBalancingServices
 {
     public interface INotifiableSubServerRequirement
     {

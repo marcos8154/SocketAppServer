@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     public class ServerAlert
     {

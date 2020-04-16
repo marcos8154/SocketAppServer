@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.757
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServerTest", "MobileAppServerTest\MobileAppServerTest.csproj", "{73D8736A-12CA-4552-A3E5-090023E3A18D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D70A4664-CC13-442B-AB28-DCAC82E1C7A9} = {D70A4664-CC13-442B-AB28-DCAC82E1C7A9}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServer", "MobileAppServer\MobileAppServer.csproj", "{8E1334BB-C53B-4B0C-8239-9156251A3AAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServer", "MobileAppServer\SocketAppServer.csproj", "{8E1334BB-C53B-4B0C-8239-9156251A3AAE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServerClient", "MobileAppServerClient\MobileAppServerClient.csproj", "{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}"
 EndProject

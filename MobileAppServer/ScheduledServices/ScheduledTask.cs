@@ -26,7 +26,7 @@ using System;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace MobileAppServer.ScheduledServices
+namespace SocketAppServer.ScheduledServices
 {
     public abstract class ScheduledTask
     {

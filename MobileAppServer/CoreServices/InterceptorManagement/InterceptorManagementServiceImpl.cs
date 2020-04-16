@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
-using MobileAppServer.ServerObjects;
-using MobileAppServer.TelemetryServices;
-using MobileAppServer.TelemetryServices.Events;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
+using SocketAppServer.TelemetryServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +34,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.CoreServices.InterceptorManagement
+namespace SocketAppServer.CoreServices.InterceptorManagement
 {
     internal class InterceptorManagementServiceImpl : IInterceptorManagerService
     {
@@ -43,7 +43,7 @@ namespace MobileAppServer.CoreServices.InterceptorManagement
 
         public InterceptorManagementServiceImpl()
         {
-            Interceptors = new List<IHandlerInterceptor>();
+            Interceptors = new List<IHandlerInterceptor>(10);
             telemetry = ServiceManager.GetInstance().GetService<ITelemetryDataCollector>();
         }
 
@@ -93,7 +93,8 @@ namespace MobileAppServer.CoreServices.InterceptorManagement
                 var handleResult = interceptor.PreHandle(request);
                 sw.Stop();
 
-                telemetry.Collect(new InterceptorExecutionTime(interceptor.ControllerName,
+                if (telemetry != null)
+                    telemetry.Collect(new InterceptorExecutionTime(interceptor.ControllerName,
                     interceptor.ActionName, sw.ElapsedMilliseconds));
 
                 if (handleResult.CancelActionInvoke)

@@ -22,10 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.CoreServices;
-using MobileAppServer.CoreServices.ControllerManagement;
-using MobileAppServer.CoreServices.CoreServer;
-using MobileAppServer.ManagedServices;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.ControllerManagement;
+using SocketAppServer.CoreServices.CoreServer;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.TelemetryServices;
+using SocketAppServer.TelemetryServices.Events;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,17 +37,21 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 
-namespace MobileAppServer.ServerObjects
+namespace SocketAppServer.ServerObjects
 {
     internal class ServerInfoController : IController
     {
         private IControllerManager controllerManager = null;
         private ICoreServerService coreServer = null;
+        private IHardwareServices hardware = null;
+        private ITelemetryServicesProvider telemetry = null;
         public ServerInfoController()
         {
             IServiceManager manager = ServiceManager.GetInstance();
             controllerManager = manager.GetService<IControllerManager>();
             coreServer = manager.GetService<ICoreServerService>("realserver");
+            hardware = manager.GetService<IHardwareServices>();
+            telemetry = manager.GetService<ITelemetryServicesProvider>();
         }
 
         public ActionResult Reboot()
@@ -56,7 +62,33 @@ namespace MobileAppServer.ServerObjects
 
         public ActionResult GetCurrentThreadsCount()
         {
-            return ActionResult.Json(RequestProcessor.ThreadCount);
+            return ActionResult.Json(new OperationResult(RequestProcessor.ThreadCount, 600, null));
+        }
+
+        public ActionResult AverageCPUUsage()
+        {
+            return ActionResult.Json(new OperationResult(hardware.AverageCPUUsage(), 600, null));
+        }
+
+        public ActionResult AverageMemoryUsage()
+        {
+            return ActionResult.Json(new OperationResult(hardware.AverageMemoryUsage(), 600, null));
+        }
+
+        public ActionResult RequestsSuccessCount(string controllerName, string actionName)
+        {
+            int count = (telemetry == null
+                ? 0
+                : telemetry.RequestsSuccessCount(controllerName, actionName));
+            return ActionResult.Json(new OperationResult(count, 600, null));
+        }
+
+        public ActionResult RequestsErrorsCount(string controllerName, string actionName)
+        {
+            int count = (telemetry == null
+                ? 0
+                : telemetry.RequestErrorsCount(controllerName, actionName));
+            return ActionResult.Json(new OperationResult(count, 600, null));
         }
 
         public ActionResult FullServerInfo()

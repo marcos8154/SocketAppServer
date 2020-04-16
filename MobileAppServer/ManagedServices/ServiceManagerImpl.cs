@@ -24,11 +24,12 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MobileAppServer.ManagedServices
+namespace SocketAppServer.ManagedServices
 {
     internal class ServiceManagerImpl : IServiceManager
     {
@@ -61,7 +62,7 @@ namespace MobileAppServer.ManagedServices
             Type interfaceType = typeof(T);
             var bindings = Bindings.Where(b => b.InterfaceType.Equals(interfaceType)).ToList();
             if (bindings == null)
-                throw new Exception("Service instance not found.");
+                return;
 
             lock (lckObj)
             {
@@ -74,7 +75,7 @@ namespace MobileAppServer.ManagedServices
         {
             var bind = Bindings.FirstOrDefault(b => alias.Equals(b.Name));
             if (bind == null)
-                throw new Exception("Service instance not found.");
+                return;
 
             lock (lckObj)
             {
@@ -88,7 +89,7 @@ namespace MobileAppServer.ManagedServices
         {
             var bind = Bindings.FirstOrDefault(b => b.Implementation.Equals(implementation));
             if (bind == null)
-                throw new Exception("Service instance not found.");
+                return;
 
             lock (lckObj)
             {
@@ -116,7 +117,7 @@ namespace MobileAppServer.ManagedServices
             {
                 var bind = Bindings.FirstOrDefault(b => alias.Equals(b.Name));
                 if (bind == null)
-                    throw new Exception("Service instance not found.");
+                    return default(T);
 
                 return GetServiceInternal<T>(bind, args);
             }
@@ -132,7 +133,7 @@ namespace MobileAppServer.ManagedServices
             {
                 var bind = Bindings.FirstOrDefault(b => b.Implementation.Equals(implementation));
                 if (bind == null)
-                    throw new Exception("Service instance not found.");
+                    return default(T);
 
                 return GetServiceInternal<T>(bind, args);
             }
@@ -144,7 +145,7 @@ namespace MobileAppServer.ManagedServices
 
         public IReadOnlyCollection<ManagedServiceBinding> GetAllServices()
         {
-            return Bindings.AsReadOnly();
+            return Bindings.ToList().AsReadOnly();
         }
 
         public T GetService<T>(params object[] args)
@@ -154,13 +155,18 @@ namespace MobileAppServer.ManagedServices
                 var bind = Bindings.FirstOrDefault(b => b.InterfaceType.Equals(typeof(T)) &&
                     string.IsNullOrEmpty(b.Name));
                 if (bind == null)
-                    throw new Exception("Service instance not found.");
+                    return default(T);
                 return GetServiceInternal<T>(bind, args);
             }
             catch
             {
                 return default(T);
             }
+        }
+
+        public override string ToString()
+        {
+            return "ServiceManager";
         }
     }
 }

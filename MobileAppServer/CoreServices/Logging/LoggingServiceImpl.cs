@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using MobileAppServer.ManagedServices;
+using SocketAppServer.ManagedServices;
 using System;
 
-namespace MobileAppServer.CoreServices.Logging
+namespace SocketAppServer.CoreServices.Logging
 {
     public class LoggingServiceImpl : ILoggingService
     {
@@ -34,19 +34,11 @@ namespace MobileAppServer.CoreServices.Logging
 
         internal void WriteLogInternal(ServerLog log)
         {
-            if (log.Type == ServerLogType.INFO)
-                Console.ForegroundColor = ConsoleColor.Green;
-            if (log.Type == ServerLogType.ALERT)
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            if (log.Type == ServerLogType.ERROR)
-                Console.ForegroundColor = ConsoleColor.Red;
-
-            Console.WriteLine(log.LogText);
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-
+            Console.WriteLine($"[{log.EventDate} {log.Type}]: {log.LogText}");
             if (loggerWrapper != null)
                 lock (lckObj)
-                    loggerWrapper.Register(log);
+                    loggerWrapper.Register(ref log);
+            log = null;
         }
 
         public void WriteLog(string logText, ServerLogType type = ServerLogType.INFO)

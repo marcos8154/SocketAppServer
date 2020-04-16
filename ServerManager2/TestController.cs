@@ -22,34 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocketAppServer.Security
+namespace ServerManager2
 {
-    internal class SecurityTokenInterceptor : IHandlerInterceptor
+    internal class Address
     {
-        public string ControllerName { get { return ""; } }
-        public string ActionName { get { return ""; } }
+        public string Street { get; set; }
+        public string City { get; set; }
+    }
 
-        public InterceptorHandleResult PreHandle(SocketRequest socketRequest)
-        {
-            if (socketRequest.Controller.GetType().Name.Equals("AuthorizationController"))
-                return new InterceptorHandleResult(false, true, "", "");
-            
-            var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));
-            if (paramToken == null)
-                return new InterceptorHandleResult(true, false, "Unauthorized. Check 'authorization' parameter in request body", "");
+    internal class Entity
+    {
+        public string Name { get; set; }
 
-            string token = paramToken.Value.ToString();
-            if (!TokenRepository.Instance.IsValid(token))
-                return new InterceptorHandleResult(true, false, "Invalid or expired token. Check 'authorization' parameter in request body", "");
-            
-            return new InterceptorHandleResult(false, true, "Authorized", "");
-        }
+        public string Phone { get; set; }
     }
 }
