@@ -10,6 +10,25 @@ using System.Threading.Tasks;
 
 namespace SocketAppServerClient
 {
+    internal class ClientConfiguration
+    {
+        public string Server { get; private set; }
+        public int Port { get; private set; }
+        public Encoding Encoding { get; private set; }
+        public int PacketSize { get; private set; }
+        public int MaxAttempts { get; private set; }
+
+        public ClientConfiguration(string server, int port,
+            Encoding encoding, int packetSize, int maxAttempts)
+        {
+            Server = server;
+            Port = port;
+            Encoding = encoding;
+            PacketSize = packetSize;
+            MaxAttempts = maxAttempts;
+        }
+    }
+
     public class Client
     {
         private string thisStr = null;
@@ -25,8 +44,50 @@ namespace SocketAppServerClient
         public int ByteBuffer { get; private set; }
         private Socket clientSocket = null;
 
+        private static ClientConfiguration staticConf;
+
+        /// <summary>
+        /// Defines a global, static configuration for any future connections needed by this client
+        /// </summary>
+        /// <param name="server">Server network address</param>
+        /// <param name="port">Server port</param>
+        /// <param name="encoding">Server encoding</param>
+        /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
+        /// <param name="maxAttempts">Maximum connection attempts</param>
+        public static void Configure(string server, int port,
+            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10)
+        {
+            staticConf = new ClientConfiguration(
+                server,
+                port,
+                encoding,
+                packetSize,
+                maxAttempts);
+        }
+
+        /// <summary>
+        /// The static configuration of the client has not been defined. 
+        /// Invoke the "Configure()" method before using this constructor
+        /// </summary>
+        public Client()
+        {
+            if (staticConf == null)
+                throw new Exception("");
+            ConnectToServer(staticConf.Server,
+                staticConf.Port, staticConf.Encoding,
+                staticConf.PacketSize, staticConf.MaxAttempts);
+        }
+
+        /// <summary>
+        /// Use this constructor when you need to connect to different servers at different points in your application
+        /// </summary>
+        /// <param name="server">Server network address</param>
+        /// <param name="port">Server port</param>
+        /// <param name="encoding">Server encoding</param>
+        /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
+        /// <param name="maxAttempts">Maximum connection attempts</param>
         public Client(string server, int port,
-            Encoding encoding, int packetSize, int maxAttempts = 10)
+            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10)
         {
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ConnectToServer(server, port, encoding, packetSize, maxAttempts);
@@ -54,6 +115,10 @@ namespace SocketAppServerClient
 
         public ServerResponse Response { get; private set; }
 
+        /// <summary>
+        /// Retrieves the file returned by an action on the server
+        /// </summary>
+        /// <returns></returns>
         public byte[] GetResultFile()
         {
             try
@@ -96,6 +161,11 @@ namespace SocketAppServerClient
             }
         }
 
+        /// <summary>
+        /// [OBSOLETE!!!] Gets the result of a request on the server
+        /// </summary>
+        /// <param name="entityType">Defines the type of object to convert from the json returned by the action on the server</param>
+        /// <returns></returns>
         [Obsolete]
         public OperationResult GetResult(Type entityType = null)
         {
@@ -127,6 +197,11 @@ namespace SocketAppServerClient
             }
         }
 
+        /// <summary>
+        ///  Gets the result of a request on the server
+        /// </summary>
+        /// <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
+        /// <returns></returns>
         public OperationResult GetResult<T>()
             where T : class
         {
@@ -156,7 +231,10 @@ namespace SocketAppServerClient
             }
         }
 
-
+        /// <summary>
+        /// Send a request to connected server
+        /// </summary>
+        /// <param name="body">Request body and parameters</param>
         public void SendRequest(RequestBody body)
         {
             string commandRequest = JsonConvert.SerializeObject(body);
@@ -187,6 +265,10 @@ namespace SocketAppServerClient
             }
         }
 
+        /// <summary>
+        /// Gets the response to a request made on the connected server. Conversion of objects are not handled here
+        /// </summary>
+        /// <returns></returns>
         public ServerResponse ReadResponse()
         {
             try
@@ -207,6 +289,9 @@ namespace SocketAppServerClient
             }
         }
 
+        /// <summary>
+        /// Closes current connection on server
+        /// </summary>
         public void Close()
         {
             if (clientSocket == null)
@@ -218,6 +303,7 @@ namespace SocketAppServerClient
                 clientSocket = null;
             }
             catch { }
+            thisStr = "Disconnected";
         }
     }
 }

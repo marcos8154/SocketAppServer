@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Roadmap", "Roadmap", "{A68D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultTestServer", "DefaultTestServer\DefaultTestServer.csproj", "{05F4F107-ACEA-4572-9A6A-A813AF712CAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05F4F107-ACEA-4572-9A6A-A813AF712CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05F4F107-ACEA-4572-9A6A-A813AF712CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05F4F107-ACEA-4572-9A6A-A813AF712CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05F4F107-ACEA-4572-9A6A-A813AF712CAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{73D8736A-12CA-4552-A3E5-090023E3A18D} = {A68DC8C8-AD51-4C7C-96DA-C0874BE9C4BB}
 		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A} = {A68DC8C8-AD51-4C7C-96DA-C0874BE9C4BB}
+		{05F4F107-ACEA-4572-9A6A-A813AF712CAC} = {3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DE951B6-022E-4CC6-B987-AB7590327349}
