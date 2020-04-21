@@ -31,10 +31,16 @@ namespace SocketAppServer.CoreServices.Logging
     {
         private static object lckObj = new object();
         private ILoggerWrapper loggerWrapper = null;
+        private ICLIHostService cliHost = null;
+        public LoggingServiceImpl()
+        {
+            cliHost = ServiceManager.GetInstance().GetService<ICLIHostService>();
+        }
 
         internal void WriteLogInternal(ServerLog log)
         {
-            Console.WriteLine($"[{log.EventDate} {log.Type}]: {log.LogText}");
+            if (!cliHost.IsCLIBusy())
+                Console.WriteLine($"[{log.EventDate} {log.Type}]: {log.LogText}");
             if (loggerWrapper != null)
                 lock (lckObj)
                     loggerWrapper.Register(ref log);

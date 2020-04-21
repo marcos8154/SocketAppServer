@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using SocketAppServer.CoreServices.CLIHost;
 using SocketAppServer.CoreServices.Logging;
 using SocketAppServer.LoadBalancingServices;
 using SocketAppServer.ManagedServices;
@@ -54,6 +55,7 @@ namespace SocketAppServer.CoreServices.CoreServer
         private IServiceManager serviceManager;
         private ILoggingService loggingService;
         private ISecurityManagementService security;
+        private ICLIHostService cliHost;
         private Socket serverSocket;
         private ServerConfiguration configuration;
         private List<SocketSession> clientSessions;
@@ -160,13 +162,47 @@ namespace SocketAppServer.CoreServices.CoreServer
             Console.WriteLine("Type 'exit' to stop; 'reboot' to send reboot request event...");
             string line = "";
 
+            cliHost = serviceManager.GetService<ICLIHostService>();
+            if (cliHost.RegisteredCommands().Count > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"\nCommands available on this CLI:");
+                foreach (CLICommand command in cliHost.RegisteredCommands())
+                    Console.WriteLine($"=>  {command.CommandText}: {command.CommandDescription}");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
             if (configuration.IsConsoleApplication)
                 while (line != "exit")
                 {
                     line = Console.ReadLine();
+
+                    CLICommand command = cliHost.GetCommand(line);
+                    if (command == null)
+                        Console.WriteLine("No such command");
+                    else
+                        TryActivateCommand(command);
+
                     if (line == "reboot")
                         Reboot();
                 }
+        }
+
+        private void TryActivateCommand(CLICommand command)
+        {
+            cliHost.SetCLIBusy(true);
+            try
+            {
+                command.ExecutorClient.Activate();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                if (ex.InnerException != null)
+                    msg += $@"n\{ex.InnerException.Message}";
+                loggingService.WriteLog($"Command '{command.CommandText}' failed to activate. Exception: {msg}", ServerLogType.ERROR);
+            }
+            cliHost.SetCLIBusy(false);
         }
 
         public void RunServerStartupTasks()

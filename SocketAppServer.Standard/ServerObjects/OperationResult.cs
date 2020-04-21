@@ -36,7 +36,7 @@ namespace SocketAppServer.ServerObjects
         public string Message { get; set; }
         public object Entity { get; set; }
 
-        public OperationResult( object entity, int status, string message)
+        public OperationResult(object entity, int status, string message)
         {
             Status = status;
             Entity = entity;

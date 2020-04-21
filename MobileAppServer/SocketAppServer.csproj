@@ -72,15 +72,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreServices\AppServerConfigurator.cs" />
+    <Compile Include="CoreServices\CLIHost\CLICommand.cs" />
+    <Compile Include="CoreServices\CLIHost\CLIHostServiceImpl.cs" />
+    <Compile Include="CoreServices\CLIHost\ICLIClient.cs" />
     <Compile Include="CoreServices\ControllerManagement\ControllerManagerImpl.cs" />
     <Compile Include="CoreServices\CoreServer\CoreServerImpl.cs" />
     <Compile Include="CoreServices\CoreServer\HWServiceImpl.cs" />
+    <Compile Include="CoreServices\CoreServer\LockedActionException.cs" />
     <Compile Include="CoreServices\CoreServer\RequestPreProcessor.cs" />
     <Compile Include="CoreServices\CoreServer\ServerConfiguration.cs" />
     <Compile Include="CoreServices\CoreServer\ServerEncodingConverterServiceImpl.cs" />
     <Compile Include="CoreServices\DIManagement\DependencyInjectorManagerImpl.cs" />
     <Compile Include="CoreServices\DomainModelsManagement\DomainModelsManager.cs" />
     <Compile Include="CoreServices\EFIManagement\EFIManagerImpl.cs" />
+    <Compile Include="CoreServices\ICLIHostService.cs" />
     <Compile Include="CoreServices\IControllerManager.cs" />
     <Compile Include="CoreServices\ICoreServerService.cs" />
     <Compile Include="CoreServices\IDependencyInjectionService.cs" />
@@ -127,6 +132,7 @@
     <Compile Include="Security\UserActivity.cs" />
     <Compile Include="Security\UserRole.cs" />
     <Compile Include="Security\UserRoleValidationInterceptor.cs" />
+    <Compile Include="ServerObjects\ServerAction.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />
     <Compile Include="CoreServices\CoreServer\BasicControllerRequestProcessor.cs" />
@@ -135,6 +141,7 @@
     <Compile Include="CoreServices\ControllerManagement\ControllerRegister.cs" />
     <Compile Include="ServerObjects\CPUID.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
+    <Compile Include="ServerObjects\IActionExceptionHandler.cs" />
     <Compile Include="ServerObjects\IDependencyInjectorMaker.cs" />
     <Compile Include="ServerObjects\IHandlerInterceptor.cs" />
     <Compile Include="CoreServices\Logging\ILoggerWrapper.cs" />
@@ -143,6 +150,7 @@
     <Compile Include="ServerObjects\JsonResult.cs" />
     <Compile Include="CoreServices\Logging\LoggingServiceImpl.cs" />
     <Compile Include="CoreServices\DomainModelsManagement\ModelRegister.cs" />
+    <Compile Include="ServerObjects\SingleThreaded.cs" />
     <Compile Include="ServerObjects\ObjectRequestParameter.cs" />
     <Compile Include="ServerObjects\OperationResult.cs" />
     <Compile Include="ServerObjects\RequestBody.cs" />

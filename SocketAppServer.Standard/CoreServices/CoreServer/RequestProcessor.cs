@@ -36,6 +36,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 
 namespace SocketAppServer.CoreServices.CoreServer
 {
@@ -109,6 +110,16 @@ namespace SocketAppServer.CoreServices.CoreServer
         }
         #endregion
 
+        private void ValidateActionMethod()
+        {
+            if(method == null) 
+                throw new Exception($"Not found Action '{requestBody.Action}' in Controller '{requestBody.Controller}'. If so, check if the method returns ActionResult or the method is marked with an [ServerAction] attribute");
+
+            if (method.ReturnType != typeof(ActionResult) &&
+                method.GetCustomAttribute<ServerAction>() == null)
+                throw new Exception($"Not found Action '{method.Name}' in Controller '{controllerName}'. If so, check if the method returns ActionResult or the method is marked with an [ServerAction] attribute");
+        }
+
         public override object DoInBackGround(int p)
         {
             SocketRequest request = null;
@@ -117,31 +128,52 @@ namespace SocketAppServer.CoreServices.CoreServer
             {
                 request = GetRequestSocket();
                 if (request == null)
-                    return string.Empty;
+                    return null;
 
                 if (HasRequestErros(ref request))
-                    return string.Empty;
+                    return null;
 
                 controller = request.Controller;
                 method = controller.GetType().GetMethod(request.Action);
+                
+                ValidateActionMethod();
 
                 controllerName = controller.GetType().Name;
                 actionName = method.Name;
 
-                if (ActionHasLock(ref request, ref controller, ref actionName))
-                    return string.Empty;
+                WaitActionLockPendingCompletations(ref request,
+                     ref controller, ref actionName);
+
+                if (method.GetCustomAttribute<SingleThreaded>() != null)
+                    ActionLocker.AddLock(controller, actionName);
 
                 ResolveActionParameters(ref request);
                 if (!ResolveInterceptors(ref request))
-                    return string.Empty;
+                    return null;
 
                 object[] methodParameters = new object[request.Parameters.Count];
                 for (int i = 0; i < request.Parameters.Count; i++)
                     methodParameters[i] = request.Parameters[i].Value;
 
+                ActionResult result = null;
                 Stopwatch w = new Stopwatch();
                 w.Start();
-                ActionResult result = (ActionResult)method.Invoke(controller, methodParameters);
+
+                if (method.ReturnType == null)
+                {
+                    //void action
+                    method.Invoke(controller, methodParameters);
+                    result = ActionResult.Json(new OperationResult(null, 600, ""));
+                }
+                else if (method.ReturnType == typeof(ActionResult)) //ActionResult action
+                    result = (ActionResult)method.Invoke(controller, methodParameters);
+                else
+                {
+                    //user-defined object Action
+                    object returnObj = method.Invoke(controller, methodParameters);
+                    result = ActionResult.Json(new OperationResult(returnObj, 600, ""));
+                }
+
                 w.Stop();
 
                 if (telemetry != null)
@@ -157,22 +189,78 @@ namespace SocketAppServer.CoreServices.CoreServer
                 request.ProcessResponse(result, clientSocket);
                 return result;
             }
+            catch (LockedActionException lockedEx)
+            {
+                ProcessErrorResponse(lockedEx, ref request);
+                return null;
+            }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                if (ex.InnerException != null)
-                    msg += $" {ex.InnerException.Message}";
-                if (controller != null &&
-                    method != null)
-                    ActionLocker.ReleaseLock(controller, method.Name);
+                if (method != null &&
+                    controller != null)
+                    ActionLocker.ReleaseLock(controller, actionName);
 
-                if (telemetry != null)
-                    telemetry.Collect(new ActionError(controllerName, actionName, msg));
-
-                if (request != null)
-                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket);
-                return string.Empty;
+                ProcessErrorResponse(ex, ref request);
+                return null;
             }
+        }
+
+        private void ProcessErrorResponse(Exception ex, ref SocketRequest request)
+        {
+            string msg = ex.Message;
+            if (ex.InnerException != null)
+                msg += $" {ex.InnerException.Message}";
+
+            if (telemetry != null)
+                telemetry.Collect(new ActionError(controllerName, actionName, msg));
+
+            if (request != null)
+            {
+                ServerAction serverAction = method.GetCustomAttribute<ServerAction>();
+                if (serverAction == null)
+                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket);
+                else
+                {
+                    int errorCode = (serverAction.DefaultErrorCode == 0
+                        ? ResponseStatus.ERROR
+                        : serverAction.DefaultErrorCode);
+
+                    if (serverAction.ExceptionHandler == null)
+                        request.ProcessResponse(ActionResult.Json("", errorCode, $"Process request error: {msg}"), clientSocket);
+                    else
+                    {
+                        IActionExceptionHandler handler = (IActionExceptionHandler)
+                            Activator.CreateInstance(serverAction.ExceptionHandler);
+                        ActionResult result = ActionResult.Json(handler.Handle(ex, request), 600, "Request error, but handled by application");
+                        request.ProcessResponse(result, clientSocket);
+                    }
+                }
+            }
+        }
+
+        private void WaitActionLockPendingCompletations(ref SocketRequest request, ref IController controller, ref string actionName)
+        {
+            if (!ActionLocker.ActionHasLock(controller, actionName))
+                return;
+            SingleThreaded actionLock = method.GetCustomAttribute<SingleThreaded>();
+            if (actionLock == null)
+                return;
+
+            for (int i = 0; i < actionLock.WaitingAttempts; i++)
+            {
+                if (ActionLocker.ActionHasLock(controller, actionName))
+                {
+                    if ((i + 1) >= actionLock.WaitingAttempts)
+                    {
+                        throw new LockedActionException("The action does not allow simultaneous access and the maximum number of waiting attempts has been exceeded. Try to access the resource again later.");
+                    }
+
+                    Thread.Sleep(actionLock.WaitingInterval);
+                }
+                else
+                    return;
+            }
+
         }
 
         #region support methods
@@ -260,16 +348,6 @@ namespace SocketAppServer.CoreServices.CoreServer
             return false;
         }
 
-        private bool ActionHasLock(ref SocketRequest request, ref IController controller, ref string actionName)
-        {
-            if (ActionLocker.ActionHasLock(controller, actionName))
-            {
-                request.ProcessResponse(ActionResult.Json("", ResponseStatus.LOCKED, $"This action is already being performed by another remote client and is currently blocked. Try again later"), clientSocket);
-                return true;
-            }
-            return false;
-        }
-
         public static void UpThreadCount()
         {
             lock (lck)
@@ -288,9 +366,6 @@ namespace SocketAppServer.CoreServices.CoreServer
 
         public override void OnPostExecute(object result)
         {
-            if (controller != null && method != null)
-                ActionLocker.ReleaseLock(controller, method.Name);
-
             clientSocket = null;
             typedObjManager = null;
             requestBody = null;

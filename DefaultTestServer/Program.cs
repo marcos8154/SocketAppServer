@@ -5,6 +5,7 @@ using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
 using System;
 using System.Text;
+using System.Threading;
 
 namespace DefaultTestServer
 {
@@ -23,6 +24,7 @@ namespace DefaultTestServer
         public override void ConfigureServices(IServiceManager serviceManager)
         {
             RegisterController(typeof(DeviceController));
+            RegisterCLICommand("run", "Allows run a simple command", new MySimpleCLICommand());
         }
 
         public override ServerConfiguration GetServerConfiguration()
@@ -34,10 +36,15 @@ namespace DefaultTestServer
 
     public class DeviceController : IController
     {
-        public ActionResult RegisterDevice(string deviceName,
-            SocketRequest request )
+        [ServerAction(ExceptionHandler = typeof(MySimpleExceptionHandler))]
+        public void RegisterDevice(string deviceName,
+            SocketRequest request)
         {
-            return ActionResult.Json(new OperationResult(true, 600, ""));
+            throw new Exception("Generic Error");
+            ILoggingService log = ServiceManager.GetInstance().GetService<ILoggingService>();
+            log.WriteLog("DISPOSITIVO REGISTRADO COM SUCESSO");
+            //   return "Dispositivo registrado com sucesso";
+          
         }
     }
 }

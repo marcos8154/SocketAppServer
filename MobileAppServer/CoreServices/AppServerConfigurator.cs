@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using SocketAppServer.CoreServices.CLIHost;
 using SocketAppServer.CoreServices.ControllerManagement;
 using SocketAppServer.CoreServices.CoreServer;
 using SocketAppServer.CoreServices.DIManagement;
@@ -63,11 +64,22 @@ namespace SocketAppServer.CoreServices
             Services.Bind<IScheduledTaskManager>(typeof(ScheduledTaskManagerImpl), true);
             Services.Bind<IEncodingConverterService>(typeof(ServerEncodingConverterServiceImpl), false);
             Services.Bind<ITelemetryManagement>(typeof(TelemetryManagementImpl), true);
+            Services.Bind<ICLIHostService>(typeof(CLIHostServiceImpl), true);
         }
 
         public abstract void ConfigureServices(IServiceManager serviceManager);
         public abstract ServerConfiguration GetServerConfiguration();
 
+        /// <summary>
+        /// It allows integration with the CLI of the framework, which allows execution of specific routines from commands typed at the ConsoleApp prompt
+        /// </summary>
+        /// <param name="commandText">Initial command that triggers the execution client</param>
+        /// <param name="commandDescription">Brief description of the purpose of the command</param>
+        /// <param name="executorClient">Instance of the implementation of the ICLIClient interface, which connects the CLI of ConsoleApp with the target class that will perform the tasks</param>
+        protected void RegisterCLICommand(string commandText, string commandDescription, ICLIClient executorClient)
+        {
+            Services.GetService<ICLIHostService>().RegisterCLICommand(commandText, commandDescription, executorClient);
+        }
 
         /// <summary>
         /// Enables load balancing features on the current server

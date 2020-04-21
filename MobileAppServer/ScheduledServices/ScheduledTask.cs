@@ -86,9 +86,12 @@ namespace SocketAppServer.ScheduledServices
 
         private void Service_OnCompleted(bool result)
         {
-            timer.Stop();
-            timer.Dispose();
-            timer = null;
+            if (timer != null)
+            {
+                timer.Stop();
+                timer.Dispose();
+                timer = null;
+            }
 
             StartTimer(Interval);
         }
