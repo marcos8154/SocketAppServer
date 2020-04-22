@@ -23,10 +23,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DefaultTestServer", "DefaultTestServer\DefaultTestServer.csproj", "{05F4F107-ACEA-4572-9A6A-A813AF712CAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B444FC3E-49D9-47A7-9A18-7C5A927558AD} = {B444FC3E-49D9-47A7-9A18-7C5A927558AD}
+		{947A305A-2092-4035-AECC-84149A3457F6} = {947A305A-2092-4035-AECC-84149A3457F6}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OfficialExtensions", "OfficialExtensions", "{3260EA04-1484-423E-B961-8690305A76AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServer.Extensions.ClientMaker", "SocketAppServer.Extensions.ClientMaker\SocketAppServer.Extensions.ClientMaker.csproj", "{B444FC3E-49D9-47A7-9A18-7C5A927558AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Extensions.ClientMaker", "SocketAppServer.Extensions.ClientMaker\SocketAppServer.Extensions.ClientMaker.csproj", "{B444FC3E-49D9-47A7-9A18-7C5A927558AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -77,6 +77,8 @@ namespace SocketAppServer.CoreServices.ControllerManagement
             try
             {
                 ControllerRegister register = GetControllerRegister(name);
+                if (register == null)
+                    throw new Exception($"Controller '{name}' not registered or not found");
                 IDependencyInjectorMaker injector = null;
 
                 object[] injectArgs = null;

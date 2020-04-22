@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 namespace SocketAppServer.LoadBalancingServices
 {
@@ -248,34 +249,58 @@ namespace SocketAppServer.LoadBalancingServices
 
         public ActionResult RunAction(string receivedData)
         {
-            SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData);
-            string cacheResultKey = BuildCacheResultKey(rb);
-            SubServer targetServer = GetAvailableSubServer();
-
-            if (targetServer == null)
+            try
             {
-                CheckAllocateNewInstance();
 
-                if (retried)
-                    return ResolveResultOnUreachableServer(cacheResultKey);
-                else
+                SocketAppServerClient.RequestBody rb = GetRequestBody(receivedData);
+                string cacheResultKey = BuildCacheResultKey(rb);
+                SubServer targetServer = GetAvailableSubServer();
+
+                if (targetServer == null)
                 {
-                    retried = true;
-                    return RunAction(receivedData);
+                    CheckAllocateNewInstance();
+
+                    if (retried)
+                        return ResolveResultOnUreachableServer(cacheResultKey);
+                    else
+                    {
+                        retried = true;
+                        return RunAction(receivedData);
+                    }
+                }
+
+                Client client = BuildClient(targetServer);
+                client.SendRequest(rb);
+
+                SocketAppServerClient.OperationResult result = client.GetResult();
+
+                if (EnabledCachedResultsForUnreachableServers)
+                    CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
+
+                targetServer.RefreshLifetimeIfHas();
+                return ActionResult.Json(result);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                if (ex.InnerException != null)
+                    msg += $"\n{ex.InnerException.Message}";
+                return ActionResult.Json(new ServerObjects.OperationResult(null, 500, $"Error"));
+            }
+        }
+
+        private SocketAppServerClient.RequestBody GetRequestBody(string receivedData)
+        {
+            SocketAppServerClient.RequestBody rb = null;
+            using (StringReader sr = new StringReader(receivedData))
+            {
+                using (JsonReader jr = new JsonTextReader(sr))
+                {
+                    JsonSerializer js = new JsonSerializer();
+                    rb = js.Deserialize<SocketAppServerClient.RequestBody>(jr);
                 }
             }
-
-            Client client = BuildClient(targetServer);
-            client.SendRequest(rb);
-
-            SocketAppServerClient.OperationResult result = client.GetResult();
-
-            if (EnabledCachedResultsForUnreachableServers)
-                CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
-
-            if (targetServer.HasLifetime())
-                targetServer.RefreshLifetime();
-            return ActionResult.Json(result);
+            return rb;
         }
     }
 }

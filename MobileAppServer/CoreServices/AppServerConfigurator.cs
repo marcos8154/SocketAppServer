@@ -34,6 +34,7 @@ using SocketAppServer.CoreServices.ProxyServices;
 using SocketAppServer.CoreServices.ScheduledTaskManagement;
 using SocketAppServer.CoreServices.SecurityManagement;
 using SocketAppServer.CoreServices.TelemetryManagement;
+using SocketAppServer.EFI;
 using SocketAppServer.LoadBalancingServices;
 using SocketAppServer.ManagedServices;
 using SocketAppServer.ScheduledServices;
@@ -54,7 +55,7 @@ namespace SocketAppServer.CoreServices
             Services.Bind<ILoggingService>(typeof(LoggingServiceImpl), true);
             Services.Bind<IControllerManager>(typeof(ControllerManagerImpl), true);
             Services.Bind<IDomainModelsManager>(typeof(DomainModelsManager), true);
-            Services.Bind<IEFIManager>(typeof(EFIManagerImpl), false);
+            Services.Bind<IEFIManager>(typeof(EFIManagerImpl), true);
             Services.Bind<ICoreServerService>("realserver", typeof(CoreServerImpl), true);
             Services.Bind<ICoreServerService>(typeof(ProxyCoreServer), true);
             Services.Bind<IHardwareServices>(typeof(HWServiceImpl), true);
@@ -69,6 +70,16 @@ namespace SocketAppServer.CoreServices
 
         public abstract void ConfigureServices(IServiceManager serviceManager);
         public abstract ServerConfiguration GetServerConfiguration();
+
+
+        /// <summary>
+        /// Enable the loading of a framework extension (EFI) as soon as the server core is booted
+        /// </summary>
+        /// <param name="extension"></param>
+        protected void EnableExtension(IExtensibleFrameworkInterface extension)
+        {
+            Services.GetService<IEFIManager>().AddExtension(extension);
+        }
 
         /// <summary>
         /// It allows integration with the CLI of the framework, which allows execution of specific routines from commands typed at the ConsoleApp prompt

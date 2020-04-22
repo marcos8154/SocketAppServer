@@ -9,7 +9,7 @@ namespace DefaultTestServer
     {
         public OperationResult Handle(Exception exception, SocketRequest request)
         {
-            return new OperationResult(null, 550, "Não foi possível registrar o dispositivo. Tente novamente mais tarde");
+            return new OperationResult(null, 500, "Não foi possível registrar o dispositivo. Tente novamente mais tarde");
         }
     }
 }

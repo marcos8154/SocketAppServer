@@ -6,7 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SocketAppServer.Standard\SocketAppServer.Standard.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SocketAppServer.Extensions.ClientMaker">
+      <HintPath>..\SocketAppServer.Extensions.ClientMaker\bin\Debug\netstandard2.0\SocketAppServer.Extensions.ClientMaker.dll</HintPath>
+    </Reference>
+    <Reference Include="SocketAppServer.Standard">
+      <HintPath>..\SocketAppServer.Standard\bin\Debug\netstandard2.0\SocketAppServer.Standard.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

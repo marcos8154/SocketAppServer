@@ -85,17 +85,19 @@ namespace SocketAppServer.LoadBalancingServices
         {
             NotifiableRequirement = notifiableRequirement;
             ServerLifetimeInMinutes = serverLifetimeInMinutes;
-            RefreshLifetime();
+            RefreshLifetimeIfHas();
         }
 
-        internal bool HasLifetime()
+        private bool HasLifetime()
         {
             return NotifiableRequirement != null;
         }
 
         private System.Timers.Timer lifetime;
-        internal void RefreshLifetime()
+        internal void RefreshLifetimeIfHas()
         {
+            if (!HasLifetime())
+                return;
            
             if(lifetime != null)
             {

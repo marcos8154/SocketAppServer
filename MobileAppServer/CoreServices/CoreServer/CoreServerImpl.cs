@@ -238,6 +238,9 @@ namespace SocketAppServer.CoreServices.CoreServer
                 telemetry.Initialize();
             }
 
+            IEFIManager efiManager = serviceManager.GetService<IEFIManager>();
+            efiManager.LoadAll();
+
             Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
             Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{configuration.ServerEncoding.EncodingName}'");

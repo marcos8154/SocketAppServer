@@ -273,8 +273,7 @@ namespace SocketAppServer.LoadBalancingServices
             if (EnabledCachedResultsForUnreachableServers)
                 CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
 
-            if (targetServer.HasLifetime())
-                targetServer.RefreshLifetime();
+            targetServer.RefreshLifetimeIfHas();
             return ActionResult.Json(result);
         }
     }
