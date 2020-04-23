@@ -3,10 +3,24 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>This extension will generate the source files (.cs) of classes to access your server's controllers and actions.</Description>
+    <PackageLicenseFile>LICENCE.MD</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/marcos8154/SocketAppServer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/marcos8154/SocketAppServer.git</RepositoryUrl>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MobileAppServer" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\MobileAppServer\LICENCE.MD">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
