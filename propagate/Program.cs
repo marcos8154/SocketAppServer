@@ -33,6 +33,8 @@ namespace propagate
                     ShowCommandList();
                 if (args[0] == "map-path")
                     MapPath(args);
+                if (args[0] == "map-show")
+                    ShowPathMap();
                 if (args[0] == "exclude")
                     AddExclude(args);
                 if (args[0] == "propagate")
@@ -53,9 +55,32 @@ namespace propagate
             Interator();
         }
 
+        private static void ShowPathMap()
+        {
+            string file = @".\paths.plist";
+            string[] paths = (File.Exists(file)
+                            ? File.ReadAllLines(file)
+                            : new string[] { });
+
+            if(paths.Length == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("empty list.");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                paths.ToList().ForEach(p => Console.WriteLine($"    {p}"));
+                Console.ForegroundColor = ConsoleColor.White;
+
+            }
+        }
+
         private static void ShowCommandList()
         {
             List<string> commands = new List<string>();
+            commands.Add("map-show * displays the list of directories mapped to the source and target projects paths");
             commands.Add("map-path * adds the project's base directory mapping \n args: \n map-path [type] [path] \n[type]: source | target \n[path]: path");
             commands.Add("exclude * adds an exclusion file during the propagation process \n args: \nexclude [action] [filename] \n[action]: add | remove | list \n[file]: file name with extension (whitout path)");
             commands.Add("propagate * performs the propagation process; the previous steps must be configured");
@@ -157,8 +182,14 @@ namespace propagate
         private static void MapPath(string[] args)
         {
             string pathType = args[1];
-            string path = args[2];
+            string path = "";
+            for (int i = 2; i < args.Length; i++)
+                if (args[i].StartsWith("\\"))
+                    path += args[i];
+                else
+                    path += $" {args[i]}";
 
+            path = path.TrimStart().TrimEnd();
             if (pathType != "source" &&
                 pathType != "target")
                 throw new Exception(@"Invalid path type");
