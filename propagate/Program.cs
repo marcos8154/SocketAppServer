@@ -62,7 +62,7 @@ namespace propagate
                             ? File.ReadAllLines(file)
                             : new string[] { });
 
-            if(paths.Length == 0)
+            if (paths.Length == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("empty list.");
@@ -100,7 +100,7 @@ namespace propagate
 
         private static void AddExclude(string[] args)
         {
-            string confFile = @".\excludelist.plist";
+            string confFile = @".\exclude.plist";
             List<string> excludeList = (File.Exists(confFile)
                 ? File.ReadAllLines(confFile).ToList()
                 : new List<string>());
@@ -138,13 +138,21 @@ namespace propagate
 
         private static void PropagateNow()
         {
+            propagatedFiles = 0;
             string[] paths = File.ReadAllLines(@".\paths.plist");
             string sourcePath = paths[0].Replace("source:", "");
-            string targetPath = paths[0].Replace("target:", "");
+            string targetPath = paths[1].Replace("target:", "");
 
-            string[] excludeList = File.ReadAllLines(@".\exclude.plist");
+            string excludeFile = @".\exclude.plist";
+            string[] excludeList = (File.Exists(excludeFile)
+                ? File.ReadAllLines(excludeFile)
+                : new string[] { });
 
             ScanSource(new DirectoryInfo(sourcePath), new DirectoryInfo(targetPath), excludeList);
+            ShowDone();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Propagated files: {propagatedFiles}.");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         private static void ScanSource(DirectoryInfo sourcePath, DirectoryInfo targetPath, string[] excludeList)
@@ -156,12 +164,17 @@ namespace propagate
 
                 TryPropagateFile(file, targetPath);
             }
+
+            foreach (DirectoryInfo subDir in sourcePath.GetDirectories())
+                ScanSource(subDir, targetPath, excludeList);
         }
 
+        static int propagatedFiles = 0;
         private static void TryPropagateFile(FileInfo sourceFile, DirectoryInfo targetPath)
         {
             foreach (FileInfo targetFile in targetPath.GetFiles())
             {
+
                 if (targetFile.Name == sourceFile.Name)
                 {
                     if (sourceFile.LastWriteTime > targetFile.LastWriteTime)
@@ -170,6 +183,8 @@ namespace propagate
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"    '{sourceFile.Name}' propagated.");
                         Console.ForegroundColor = ConsoleColor.White;
+
+                        propagatedFiles += 1;
                         break;
                     }
                 }
