@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />
+    <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MobileAppServerClient\SocketAppServerClient.csproj">

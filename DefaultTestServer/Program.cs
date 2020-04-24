@@ -4,6 +4,7 @@ using SocketAppServer.Extensions.ClientMaker;
 using SocketAppServer.Hosting;
 using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
+using SocketAppServer.TelemetryServices;
 using System;
 using System.Collections.Generic;
 using System.Text;

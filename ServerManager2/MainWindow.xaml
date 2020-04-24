@@ -25,10 +25,6 @@
             <Label Content="Server Manager 2" HorizontalAlignment="Left" Margin="187,3,0,6" Width="182" Foreground="White" FontSize="20" FontFamily="Segoe UI Semilight"/>
         </Grid>
         <Border BorderBrush="#FFEEEEEE" BorderThickness="1" Margin="287,47,0,0" HorizontalAlignment="Left" Width="1"/>
-        <Button Content="New Method" HorizontalAlignment="Left" Margin="452,186,0,0" VerticalAlignment="Top" Width="140" Height="46" Click="Button_Click"/>
-        <Button Content="Legacy Method" HorizontalAlignment="Left" Margin="452,249,0,0" VerticalAlignment="Top" Width="140" Height="41" Click="Button_Click_1"/>
-        <Label x:Name="lbNew" Content="Label" HorizontalAlignment="Left" Margin="613,196,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.465,0.526" Width="271"/>
-        <Label x:Name="lbLegacy" Content="Label" HorizontalAlignment="Left" Margin="613,256,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.465,0.526" Width="271"/>
 
     </Grid>
 </Window>
