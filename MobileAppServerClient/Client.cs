@@ -97,6 +97,8 @@ namespace SocketAppServerClient
             int port, Encoding encoding, int byteBuffer = 4098 * 50, int maxAttempts = 10)
         {
             int attempts = 0;
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             while (!clientSocket.Connected)
             {
                 if (attempts >= maxAttempts)

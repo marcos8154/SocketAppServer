@@ -30,8 +30,8 @@ namespace SocketAppServer.Security
 {
     internal class UserRoleValidationInterceptor : IHandlerInterceptor
     {
-        public string ControllerName { get { return ""; } }
-        public string ActionName { get { return ""; } }
+        public string ControllerName { get { return "*"; } }
+        public string ActionName { get { return "*"; } }
 
         public InterceptorHandleResult PreHandle(SocketRequest socketRequest)
         {

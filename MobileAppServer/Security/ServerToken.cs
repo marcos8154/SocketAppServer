@@ -32,6 +32,7 @@ using System.Text;
 
 namespace SocketAppServer.Security
 {
+    ///added comment
     internal class ServerToken
     {
         public Guid SessionId { get; private set; }

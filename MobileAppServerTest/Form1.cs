@@ -1,9 +1,10 @@
-﻿using MobileAppServerClient;
+﻿using SocketAppServerClient;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Text;
 
 namespace MobileAppServerTest
 {
@@ -21,7 +22,7 @@ namespace MobileAppServerTest
             try
             {
                 treeView.Nodes.Clear();
-                Client.Configure(txAddress.Text, int.Parse(txPort.Text), ((4096 * 100) * 1000));
+                Client.Configure(txAddress.Text, int.Parse(txPort.Text), Encoding.UTF8, ((4096 * 100) * 1000));
                 Client client = new Client();
 
                 RequestBody rb = RequestBody.Create("ServerInfoController", "FullServerInfo");
