@@ -67,6 +67,11 @@ namespace SocketAppServer.ServerObjects
         private ICoreServerService coreServer = null;
         public SocketRequest()
         {
+            InitializeServices();
+        }
+
+        private void InitializeServices()
+        {
             IServiceManager manager = ServiceManager.GetInstance();
             logger = manager.GetService<ILoggingService>();
             encoder = manager.GetService<IEncodingConverterService>();
@@ -80,6 +85,7 @@ namespace SocketAppServer.ServerObjects
             Action = action;
             requestParameters = parameters;
             ClientSocket = clientSocket;
+            InitializeServices();
         }
 
         private List<RequestParameter> requestParameters = new List<RequestParameter>();
