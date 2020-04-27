@@ -98,6 +98,7 @@ namespace SocketAppServerClient
         {
             int attempts = 0;
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             while (!clientSocket.Connected)
             {
                 if (attempts >= maxAttempts)
@@ -220,7 +221,7 @@ namespace SocketAppServerClient
                     string entityJson = result.Entity.ToString();
                     result.Entity = GetEntityObjectInternal(entityJson, typeof(T));
                 }
-                finally { }
+                catch { }
 
                 Close();
                 return result;

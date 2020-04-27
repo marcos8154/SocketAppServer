@@ -54,6 +54,22 @@ namespace SocketAppServer.ServerObjects
             telemetry = manager.GetService<ITelemetryServicesProvider>();
         }
 
+        [ServerAction]
+        public List<string> GetActionParameters(string controller,
+            string action)
+        {
+            ControllerRegister register = controllerManager.GetControllerRegister(controller);
+            if (register == null)
+                return new List<string>();
+            MethodInfo method = register.Type.GetMethod(action);
+            if (method == null)
+                return new List<string>();
+            return method
+                .GetParameters()
+                .Select(p => p.Name)
+                .ToList();
+        }
+
         public ActionResult Reboot()
         {
             coreServer.Reboot();

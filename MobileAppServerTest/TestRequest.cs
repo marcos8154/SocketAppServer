@@ -23,7 +23,31 @@ namespace MobileAppServerTest
             {
                 txController.Text = controller;
                 txAction.Text = action;
+
+                FillActionParameters();
             }
+        }
+
+        private void FillActionParameters()
+        {
+            try
+            {
+                Client c = new Client();
+                RequestBody rb = RequestBody.Create("ServerInfoController", "GetActionParameters")
+                    .AddParameter("controller", txController.Text)
+                    .AddParameter("action", txAction.Text)
+                    .AddParameter("authorization", Auth.Token);
+                c.SendRequest(rb);
+                List<string> parameters = c.GetResult<List<string>>();
+                List<ServerRequestParameter> requestParameters = new List<ServerRequestParameter>();
+                parameters.ForEach(p => requestParameters.Add(new ServerRequestParameter
+                {
+                    Key = p,
+                    Value = ""
+                }));
+                dataGrid.DataSource = requestParameters;
+            }
+            catch { }
         }
 
         private bool LoadFromCache(string controller, string action)
@@ -104,6 +128,7 @@ namespace MobileAppServerTest
                     RequestBody rb = RequestBody.Create(controller, action);
                     foreach (var parameter in list)
                         rb.AddParameter(parameter.Key, parameter.Value);
+                    rb.AddParameter("authorization", Auth.Token ?? "");
 
                     client.SendRequest(rb);
 

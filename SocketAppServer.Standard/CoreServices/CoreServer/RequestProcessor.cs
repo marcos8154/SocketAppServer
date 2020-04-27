@@ -112,7 +112,7 @@ namespace SocketAppServer.CoreServices.CoreServer
 
         private void ValidateActionMethod()
         {
-            if(method == null) 
+            if (method == null)
                 throw new Exception($"Not found Action '{requestBody.Action}' in Controller '{requestBody.Controller}'. If so, check if the method returns ActionResult or the method is marked with an [ServerAction] attribute");
 
             if (method.ReturnType != typeof(ActionResult) &&
@@ -135,7 +135,7 @@ namespace SocketAppServer.CoreServices.CoreServer
 
                 controller = request.Controller;
                 method = controller.GetType().GetMethod(request.Action);
-                
+
                 ValidateActionMethod();
 
                 controllerName = controller.GetType().Name;
@@ -151,9 +151,13 @@ namespace SocketAppServer.CoreServices.CoreServer
                 if (!ResolveInterceptors(ref request))
                     return null;
 
-                object[] methodParameters = new object[request.Parameters.Count];
+                object[] methodParameters = new object[method.GetParameters().Length];
                 for (int i = 0; i < request.Parameters.Count; i++)
-                    methodParameters[i] = request.Parameters[i].Value;
+                {
+                    RequestParameter rp = request.Parameters[i];
+                    if (method.GetParameters().FirstOrDefault(mp => mp.Name.Equals(rp.Name)) != null)
+                        methodParameters[i] = request.Parameters[i].Value;
+                }
 
                 ActionResult result = null;
                 Stopwatch w = new Stopwatch();

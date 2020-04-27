@@ -41,6 +41,7 @@ using SocketAppServer.ScheduledServices;
 using SocketAppServer.Security;
 using SocketAppServer.ServerObjects;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace SocketAppServer.CoreServices
@@ -48,6 +49,7 @@ namespace SocketAppServer.CoreServices
     public abstract class AppServerConfigurator
     {
         internal IServiceManager Services { get; set; }
+        internal static Type DefaultExceptionHandlerType { get; private set; }
         public AppServerConfigurator()
         {
             Services = ServiceManager.GetInstance();
@@ -71,6 +73,20 @@ namespace SocketAppServer.CoreServices
         public abstract void ConfigureServices(IServiceManager serviceManager);
         public abstract ServerConfiguration GetServerConfiguration();
 
+
+        /// <summary>
+        /// Configures a standard exception handler for all server actions
+        /// that use the annotation/attribute [ServerAction]
+        /// </summary>
+        /// <param name="exceptionHandlerType">IActionExceptionHandler implementation class type</param>
+        protected void ConfigureDefaultExceptionHandler(Type exceptionHandlerType)
+        {
+            if (exceptionHandlerType == null)
+                throw new Exception("Type cannot be null");
+            if (!typeof(IActionExceptionHandler).IsAssignableFrom(exceptionHandlerType))
+                throw new Exception($"The type '{exceptionHandlerType.FullName}' not implements IActionExceptionHandler");
+            DefaultExceptionHandlerType = exceptionHandlerType;
+        }
 
         /// <summary>
         /// Enable the loading of a framework extension (EFI) as soon as the server core is booted

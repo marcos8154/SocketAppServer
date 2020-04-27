@@ -25,7 +25,8 @@ namespace MobileAppServerTest
                 Client.Configure(txAddress.Text, int.Parse(txPort.Text), Encoding.UTF8, ((4096 * 100) * 1000));
                 Client client = new Client();
 
-                RequestBody rb = RequestBody.Create("ServerInfoController", "FullServerInfo");
+                RequestBody rb = RequestBody.Create("ServerInfoController", "FullServerInfo")
+                    .AddParameter("authorization", Auth.Token ?? "");
                 client.SendRequest(rb);
 
                 var result = client.GetResult(typeof(ServerInfo));
@@ -50,7 +51,16 @@ namespace MobileAppServerTest
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: \n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (ex.Message.Contains("Unauthorized.") ||
+                    ex.Message.Contains("Invalid or expired token"))
+                {
+                    Auth auth = new Auth();
+                    auth.ShowDialog();
+                    if (!string.IsNullOrEmpty(Auth.Token))
+                        btConnect_Click(null, null);
+                }
+                else
+                    MessageBox.Show("Error: \n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

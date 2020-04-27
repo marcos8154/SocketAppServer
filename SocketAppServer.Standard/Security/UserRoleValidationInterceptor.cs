@@ -37,8 +37,7 @@ namespace SocketAppServer.Security
         {
             string controllerName = socketRequest.Controller.GetType().Name;
             string actionName = socketRequest.Action;
-            if (socketRequest.Controller.GetType().Name.Equals("AuthorizationController") ||
-                socketRequest.Controller.GetType().Name.Equals("ServerInfoController"))
+            if (controllerName.Equals("AuthorizationController"))
                 return new InterceptorHandleResult(false, true, "", "");
 
             var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));
@@ -55,7 +54,8 @@ namespace SocketAppServer.Security
             var user = userToken.User;
             if (user.IsRolesAccessControllerEnabled)
             {
-                var role = user.Roles.FirstOrDefault(r => r.Controller.Equals(controllerName) && r.ActionName.Equals(actionName));
+                var role = user.Roles.FirstOrDefault(r => r.Controller.Equals(controllerName)
+                    && (r.ActionName.Equals(actionName) || r.ActionName.Equals("*")));
                 if (role == null)
                     result = new InterceptorHandleResult(false, true, "Access granted", "");
 

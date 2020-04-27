@@ -67,6 +67,11 @@ namespace SocketAppServer.Security
 
         public void AddRole(string controller, string action, bool enableAccess)
         {
+            if (string.IsNullOrEmpty(controller))
+                throw new Exception("It is mandatory to enter a name of a valid Controller on the server");
+            if (string.IsNullOrEmpty(action))
+                throw new Exception("It is not allowed to use empty strings for Action. If your intention is to cover all Controller Actions, enter the character '*' instead of an empty string");
+
             Roles.Add(new UserRole(controller, action, enableAccess));
         }
     }

@@ -38,7 +38,8 @@ namespace SocketAppServer.Security
 
         public InterceptorHandleResult PreHandle(SocketRequest socketRequest)
         {
-            if (socketRequest.Controller.GetType().Name.Equals("AuthorizationController"))
+            string controllerName = socketRequest.Controller.GetType().Name;
+            if (controllerName.Equals("AuthorizationController") )
                 return new InterceptorHandleResult(false, true, "", "");
             
             var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));

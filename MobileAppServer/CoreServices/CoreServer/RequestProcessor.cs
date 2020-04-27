@@ -151,9 +151,13 @@ namespace SocketAppServer.CoreServices.CoreServer
                 if (!ResolveInterceptors(ref request))
                     return null;
 
-                object[] methodParameters = new object[request.Parameters.Count];
+                object[] methodParameters = new object[method.GetParameters().Length];
                 for (int i = 0; i < request.Parameters.Count; i++)
-                    methodParameters[i] = request.Parameters[i].Value;
+                {
+                    RequestParameter rp = request.Parameters[i];
+                    if (method.GetParameters().FirstOrDefault(mp => mp.Name.Equals(rp.Name)) != null)
+                        methodParameters[i] = request.Parameters[i].Value;
+                }
 
                 ActionResult result = null;
                 Stopwatch w = new Stopwatch();

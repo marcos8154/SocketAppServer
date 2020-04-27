@@ -204,7 +204,7 @@ namespace SocketAppServerClient
         /// </summary>
         /// <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
         /// <returns></returns>
-        public OperationResult GetResult<T>()
+        public T GetResult<T>()
             where T : class
         {
             try
@@ -221,10 +221,10 @@ namespace SocketAppServerClient
                     string entityJson = result.Entity.ToString();
                     result.Entity = GetEntityObjectInternal(entityJson, typeof(T));
                 }
-                finally { }
+                catch { }
 
                 Close();
-                return result;
+                return (T)result.Entity;
             }
             catch
             {

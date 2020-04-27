@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketAppServer.CoreServices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,13 @@ namespace SocketAppServer.ServerObjects
     [AttributeUsage(AttributeTargets.Method)]
     public class ServerAction : Attribute
     {
+
+        public ServerAction()
+        {
+            if (AppServerConfigurator.DefaultExceptionHandlerType != null)
+                ExceptionHandler = AppServerConfigurator.DefaultExceptionHandlerType;
+        }
+
 
         /// <summary>
         /// Customized error code for response to the client, 

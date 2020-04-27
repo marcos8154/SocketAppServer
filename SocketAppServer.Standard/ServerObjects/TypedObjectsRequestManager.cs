@@ -266,6 +266,9 @@ namespace SocketAppServer.ServerObjects
                         .GetParameters()
                         .FirstOrDefault(p => p.Name.Equals(requestParameter.Name));
 
+                    if (parameterInfo == null)
+                        continue;
+
                     if (IsSimpleType(parameterInfo.ParameterType) ||
                         parameterInfo.ParameterType == typeof(List<>) ||
                         parameterInfo.ParameterType.Name.Contains("List"))
