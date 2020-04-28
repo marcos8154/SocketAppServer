@@ -19,32 +19,9 @@ namespace DefaultTestServer
     {
         static void Main(string[] args)
         {
-            string[] alphabet = File.ReadAllLines(@"C:\temp\alphabet.txt");
-
-            foreach (string letter in alphabet)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    string key = $"{letter}-{i + 1}";
-                    int value = new Random(i).Next();
-                    CacheRepository<int>.Set(key, value, 60);
-                }
-            }
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            Cache<int> cached = CacheRepository<int>.Get(k);
-            sw.Stop();
-
-            Console.WriteLine(sw.ElapsedMilliseconds);
-            CacheRepository<int>.ExpireAll("Z-1");
-            /*
-             *                 SocketServerHost.CreateHostBuilder()
-                    .UseStartup<Startup>()
-                    .Run();
-             */
-
-            Console.ReadKey();
+            SocketServerHost.CreateHostBuilder()
+                   .UseStartup<Startup>()
+                   .Run();
         }
 
         public class Startup : AppServerConfigurator

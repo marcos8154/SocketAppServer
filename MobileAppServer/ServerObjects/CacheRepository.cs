@@ -228,7 +228,7 @@ namespace SocketAppServer.ServerObjects
                 lock (CacheList)
                 {
                     int nextIndex = CacheList.Count;
-                    char indexEntry = key[0].ToString().ToUpper()[0];
+                    char indexEntry = key[0];
 
                     int[] values = index[indexEntry];
                     int[] expanded = new int[values.Length + 1];
@@ -260,7 +260,7 @@ namespace SocketAppServer.ServerObjects
                 cache.Expired -= Cache_Expired;
                 CacheList.Remove(cache);
 
-                char chr = cache.Key[0].ToString().ToUpper()[0];
+                char chr = cache.Key[0];
                 int[] values = index[chr];
                 int[] contracted = values.Except(new int[] { cache.Index }).ToArray();
                 index[chr] = contracted;

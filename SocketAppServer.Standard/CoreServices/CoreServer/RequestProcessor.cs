@@ -158,14 +158,19 @@ namespace SocketAppServer.CoreServices.CoreServer
                     .Count();
 
                 int parameterIndex = 0;
+                int valueIndex = 0;
                 foreach (RequestParameter rp in request.Parameters)
                 {
                     ParameterInfo parameterInfo = methodParameters.FirstOrDefault(mp => mp.Name.Equals(rp.Name));
                     if (parameterInfo == null)
+                    {
+                        parameterIndex += 1;
                         continue;
+                    }
 
-                    parameterValues[parameterIndex] = request.Parameters[parameterIndex].Value;
+                    parameterValues[valueIndex] = request.Parameters[parameterIndex].Value;
                     parameterIndex += 1;
+                    valueIndex += 1;
                 }
 
                 ActionResult result = null;
