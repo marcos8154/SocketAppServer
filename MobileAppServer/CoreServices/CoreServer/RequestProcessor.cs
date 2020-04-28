@@ -37,6 +37,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using SocketAppServer.Standard.CoreServices.CoreServer;
 
 namespace SocketAppServer.CoreServices.CoreServer
 {
@@ -151,12 +152,21 @@ namespace SocketAppServer.CoreServices.CoreServer
                 if (!ResolveInterceptors(ref request))
                     return null;
 
-                object[] methodParameters = new object[method.GetParameters().Length];
-                for (int i = 0; i < request.Parameters.Count; i++)
+                ParameterInfo[] methodParameters = method.GetParameters();
+                object[] parameterValues = new object[methodParameters.Length];
+                int methodParameterCount = methodParameters
+                    .Where(pr => request.Parameters.Any(rp => rp.Name.Equals(pr.Name)))
+                    .Count();
+
+                int parameterIndex = 0;
+                foreach (RequestParameter rp in request.Parameters)
                 {
-                    RequestParameter rp = request.Parameters[i];
-                    if (method.GetParameters().FirstOrDefault(mp => mp.Name.Equals(rp.Name)) != null)
-                        methodParameters[i] = request.Parameters[i].Value;
+                    ParameterInfo parameterInfo = methodParameters.FirstOrDefault(mp => mp.Name.Equals(rp.Name));
+                    if (parameterInfo == null)
+                        continue;
+
+                    parameterValues[parameterIndex] = request.Parameters[parameterIndex].Value;
+                    parameterIndex += 1;
                 }
 
                 ActionResult result = null;
@@ -166,15 +176,15 @@ namespace SocketAppServer.CoreServices.CoreServer
                 if (method.ReturnType == null)
                 {
                     //void action
-                    method.Invoke(controller, methodParameters);
+                    method.Invoke(controller, parameterValues);
                     result = ActionResult.Json(new OperationResult(null, 600, ""));
                 }
                 else if (method.ReturnType == typeof(ActionResult)) //ActionResult action
-                    result = (ActionResult)method.Invoke(controller, methodParameters);
+                    result = (ActionResult)method.Invoke(controller, parameterValues);
                 else
                 {
                     //user-defined object Action
-                    object returnObj = method.Invoke(controller, methodParameters);
+                    object returnObj = method.Invoke(controller, parameterValues);
                     result = ActionResult.Json(new OperationResult(returnObj, 600, ""));
                 }
 
