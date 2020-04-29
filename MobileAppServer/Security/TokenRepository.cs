@@ -50,7 +50,7 @@ namespace SocketAppServer.Security
 
         internal List<ServerToken> Tokens { get; set; }
 
-        public bool IsValid(string token, SocketRequest request)
+        public bool IsValid(string token, ref SocketRequest request)
         {
             ServerToken serverToken = Tokens.FirstOrDefault(t => t.UserToken.Equals(token));
             if (serverToken == null)
@@ -64,7 +64,7 @@ namespace SocketAppServer.Security
                 Tokens.Remove(serverToken);
                 return false;
             }
-            
+
             return true;
         }
 
@@ -74,9 +74,9 @@ namespace SocketAppServer.Security
         }
 
         public ServerToken AddToken(ServerUser user,
-            SocketRequest request)
+           ref SocketRequest request)
         {
-            ServerToken token = new ServerToken(user, request);
+            ServerToken token = new ServerToken(user, ref request);
             Tokens.Add(token);
             return token;
         }

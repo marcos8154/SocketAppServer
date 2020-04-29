@@ -67,7 +67,7 @@ namespace SocketAppServer.Security
 
         ISecurityManagementService securityManagementService = null;
         public ServerToken(ServerUser user,
-            SocketRequest request)
+            ref SocketRequest request)
         {
             IServiceManager manager = ServiceManager.GetInstance();
             securityManagementService = manager.GetService<ISecurityManagementService>();
