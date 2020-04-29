@@ -47,7 +47,7 @@ namespace SocketAppServer.Security
                 return new InterceptorHandleResult(true, false, "Unauthorized. Check 'authorization' parameter in request body", "");
 
             string token = paramToken.Value.ToString();
-            if (!TokenRepository.Instance.IsValid(token))
+            if (!TokenRepository.Instance.IsValid(token, socketRequest))
                 return new InterceptorHandleResult(true, false, "Invalid or expired token. Check 'authorization' parameter in request body", "");
             
             return new InterceptorHandleResult(false, true, "Authorized", "");

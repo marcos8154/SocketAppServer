@@ -11,7 +11,7 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+copies or substantial portions of the Software. 
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,14 +27,16 @@ using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
+using System.Text; 
 
 namespace SocketAppServer.Security
 {
+    ///added comment
     internal class ServerToken
     {
         public Guid SessionId { get; private set; }
+
+        internal string RemoteIP { get; private set; }
 
         public ServerUser User { get; private set; }
 
@@ -64,7 +66,8 @@ namespace SocketAppServer.Security
         private string cryptoPasswd;
 
         ISecurityManagementService securityManagementService = null;
-        public ServerToken(ServerUser user)
+        public ServerToken(ServerUser user,
+            SocketRequest request)
         {
             IServiceManager manager = ServiceManager.GetInstance();
             securityManagementService = manager.GetService<ISecurityManagementService>();
@@ -72,9 +75,10 @@ namespace SocketAppServer.Security
             userActivities = new List<UserActivity>();
             User = user;
             SessionId = Guid.NewGuid();
+            RemoteIP = request.RemoteEndPoint.Address.ToString();
             CreatedAt = DateTime.Now;
             ExpireAt = CreatedAt.AddMinutes(securityManagementService.GetDefinitions().TokenLifeTime);
-            CreateHash();
+            CreateToken();
         }
 
         private string CreateContentString()
@@ -90,14 +94,17 @@ namespace SocketAppServer.Security
                 str += $"|{User.Organization}";
             str += $"|{CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")}";
             str += $"|{ExpireAt.ToString("yyyy-MM-dd HH:mm:ss")}";
+            str += $"|{RemoteIP}";
             return str;
         }
 
-        private void CreateHash()
+        private void CreateToken()
         {
             string str = CreateContentString();
             UserToken = new Crypto(str, GetCryptoPassword()).Crypt();
         }
+
+        private string random = null;
 
         private string GetCryptoPassword()
         {
@@ -113,7 +120,9 @@ namespace SocketAppServer.Security
                 byte[] sha256 = Encoding.ASCII.GetBytes(str);
 
                 int lenght = sha256.Length;
-                string random = new Random(lenght).Next().ToString();
+
+                if (random == null)
+                    random = new Random(lenght).Next().ToString();
 
                 cryptoPasswd = $"{guid}{random}";
                 return cryptoPasswd;

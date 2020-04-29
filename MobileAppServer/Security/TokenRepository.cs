@@ -22,11 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Policy;
 
 namespace SocketAppServer.Security
 {
@@ -51,10 +50,13 @@ namespace SocketAppServer.Security
 
         internal List<ServerToken> Tokens { get; set; }
 
-        public bool IsValid(string token)
+        public bool IsValid(string token, SocketRequest request)
         {
             ServerToken serverToken = Tokens.FirstOrDefault(t => t.UserToken.Equals(token));
             if (serverToken == null)
+                return false;
+
+            if (serverToken.RemoteIP != request.RemoteEndPoint.Address.ToString())
                 return false;
 
             if (serverToken.HasExpired())
@@ -71,10 +73,10 @@ namespace SocketAppServer.Security
             return Tokens.FirstOrDefault(t => t.UserToken.Equals(token));
         }
 
-        public ServerToken AddToken(ServerUser user)
+        public ServerToken AddToken(ServerUser user,
+            SocketRequest request)
         {
-
-            ServerToken token = new ServerToken(user);
+            ServerToken token = new ServerToken(user, request);
             Tokens.Add(token);
             return token;
         }

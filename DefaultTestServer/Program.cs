@@ -3,6 +3,7 @@ using SocketAppServer.CoreServices.CoreServer;
 using SocketAppServer.Extensions.ClientMaker;
 using SocketAppServer.Hosting;
 using SocketAppServer.ManagedServices;
+using SocketAppServer.Security;
 using SocketAppServer.ServerObjects;
 using SocketAppServer.TelemetryServices;
 using System;
@@ -30,12 +31,21 @@ namespace DefaultTestServer
             {
                 RegisterController(typeof(DeviceController));
                 EnableExtension(new SocketClientLayerGenerator());
+                UseAuthentication(new UserRepos());
             }
 
             public override ServerConfiguration GetServerConfiguration()
             {
                 return new ServerConfiguration(Encoding.UTF8,
                          5000, 1024 * 100, false, 100, true);
+            }
+        }
+
+        public class UserRepos : IServerUserRepository
+        {
+            public ServerUser Authenticate(string userNameOrEmail, string password)
+            {
+                return new ServerUser("1235", "UserName", "email@provider.com", "Organization Test Name");
             }
         }
 

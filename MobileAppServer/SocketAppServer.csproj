@@ -139,7 +139,6 @@
     <Compile Include="ServerObjects\CacheRepository.cs" />
     <Compile Include="ServerObjects\ControllerInfo.cs" />
     <Compile Include="CoreServices\ControllerManagement\ControllerRegister.cs" />
-    <Compile Include="ServerObjects\CPUID.cs" />
     <Compile Include="ServerObjects\FileResult.cs" />
     <Compile Include="ServerObjects\IActionExceptionHandler.cs" />
     <Compile Include="ServerObjects\IDependencyInjectorMaker.cs" />
