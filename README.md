@@ -91,15 +91,17 @@ Below is an example of how to implement an action with simple parameters, and an
 
 **Making calls to your server**
 
+
 In addition to responding by default in JSON, the server also receives requests through JSON syntax.
 The calling commands are simple and clear and can be executed from any client-socket program.
 
-Take this ProductController action as an example:
+Take this DeviceController action as an example:
 
 ```C#
-public ActionResult SaveProduct(Product product, string oltherParam)
+[ServerAction]
+public void RegisterDevice(CustomerDevice device)
 {
-    .......
+   ......
 }
 ```
 For the above action we will have the following request syntax sent by the client:
@@ -137,7 +139,7 @@ Having it installed, you can submit requests for the same action example as foll
 	    deviceObj.Serial = "ETL-PX00014185D9"
 
             //creating request with parameters
-            RequestBody rb = RequestBody.Create("ProductController", "SaveProduct")
+            RequestBody rb = RequestBody.Create("DeviceController", "RegisterDevice")
                 .AddParameter("device", deviceObj);
 
             //submit request to server
