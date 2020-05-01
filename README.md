@@ -9,7 +9,7 @@ For more informations and tutorials, see project Wiki here: https://github.com/m
 
 **How to Setup**
 
-First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.6.0** (or higher)
+First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 2.0.7** (or higher)
 
 The framework will add **NewtonSoft.Json** together
 
