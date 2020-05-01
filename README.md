@@ -115,6 +115,7 @@ For the above action we will have the following request syntax sent by the clien
 ```
 
 **Making requests via the server's default client library**
+
 The framework has a standard lib client written for it, and you can find it through Nuget:
 "Install-Package MobileAppServer.Client -Version 1.2.0" | or higher
 
