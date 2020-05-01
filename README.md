@@ -57,7 +57,7 @@ Now let's implement a basic code that makes our server startup
 
 Now that your server is properly mapped and configured, the next step is the most fun: D
 Let's create classes for our Controllers, implementing the IContoller interface, and creating the methods we want to expose.
-Methods must return an instance of ActionResult
+Actions methods must have the annotation/attribute **[ServerAction]**
 
 Below is an example of how to implement an action with simple parameters, and another with parameters of complex types:
 
@@ -65,7 +65,7 @@ Below is an example of how to implement an action with simple parameters, and an
         public class DeviceController : IController
         {
             [ServerAction]
-            public void RegisterDevice(CustomerDevice device)
+            public void RegisterDevice(CustomerDevice device) //action with Complex type as paramneter
             {
                 using (CustomerRepository repository = new CustomerRepository())
                 {
@@ -79,7 +79,7 @@ Below is an example of how to implement an action with simple parameters, and an
             }
 
             [ServerAction]
-            public List<Customer> SearchCustomers(string search)
+            public List<Customer> SearchCustomers(string search) //action with simple type as parameter
             {
                 using(CustomerRepository repository = new CustomerRepository())
                 {
