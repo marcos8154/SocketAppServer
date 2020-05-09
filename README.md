@@ -1,5 +1,5 @@
 # SocketAppServer
-A simple, lightweight and fast MVC-like Socket server
+A simple, extensible, lightweight and fast MVC-like Socket server
 
 This framework will allow you to create a server that makes it easy to display data on intranet networks (and also the internet). The server will work in an "embedded" manner, with the premise of rapid deployment and startup in a production environment, without the need to configure application servers such as IIS or Apache.
 
@@ -9,105 +9,113 @@ For more informations and tutorials, see project Wiki here: https://github.com/m
 
 **How to Setup**
 
-First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 1.6.0** (or higher)
+First, install the framework into your project through Nuget by searching for **"MobileAppServer"**, or by running the following command at the Visual Studio prompt: **Install-Package MobileAppServer -Version 2.0.7** (or higher)
 
 The framework will add **NewtonSoft.Json** together
 
 Now let's implement a basic code that makes our server startup
 
+1 - Create a class in your project and name it Startup.cs, inheriting the AppServerConfigurator class
 ```C#
-        public static void Main(string[] args)
+        public class Startup : AppServerConfigurator
         {
-            //create server
-            Server server = new Server();
+            public override void ConfigureServices(IServiceManager serviceManager)
+            {
+                //Here, we will enable and configure 
+                //services and server modules.
+                //More details on the Wiki project
+                RegisterController(typeof(DeviceController));
+            }
 
-            //set port
-            server.Port = 4590;
-
-            //set Threads Limit; default value is 999999 threads
-            server.MaxThreadsCount = 4;
-
-            //define if server is Single-Threaded; if true, MaxThreadsCount is ignored
-            server.IsSingleThreaded = false;
-
-            //Buffer-Size output for server
-            server.BufferSize = 4096;
-
-            //server global encoding for requests and responses
-            server.ServerEncoding = Encoding.UTF8;
-
-            //register you server controllers
-            server.RegisterAllControllers(Assembly.GetExecutingAssembly(), "FullNamespaceNameForControllers");
-
-            //register you server entities/models
-            server.RegisterAllModels(Assembly.GetExecutingAssembly(), "FullNamespaceNameForModels");
-
-            //start server :D
-            server.Start();
+            public override ServerConfiguration GetServerConfiguration()
+            {
+	        //Here, we must return the object that contains
+                //the server's operating parameters, such as port, 
+                //Encoding, buffer and connection limit
+                return new ServerConfiguration(Encoding.UTF8,
+                         5000, 1024 * 100, false, 100, true);
+            }
         }
 ```
+
+2 - In the Main method, create a Host for the server, pointing the Startup class as a startup provider
+
+```C#
+   static void Main(string[] args)
+   {
+        SocketServerHost.CreateHostBuilder()
+               .UseStartup<Startup>()
+               .Run();
+   }
+```
+
+3 - Run the project and your server will be live :)
+
+![](https://raw.githubusercontent.com/marcos8154/SocketAppServer/master/CLI.png)
 
 **Implementing actions on your server**
 
 Now that your server is properly mapped and configured, the next step is the most fun: D
 Let's create classes for our Controllers, implementing the IContoller interface, and creating the methods we want to expose.
-Methods must return an instance of ActionResult
+Actions methods must have the annotation/attribute **[ServerAction]**
 
 Below is an example of how to implement an action with simple parameters, and another with parameters of complex types:
 
 ```C#
-    public  class ProductController : IController
-    {
-        //This is a very simple action whose parameters are either primitive or basic C # types
-        public ActionResult SimpleAction(int param1, string arg2, decimal param3)
+        public class DeviceController : IController
         {
-            //... do things...
-
-            var product = new Product
+            [ServerAction]
+            public void RegisterDevice(CustomerDevice device) //action with Complex type as paramneter
             {
-                Name = "Product Name",
-                Price = 500
-            };
-            return ActionResult.Json(product);
-        }
+                using (CustomerRepository repository = new CustomerRepository())
+                {
+                    IServiceManager services = ServiceManager.GetInstance();
+                    ILoggingService log = services.GetService<ILoggingService>();
 
-        //Here we are getting a product instance in our action
-        public ActionResult ComplexAction(Product product, string otherParam)
-        {
-            if (product.Price > 200)
-                return ActionResult.Json(product, ResponseStatus.ERROR, "Invalid product");
-            else
-                return ActionResult.Json(true);
+                    log.WriteLog($"Device registered");
+
+                    repository.RegisterDevice(device);
+                }
+            }
+
+            [ServerAction]
+            public List<Customer> SearchCustomers(string search) //action with simple type as parameter
+            {
+                using(CustomerRepository repository = new CustomerRepository())
+                {
+                    return repository.SearchCustomers(search);
+                }
+            }
         }
-    }
 ```
 
 **Making calls to your server**
 
+
 In addition to responding by default in JSON, the server also receives requests through JSON syntax.
 The calling commands are simple and clear and can be executed from any client-socket program.
 
-Take this ProductController action as an example:
+Take this DeviceController action as an example:
 
 ```C#
-public ActionResult SaveProduct(Product product, string oltherParam)
+[ServerAction]
+public void RegisterDevice(CustomerDevice device)
 {
-    .......
+   ......
 }
 ```
 For the above action we will have the following request syntax sent by the client:
 
 ```JSON
-"Controller" : "ProductController",
-"Action" : "SaveProduct",
+"Controller" : "DeviceController",
+"Action" : "RegisterDevice",
 "Parameters" : [
-	{ "Name" : "product.Name", "Value" : "Notebook DELL XPS" },
-	{ "Name" : "product.Price", "Value" : "1,999.90" },
-	{ "Name" : "otherParam", "Value" : "Another param to action" }
+	{ "Name" : "device", "Value" : "{ CustomerDevice JSON object HERE }" }
 ]
 ```
 
 **Making requests via the server's default client library**
+
 The framework has a standard lib client written for it, and you can find it through Nuget:
 "Install-Package MobileAppServer.Client -Version 1.2.0" | or higher
 
@@ -126,11 +134,14 @@ Having it installed, you can submit requests for the same action example as foll
             //This will already result in an open connection on the server.
             Client client = new Client();
 
+            CustomerDevice deviceObj = new CustomerDevice();
+	    deviceObj.CustomerId = 8586965666;
+	    deviceObj.DeviceName = "Customer Device Example Name";
+	    deviceObj.Serial = "ETL-PX00014185D9"
+
             //creating request with parameters
-            RequestBody rb = RequestBody.Create("ProductController", "SaveProduct")
-                .AddParameter("product.Name", "Notebook DELL XPS")
-                .AddParameter("product.Price", "1,999.90")
-                .AddParameter("otherParam", "Another param to action");
+            RequestBody rb = RequestBody.Create("DeviceController", "RegisterDevice")
+                .AddParameter("device", deviceObj);
 
             //submit request to server
             client.SendRequest(rb);
@@ -142,7 +153,7 @@ Having it installed, you can submit requests for the same action example as foll
 If your server has actions that return objects, you can easily convert them on the client side:
 
 ```C#
-            List<Product> myProducts = (List<Product>) client.GetResult(typeof(List<Product>)).Entity;
+            List<CustomerDevice> devices = client.GetResult<List<CustomerDevice>>();
 ```
 
 If you want to enable HTTP communication on your server, so you don't need to use the specific client, see the step-by-step here https://github.com/marcos8154/SocketAppServer/wiki/Enable-HTTP-communication-on-your-server
