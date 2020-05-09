@@ -50,6 +50,7 @@ namespace SocketAppServer.CoreServices
     {
         internal IServiceManager Services { get; set; }
         internal static Type DefaultExceptionHandlerType { get; private set; }
+        internal static bool DisableStatisticsCalculating { get; private set; }
         public AppServerConfigurator()
         {
             Services = ServiceManager.GetInstance();
@@ -73,6 +74,16 @@ namespace SocketAppServer.CoreServices
         public abstract void ConfigureServices(IServiceManager serviceManager);
         public abstract ServerConfiguration GetServerConfiguration();
 
+        /// <summary>
+        /// Disables the calculation of server buffer usage statistics. 
+        /// Disabling this feature will bring performance gains to the 
+        /// server, but in return finding the cause of problems in 
+        /// Controllers/Actions will become more difficult
+        /// </summary>
+        protected void DisableStatisticsComputing()
+        {
+            DisableStatisticsCalculating = true;
+        }
 
         /// <summary>
         /// Configures a standard exception handler for all server actions

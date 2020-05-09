@@ -124,6 +124,8 @@ namespace SocketAppServer.ServerObjects
 
         internal void ComputeStatisticks(ActionResult result)
         {
+            if (AppServerConfigurator.DisableStatisticsCalculating)
+                return;
             if (result.Type == 1)
                 return;
             StringBuilder json = new StringBuilder();

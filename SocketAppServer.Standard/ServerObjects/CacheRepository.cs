@@ -148,7 +148,6 @@ namespace SocketAppServer.ServerObjects
             {'é', new int[0]},
             {'ê', new int[0]},
             {'è', new int[0]},
-            {'ç', new int[0]},
 
             {'Ç', new int[0]},
             {'Ã', new int[0]},
@@ -158,7 +157,6 @@ namespace SocketAppServer.ServerObjects
             {'É', new int[0]},
             {'Ê', new int[0]},
             {'È', new int[0]},
-            {'Ç', new int[0]},
 
             {'0', new int[0]},
             {'1', new int[0]},
@@ -172,7 +170,6 @@ namespace SocketAppServer.ServerObjects
             {'9', new int[0]},
             {'$', new int[0]},
             {'%', new int[0]},
-            {'Ç', new int[0]},
             {'~', new int[0]},
             {'{', new int[0]},
             {'}', new int[0]},

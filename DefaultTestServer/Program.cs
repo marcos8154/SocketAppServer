@@ -20,6 +20,7 @@ namespace DefaultTestServer
     {
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             SocketServerHost.CreateHostBuilder()
                    .UseStartup<Startup>()
                    .Run();
@@ -29,19 +30,24 @@ namespace DefaultTestServer
         {
             public override void ConfigureServices(IServiceManager serviceManager)
             {
+                //Here, we will enable and configure 
+                //services and server modules.
+                //More details on the Wiki project
                 RegisterController(typeof(DeviceController));
-                EnableExtension(new SocketClientLayerGenerator());
-                UseAuthentication(new UserRepos());
+                DisableStatisticsComputing();
             }
 
             public override ServerConfiguration GetServerConfiguration()
             {
+                //Here, we must return the object that contains
+                //the server's operating parameters, such as port, 
+                //Encoding, buffer and connection limit
                 return new ServerConfiguration(Encoding.UTF8,
-                         5000, 1024 * 100, false, 100, true);
+                         5000, 1024000 * 10, false, 100, true);
             }
         }
 
-        public class UserRepos : IServerUserRepository
+        public class UserRepository : IServerUserRepository
         {
             public ServerUser Authenticate(string userNameOrEmail, string password)
             {
@@ -51,21 +57,31 @@ namespace DefaultTestServer
 
         public class DeviceController : IController
         {
-            [ServerAction(ExceptionHandler = typeof(MySimpleExceptionHandler))]
-            public void RegisterDevice(string deviceName,
-                SocketRequest request)
-            {
-                ILoggingService log = ServiceManager.GetInstance().GetService<ILoggingService>();
-                log.WriteLog("DISPOSITIVO REGISTRADO COM SUCESSO");
-                //   return "Dispositivo registrado com sucesso";
-
-            }
-
+            static List<Customer> result = new List<Customer>();
             [ServerAction]
-            public List<string> GetRetistered(bool all, List<string> excludeList, Int32 countLimit)
+            public List<Customer> SearchCustomers()
             {
-                return new List<string>();
+                if (result.Count > 0)
+                    return result;
+
+                for (int i = 0; i < 95000; i++)
+                    result.Add(new Customer($"Customer {i + 1}", "24 99856865"));
+                return result;
             }
+        }
+    }
+
+    public class Customer
+    {
+        public Guid Id { get; private set; }
+        public string Name { get; private set; }
+        public string Phone { get; private set; }
+
+        public Customer(string name, string phone)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            Phone = phone;
         }
     }
 }

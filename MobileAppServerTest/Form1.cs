@@ -22,7 +22,7 @@ namespace MobileAppServerTest
             try
             {
                 treeView.Nodes.Clear();
-                Client.Configure(txAddress.Text, int.Parse(txPort.Text), Encoding.UTF8, ((4096 * 100) * 1000));
+                Client.Configure(txAddress.Text, int.Parse(txPort.Text), Encoding.UTF8, 1024000 * 10);
                 Client client = new Client();
 
                 RequestBody rb = RequestBody.Create("ServerInfoController", "FullServerInfo")
