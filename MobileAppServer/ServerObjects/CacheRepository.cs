@@ -188,15 +188,27 @@ namespace SocketAppServer.ServerObjects
         {
             lock (lck)
             {
-                char chr = key[0];
-                int[] indexEntries = index[chr];
-
-                for (int i = 0; i < indexEntries.Length; i++)
-                    if (CacheList[indexEntries[i]].Key == key)
-                        return CacheList[indexEntries[i]];
-
-                return null;
+                try
+                {
+                    return TryOptimizedGet(key);
+                }
+                catch
+                {
+                    return CacheList.FirstOrDefault(c => c.Key.Equals(key));
+                }
             }
+        }
+
+        private static Cache<T> TryOptimizedGet(string key)
+        {
+            char chr = key[0];
+            int[] indexEntries = index[chr];
+
+            for (int i = 0; i < indexEntries.Length; i++)
+                if (CacheList[indexEntries[i]].Key == key)
+                    return CacheList[indexEntries[i]];
+
+            return null;
         }
 
         public static void ExpireAll(string startKey)
@@ -227,11 +239,15 @@ namespace SocketAppServer.ServerObjects
                     int nextIndex = CacheList.Count;
                     char indexEntry = key[0];
 
-                    int[] values = index[indexEntry];
-                    int[] expanded = new int[values.Length + 1];
-                    values.CopyTo(expanded, 0);
-                    expanded[expanded.Length - 1] = nextIndex;
-                    index[indexEntry] = expanded;
+                    try
+                    {
+                        int[] values = index[indexEntry];
+                        int[] expanded = new int[values.Length + 1];
+                        values.CopyTo(expanded, 0);
+                        expanded[expanded.Length - 1] = nextIndex;
+                        index[indexEntry] = expanded;
+                    }
+                    catch { }
 
                     Cache<T> cache = new Cache<T>(nextIndex, key, entity, time, eternal, methodsToInvokeOnExpire);
                     cache.Expired += Cache_Expired;
@@ -257,10 +273,14 @@ namespace SocketAppServer.ServerObjects
                 cache.Expired -= Cache_Expired;
                 CacheList.Remove(cache);
 
-                char chr = cache.Key[0];
-                int[] values = index[chr];
-                int[] contracted = values.Except(new int[] { cache.Index }).ToArray();
-                index[chr] = contracted;
+                try
+                {
+                    char chr = cache.Key[0];
+                    int[] values = index[chr];
+                    int[] contracted = values.Except(new int[] { cache.Index }).ToArray();
+                    index[chr] = contracted;
+                }
+                catch { }
 
                 cache = null;
             }
