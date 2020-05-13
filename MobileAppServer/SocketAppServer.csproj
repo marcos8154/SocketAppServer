@@ -79,6 +79,7 @@
     <Compile Include="CoreServices\CoreServer\CoreServerImpl.cs" />
     <Compile Include="CoreServices\CoreServer\HWServiceImpl.cs" />
     <Compile Include="CoreServices\CoreServer\LockedActionException.cs" />
+    <Compile Include="CoreServices\MemoryResponseStorage\MemoryResponseStorageImpl.cs" />
     <Compile Include="CoreServices\CoreServer\RequestPreProcessor.cs" />
     <Compile Include="CoreServices\CoreServer\ServerConfiguration.cs" />
     <Compile Include="CoreServices\CoreServer\ServerEncodingConverterServiceImpl.cs" />
@@ -95,10 +96,12 @@
     <Compile Include="CoreServices\IHardwareServices.cs" />
     <Compile Include="CoreServices\IInterceptorManagerService.cs" />
     <Compile Include="CoreServices\ILoggingService.cs" />
+    <Compile Include="CoreServices\IMemoryResponseStorage.cs" />
     <Compile Include="CoreServices\InterceptorManagement\InterceptorManagementServiceImpl.cs" />
     <Compile Include="CoreServices\IScheduledTaskManager.cs" />
     <Compile Include="CoreServices\ISecurityManagementService.cs" />
     <Compile Include="CoreServices\ITelemetryManagement.cs" />
+    <Compile Include="CoreServices\MemoryResponseStorage\ResponseStorageController.cs" />
     <Compile Include="CoreServices\ProxyServices\ProxyCoreServer.cs" />
     <Compile Include="CoreServices\ScheduledTaskManagement\ScheduledTaskManagerImpl.cs" />
     <Compile Include="CoreServices\SecurityManagement\SecurityManagementServiceImpl.cs" />
@@ -132,6 +135,7 @@
     <Compile Include="Security\UserActivity.cs" />
     <Compile Include="Security\UserRole.cs" />
     <Compile Include="Security\UserRoleValidationInterceptor.cs" />
+    <Compile Include="CoreServices\MemoryResponseStorage\MemoryResponseStorageItem.cs" />
     <Compile Include="ServerObjects\ServerAction.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />

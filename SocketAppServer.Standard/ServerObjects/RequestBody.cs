@@ -40,6 +40,10 @@ namespace SocketAppServer.ServerObjects
 
         [JsonProperty]
         public List<RequestParameter> Parameters { get; internal set; }
+      
+        [JsonProperty]
+        public string InTo { get; internal set; }
+
         public RequestBody()
         {
 

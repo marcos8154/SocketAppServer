@@ -105,7 +105,7 @@ namespace SocketAppServer.CoreServices.CoreServer
 {msg}", ServerLogType.ERROR);
                 new SocketRequest().ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR,
                     $@"A syntax error was detected while converting the request body to a server object. 
-{msg}"), this.clientSocket);
+{msg}"), this.clientSocket, null);
             }
         }
         #endregion
@@ -204,7 +204,7 @@ namespace SocketAppServer.CoreServices.CoreServer
                         $"The action it is taking considerable time to execute ({w.ElapsedMilliseconds} ms). Review your code to improve performance.'"));
 
                 ActionLocker.ReleaseLock(controller, method.Name);
-                request.ProcessResponse(result, clientSocket);
+                request.ProcessResponse(result, clientSocket, requestBody.InTo);
                 return result;
             }
             catch (LockedActionException lockedEx)
@@ -236,7 +236,7 @@ namespace SocketAppServer.CoreServices.CoreServer
             {
                 ServerAction serverAction = method.GetCustomAttribute<ServerAction>();
                 if (serverAction == null)
-                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket);
+                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket, null);
                 else
                 {
                     int errorCode = (serverAction.DefaultErrorCode == 0
@@ -244,13 +244,13 @@ namespace SocketAppServer.CoreServices.CoreServer
                         : serverAction.DefaultErrorCode);
 
                     if (serverAction.ExceptionHandler == null)
-                        request.ProcessResponse(ActionResult.Json("", errorCode, $"Process request error: {msg}"), clientSocket);
+                        request.ProcessResponse(ActionResult.Json("", errorCode, $"Process request error: {msg}"), clientSocket, null);
                     else
                     {
                         IActionExceptionHandler handler = (IActionExceptionHandler)
                             Activator.CreateInstance(serverAction.ExceptionHandler);
                         ActionResult result = ActionResult.Json(handler.Handle(ex, request), 600, "Request error, but handled by application");
-                        request.ProcessResponse(result, clientSocket);
+                        request.ProcessResponse(result, clientSocket, null);
                     }
                 }
             }
@@ -360,7 +360,7 @@ namespace SocketAppServer.CoreServices.CoreServer
         {
             if (request.HasErrors)
             {
-                request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, request.InternalErrorMessage), clientSocket);
+                request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, request.InternalErrorMessage), clientSocket, null);
                 return true;
             }
             return false;

@@ -22,6 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -192,8 +195,11 @@ namespace SocketAppServer.ServerObjects
                 {
                     return TryOptimizedGet(key);
                 }
-                catch
+                catch(Exception ex)
                 {
+                    ILoggingService logging = ServiceManager.GetInstance()
+                        .GetService<ILoggingService>();
+                    logging.WriteLog($"Optimized get cache based on index was thrown: {ex.Message}. Retrieving from legacy mode.", ServerLogType.ERROR);
                     return CacheList.FirstOrDefault(c => c.Key.Equals(key));
                 }
             }

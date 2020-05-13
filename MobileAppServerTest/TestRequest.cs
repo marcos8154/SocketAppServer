@@ -119,20 +119,26 @@ namespace MobileAppServerTest
             }
 
             SaveCache();
-
+            int chunkSize = (int)txChunkResponseSize.Value;
+            string responseStorageId = txMemoryStorageId.Text;
             OperationResult res = await Task.Run(() =>
             {
                 try
                 {
                     Client client = new Client();
                     RequestBody rb = RequestBody.Create(controller, action);
+                    if (!string.IsNullOrEmpty(responseStorageId) &&
+                           chunkSize > 0)
+                        rb.SaveOnMemoryStorage(txMemoryStorageId.Text);
                     foreach (var parameter in list)
                         rb.AddParameter(parameter.Key, parameter.Value);
                     rb.AddParameter("authorization", Auth.Token ?? "");
 
                     client.SendRequest(rb);
 
-                    var result = client.GetResult();
+                    OperationResult result = (chunkSize == 0
+                        ? client.GetResult()
+                        : client.GetChunkeResult(chunkSize));
                     ServerResponse = client.Response;
                     return result;
                 }

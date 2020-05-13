@@ -30,6 +30,7 @@ using SocketAppServer.CoreServices.DomainModelsManagement;
 using SocketAppServer.CoreServices.EFIManagement;
 using SocketAppServer.CoreServices.InterceptorManagement;
 using SocketAppServer.CoreServices.Logging;
+using SocketAppServer.CoreServices.MemoryResponseStorage;
 using SocketAppServer.CoreServices.ProxyServices;
 using SocketAppServer.CoreServices.ScheduledTaskManagement;
 using SocketAppServer.CoreServices.SecurityManagement;
@@ -69,6 +70,7 @@ namespace SocketAppServer.CoreServices
             Services.Bind<IEncodingConverterService>(typeof(ServerEncodingConverterServiceImpl), false);
             Services.Bind<ITelemetryManagement>(typeof(TelemetryManagementImpl), true);
             Services.Bind<ICLIHostService>(typeof(CLIHostServiceImpl), true);
+            Services.Bind<IMemoryResponseStorage>(typeof(MemoryResponseStorageImpl), true);
         }
 
         public abstract void ConfigureServices(IServiceManager serviceManager);

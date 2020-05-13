@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChunkedResponseReader.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ControllerInfo.cs" />
     <Compile Include="OperationResult.cs" />

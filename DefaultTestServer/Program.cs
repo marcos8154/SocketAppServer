@@ -68,6 +68,15 @@ namespace DefaultTestServer
                     result.Add(new Customer($"Customer {i + 1}", "24 99856865"));
                 return result;
             }
+
+            [ServerAction]
+            public string BigString()
+            {
+                string result = "";
+                for (int i = 0; i < 1000; i++)
+                    result += new Random(i).Next().ToString();
+                return result;
+            }
         }
     }
 

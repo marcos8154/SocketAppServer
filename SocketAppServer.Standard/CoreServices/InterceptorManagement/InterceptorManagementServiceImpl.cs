@@ -104,7 +104,7 @@ namespace SocketAppServer.CoreServices.InterceptorManagement
                         : ResponseStatus.ERROR);
 
                     request.ProcessResponse(ActionResult.Json(
-                        new OperationResult("", response, handleResult.Message), response, handleResult.Message), socket);
+                        new OperationResult("", response, handleResult.Message), response, handleResult.Message), socket, null);
                     return false;
                 }
             }

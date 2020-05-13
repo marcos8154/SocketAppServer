@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Extensions.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devtools", "devtools", "{AC851A1C-8D85-4605-8905-FB7B0B83B841}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "propagate", "propagate\propagate.csproj", "{EE244CFC-6459-48E1-9FD0-C87644CE17FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "propagate", "propagate\propagate.csproj", "{EE244CFC-6459-48E1-9FD0-C87644CE17FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

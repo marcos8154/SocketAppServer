@@ -11,6 +11,8 @@ namespace SocketAppServerClient
         public string Controller { get; set; }
         public List<RequestParameter> Parameters { get; set; }
 
+        public string InTo { get; set; }
+
         private RequestBody()
         {
 
@@ -23,6 +25,12 @@ namespace SocketAppServerClient
             rb.Action = action;
 
             return rb;
+        }
+
+        public RequestBody SaveOnMemoryStorage(string storageId)
+        {
+            InTo = storageId;
+            return this;
         }
 
         public RequestBody AddParameter(string name, object value)

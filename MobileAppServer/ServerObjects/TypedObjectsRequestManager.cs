@@ -53,7 +53,7 @@ namespace SocketAppServer.ServerObjects
             encoder = manager.GetService<IEncodingConverterService>();
         }
 
-        internal bool IsSimpleType(Type type)
+        internal static bool IsSimpleType(Type type)
         {
             return type.IsPrimitive
               || type.Equals(typeof(string)) ||

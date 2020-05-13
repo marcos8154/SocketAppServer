@@ -65,6 +65,7 @@ namespace SocketAppServer.ServerObjects
         private ILoggingService logger = null;
         private IEncodingConverterService encoder = null;
         private ICoreServerService coreServer = null;
+        private IMemoryResponseStorage responseStorage = null;
         public SocketRequest()
         {
             InitializeServices();
@@ -76,6 +77,7 @@ namespace SocketAppServer.ServerObjects
             logger = manager.GetService<ILoggingService>();
             encoder = manager.GetService<IEncodingConverterService>();
             coreServer = manager.GetService<ICoreServerService>("realserver");
+            responseStorage = manager.GetService<IMemoryResponseStorage>();
         }
 
         internal SocketRequest(IController controller,
@@ -115,8 +117,12 @@ namespace SocketAppServer.ServerObjects
         public bool HasErrors { get; internal set; }
         public string InternalErrorMessage { get; internal set; }
 
-        internal void ProcessResponse(ActionResult result, Socket socket)
+        private string ResponseStorageId { get; set; }
+
+        internal void ProcessResponse(ActionResult result, Socket socket,
+            string sessionStorageId)
         {
+            ResponseStorageId = sessionStorageId;
             ComputeStatisticks(result);
             ClientSocket = socket;
             ProcessResponse(result);
@@ -129,10 +135,10 @@ namespace SocketAppServer.ServerObjects
             if (result.Type == 1)
                 return;
             StringBuilder json = new StringBuilder();
-            
-            using(StringWriter sw = new StringWriter(json))
+
+            using (StringWriter sw = new StringWriter(json))
             {
-                using(JsonWriter jw = new JsonTextWriter(sw))
+                using (JsonWriter jw = new JsonTextWriter(sw))
                 {
                     JsonSerializer js = new JsonSerializer();
                     js.Serialize(jw, result.Content);
@@ -242,6 +248,15 @@ Operation has stopped.";
 
         private void SendJsonResponse(ActionResult response)
         {
+            if (!string.IsNullOrEmpty(ResponseStorageId))
+            {
+                if (TypedObjectsRequestManager.IsSimpleType(response.Content.GetType()))
+                    responseStorage.CreateStorage(ResponseStorageId, response.Content.ToString());
+                else
+                    responseStorage.CreateStorage(ResponseStorageId, JsonConvert.SerializeObject(response.Content));
+                response.Content = null;
+            }
+
             string json = JsonConvert.SerializeObject(response);
             byte[] resultData = encoder.ConvertToByteArray(json);
             SendBytes(resultData);

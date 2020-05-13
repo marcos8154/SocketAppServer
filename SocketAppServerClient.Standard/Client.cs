@@ -38,6 +38,7 @@ namespace SocketAppServerClient
             return thisStr;
         }
 
+        private string _chunkeResultStorageId;
         public string Server { get; private set; }
         public int Port { get; private set; }
         public Encoding Encoding { get; private set; }
@@ -178,7 +179,9 @@ namespace SocketAppServerClient
                     throw new Exception(response.Message);
 
                 Response = response;
-                OperationResult result = GetResultInternal(response.Content.ToString());
+                OperationResult result = (response.Content == null
+                    ? null
+                    : GetResultInternal(response.Content.ToString()));
 
                 if (entityType != null)
                 {
@@ -200,11 +203,27 @@ namespace SocketAppServerClient
         }
 
         /// <summary>
+        /// Gets the chunked response from the server. 
+        /// It should be used in actions that tend to return great responses. 
+        /// In this case, the reading will be made progressively through
+        /// the length informed
+        /// </summary>
+        /// <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
+        /// <param name="chunkLength">Size of each part of the response</param>
+        /// <returns></returns>
+        public OperationResult GetChunkeResult(int chunkLength)
+        {
+            ChunkedResponseReader chunkedResponse = new ChunkedResponseReader(_chunkeResultStorageId,
+                chunkLength, this);
+            return chunkedResponse.GetResult();
+        }
+
+        /// <summary>
         ///  Gets the result of a request on the server
         /// </summary>
         /// <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
         /// <returns></returns>
-        public OperationResult GetResult<T>()
+        public T GetResult<T>()
             where T : class
         {
             try
@@ -224,7 +243,7 @@ namespace SocketAppServerClient
                 catch { }
 
                 Close();
-                return result;
+                return (T)result.Entity;
             }
             catch
             {
@@ -239,6 +258,7 @@ namespace SocketAppServerClient
         /// <param name="body">Request body and parameters</param>
         public void SendRequest(RequestBody body)
         {
+            _chunkeResultStorageId = body.InTo;
             string commandRequest = JsonConvert.SerializeObject(body);
             byte[] buffer = Encoding.GetBytes(commandRequest);
             clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
