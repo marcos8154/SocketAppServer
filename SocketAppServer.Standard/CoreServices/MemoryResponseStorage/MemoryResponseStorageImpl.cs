@@ -25,7 +25,7 @@ namespace SocketAppServer.CoreServices.MemoryResponseStorage
         {
             lock (lck)
             {
-                if (!Items.Any(i => i.Id.Equals(id)))
+                if (Items.Any(i => i.Id.Equals(id)))
                     throw new Exception("There is already a pending recovery response for the created ID.");
                 Items.Add(new MemoryResponseStorageItem(id, content));
             }

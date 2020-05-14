@@ -138,7 +138,7 @@ namespace MobileAppServerTest
 
                     OperationResult result = (chunkSize == 0
                         ? client.GetResult()
-                        : client.GetChunkeResult(chunkSize));
+                        : client.GetChunkedResult(chunkSize));
                     ServerResponse = client.Response;
                     return result;
                 }

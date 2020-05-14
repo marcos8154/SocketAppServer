@@ -211,7 +211,7 @@ namespace SocketAppServerClient
         /// <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
         /// <param name="chunkLength">Size of each part of the response</param>
         /// <returns></returns>
-        public OperationResult GetChunkeResult(int chunkLength)
+        public OperationResult GetChunkedResult(int chunkLength)
         {
             ChunkedResponseReader chunkedResponse = new ChunkedResponseReader(_chunkeResultStorageId,
                 chunkLength, this);
