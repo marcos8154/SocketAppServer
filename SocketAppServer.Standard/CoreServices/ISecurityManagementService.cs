@@ -45,5 +45,7 @@ namespace SocketAppServer.CoreServices
         IReadOnlyCollection<UserActivity> GetUserActivities(LoggedUserInfo loggedUser);
 
         ServerUser Authenticate(string userNameOrEmail, string password);
+
+        void OnSuccessFulAuthentication(string token);
     }
 }

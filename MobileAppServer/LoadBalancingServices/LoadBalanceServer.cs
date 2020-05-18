@@ -70,6 +70,8 @@ namespace SocketAppServer.LoadBalancingServices
 
         private static void AddSubServerInternal(SubServer server, bool isDynamicInstance = false)
         {
+            if (Logger == null)
+                Logger = ServiceManager.GetInstance().GetService<ILoggingService>();
             SubServers.Add(server);
 
             if (SubServers.Count > 1)
@@ -116,8 +118,9 @@ namespace SocketAppServer.LoadBalancingServices
                     server.MaxConnectionAttempts);
                 return client;
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.WriteLog($"Fail to connect server {server.Address}:{server.Port} : {ex.Message}", ServerLogType.ERROR);
                 return null;
             }
         }
@@ -130,7 +133,7 @@ namespace SocketAppServer.LoadBalancingServices
                 .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
             client.SendRequest(rb);
 
-            int result = int.Parse(client.ReadResponse().Content.ToString());
+            int result = int.Parse(client.GetResult().Entity.ToString());
             return result;
         }
 
@@ -157,11 +160,6 @@ namespace SocketAppServer.LoadBalancingServices
                 if (client == null)
                 {
                     Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
-                    try
-                    {
-                        client.Close();
-                    }
-                    catch { }
                     CacheRepository<bool>.Set(key, true, 120);
                     continue;
                 }

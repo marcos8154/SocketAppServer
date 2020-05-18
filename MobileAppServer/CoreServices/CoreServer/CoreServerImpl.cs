@@ -241,6 +241,9 @@ namespace SocketAppServer.CoreServices.CoreServer
             IEFIManager efiManager = serviceManager.GetService<IEFIManager>();
             efiManager.LoadAll();
 
+            if (_basicProcessorType != null)
+                EnableBasicServerProcessorModeInternal();
+
             Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
             Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{configuration.ServerEncoding.EncodingName}'");
@@ -248,15 +251,23 @@ namespace SocketAppServer.CoreServices.CoreServer
                 Console.WriteLine($"Server max threads count: " + configuration.MaxThreadsCount);
         }
 
+        private Type _basicProcessorType = null;
         public void EnableBasicServerProcessorMode(Type basicProcessorType)
         {
-            if (basicProcessorType == typeof(LoadBalanceServer))
+            _basicProcessorType = basicProcessorType;
+        }
+
+        private void EnableBasicServerProcessorModeInternal()
+        {
+            if (_basicProcessorType == typeof(LoadBalanceServer))
+            {
                 if (security.IsAuthenticationEnabled())
                     throw new InvalidOperationException("Load balancing cannot be enabled when authentication services are enabled");
+                isLoadBalanceEnabled = (_basicProcessorType == typeof(LoadBalanceServer));
+            }
 
-            serviceManager.Bind<IBasicServerController>(basicProcessorType, false);
+            serviceManager.Bind<IBasicServerController>(_basicProcessorType, false);
             isBasicServerEnabled = true;
-            isLoadBalanceEnabled = (basicProcessorType == typeof(LoadBalanceServer));
         }
 
         public bool IsBasicServerEnabled()

@@ -136,6 +136,7 @@
     <Compile Include="Security\UserRole.cs" />
     <Compile Include="Security\UserRoleValidationInterceptor.cs" />
     <Compile Include="CoreServices\MemoryResponseStorage\MemoryResponseStorageItem.cs" />
+    <Compile Include="ServerObjects\NotListed.cs" />
     <Compile Include="ServerObjects\ServerAction.cs" />
     <Compile Include="ServerObjects\ActionLocker.cs" />
     <Compile Include="ServerObjects\ActionResult.cs" />

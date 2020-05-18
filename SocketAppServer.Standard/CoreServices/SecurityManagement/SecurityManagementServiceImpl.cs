@@ -101,5 +101,10 @@ namespace SocketAppServer.CoreServices.SecurityManagement
         {
             return securityEnabled;
         }
+
+        public void OnSuccessFulAuthentication(string token)
+        {
+            definitions.Repository.OnSuccessFulAuthentication(token);
+        }
     }
 }

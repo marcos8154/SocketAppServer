@@ -56,8 +56,9 @@ namespace SocketAppServer.Security
             if (serverToken == null)
                 return false;
 
-            if (serverToken.RemoteIP != request.RemoteEndPoint.Address.ToString())
-                return false;
+            if (!serverToken.IsReplicated)
+                if (serverToken.RemoteIP != request.RemoteEndPoint.Address.ToString())
+                    return false;
 
             if (serverToken.HasExpired())
             {
@@ -79,6 +80,12 @@ namespace SocketAppServer.Security
             ServerToken token = new ServerToken(user, ref request);
             Tokens.Add(token);
             return token;
+        }
+
+        public void AddReplicatedToken(string token)
+        {
+            ServerToken serverToken = new ServerToken(token);
+            Tokens.Add(serverToken);
         }
 
         internal ServerToken GetToken(Guid sessionId)

@@ -32,7 +32,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using System.IO;
 
 namespace SocketAppServer.LoadBalancingServices
 {
@@ -71,6 +70,8 @@ namespace SocketAppServer.LoadBalancingServices
 
         private static void AddSubServerInternal(SubServer server, bool isDynamicInstance = false)
         {
+            if (Logger == null)
+                Logger = ServiceManager.GetInstance().GetService<ILoggingService>();
             SubServers.Add(server);
 
             if (SubServers.Count > 1)
@@ -117,8 +118,9 @@ namespace SocketAppServer.LoadBalancingServices
                     server.MaxConnectionAttempts);
                 return client;
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.WriteLog($"Fail to connect server {server.Address}:{server.Port} : {ex.Message}", ServerLogType.ERROR);
                 return null;
             }
         }
@@ -131,7 +133,7 @@ namespace SocketAppServer.LoadBalancingServices
                 .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
             client.SendRequest(rb);
 
-            int result = int.Parse(client.ReadResponse().Content.ToString());
+            int result = int.Parse(client.GetResult().Entity.ToString());
             return result;
         }
 
@@ -158,11 +160,6 @@ namespace SocketAppServer.LoadBalancingServices
                 if (client == null)
                 {
                     Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
-                    try
-                    {
-                        client.Close();
-                    }
-                    catch { }
                     CacheRepository<bool>.Set(key, true, 120);
                     continue;
                 }
@@ -249,58 +246,33 @@ namespace SocketAppServer.LoadBalancingServices
 
         public ActionResult RunAction(string receivedData)
         {
-            try
+            SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData);
+            string cacheResultKey = BuildCacheResultKey(rb);
+            SubServer targetServer = GetAvailableSubServer();
+
+            if (targetServer == null)
             {
+                CheckAllocateNewInstance();
 
-                SocketAppServerClient.RequestBody rb = GetRequestBody(receivedData);
-                string cacheResultKey = BuildCacheResultKey(rb);
-                SubServer targetServer = GetAvailableSubServer();
-
-                if (targetServer == null)
+                if (retried)
+                    return ResolveResultOnUreachableServer(cacheResultKey);
+                else
                 {
-                    CheckAllocateNewInstance();
-
-                    if (retried)
-                        return ResolveResultOnUreachableServer(cacheResultKey);
-                    else
-                    {
-                        retried = true;
-                        return RunAction(receivedData);
-                    }
-                }
-
-                Client client = BuildClient(targetServer);
-                client.SendRequest(rb);
-
-                SocketAppServerClient.OperationResult result = client.GetResult();
-
-                if (EnabledCachedResultsForUnreachableServers)
-                    CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
-
-                targetServer.RefreshLifetimeIfHas();
-                return ActionResult.Json(result);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                if (ex.InnerException != null)
-                    msg += $"\n{ex.InnerException.Message}";
-                return ActionResult.Json(new ServerObjects.OperationResult(null, 500, $"Error"));
-            }
-        }
-
-        private SocketAppServerClient.RequestBody GetRequestBody(string receivedData)
-        {
-            SocketAppServerClient.RequestBody rb = null;
-            using (StringReader sr = new StringReader(receivedData))
-            {
-                using (JsonReader jr = new JsonTextReader(sr))
-                {
-                    JsonSerializer js = new JsonSerializer();
-                    rb = js.Deserialize<SocketAppServerClient.RequestBody>(jr);
+                    retried = true;
+                    return RunAction(receivedData);
                 }
             }
-            return rb;
+
+            Client client = BuildClient(targetServer);
+            client.SendRequest(rb);
+
+            SocketAppServerClient.OperationResult result = client.GetResult();
+
+            if (EnabledCachedResultsForUnreachableServers)
+                CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
+
+            targetServer.RefreshLifetimeIfHas();
+            return ActionResult.Json(result);
         }
     }
 }

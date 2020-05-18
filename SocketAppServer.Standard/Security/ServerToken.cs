@@ -27,7 +27,7 @@ using SocketAppServer.ManagedServices;
 using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
-using System.Text; 
+using System.Text;
 
 namespace SocketAppServer.Security
 {
@@ -45,6 +45,8 @@ namespace SocketAppServer.Security
         public DateTime ExpireAt { get; private set; }
 
         public string UserToken { get; private set; }
+
+        public bool IsReplicated { get; private set; }
 
         public bool HasExpired()
         {
@@ -69,16 +71,28 @@ namespace SocketAppServer.Security
         public ServerToken(ServerUser user,
             ref SocketRequest request)
         {
+            Fill(user);
+            CreateToken();
+            RemoteIP = request.RemoteEndPoint.Address.ToString();
+        }
+
+        private void Fill(ServerUser user)
+        {
             IServiceManager manager = ServiceManager.GetInstance();
             securityManagementService = manager.GetService<ISecurityManagementService>();
 
             userActivities = new List<UserActivity>();
             User = user;
             SessionId = Guid.NewGuid();
-            RemoteIP = request.RemoteEndPoint.Address.ToString();
             CreatedAt = DateTime.Now;
             ExpireAt = CreatedAt.AddMinutes(securityManagementService.GetDefinitions().TokenLifeTime);
-            CreateToken();
+        }
+
+        public ServerToken(string token)
+        {
+            IsReplicated = true;
+            Fill(new ServerUser("replicated", "replicated", "replicated", "replicated"));
+            UserToken = token;
         }
 
         private string CreateContentString()

@@ -157,9 +157,14 @@ namespace SocketAppServer.ServerObjects
 
                 Type type = register.Type;
                 foreach (var method in type.GetMethods())
+                {
+                    if (method.GetCustomAttribute<NotListed>() != null)
+                        continue;
+
                     if (method.ReturnType == typeof(ActionResult) ||
                         method.GetCustomAttribute<ServerAction>() != null)
                         result.Add(method.Name);
+                }
 
                 return result;
             }

@@ -16,10 +16,13 @@ namespace SocketAppServerClient
         {
             Name = name;
 
-            if (IsSimpleType(value.GetType()))
-                Value = $"{value}";
-            else
-                FillValue(value);
+            if (value != null)
+            {
+                if (IsSimpleType(value.GetType()))
+                    Value = $"{value}";
+                else
+                    FillValue(value);
+            }
         }
 
         internal bool IsSimpleType(Type type)

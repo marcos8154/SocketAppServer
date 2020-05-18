@@ -10,6 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SocketAppServerClient.Standard\SocketAppServerClient.Standard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="SocketAppServer.Extensions.ClientMaker">
       <HintPath>..\SocketAppServer.Extensions.ClientMaker\bin\Debug\netstandard2.0\SocketAppServer.Extensions.ClientMaker.dll</HintPath>
     </Reference>

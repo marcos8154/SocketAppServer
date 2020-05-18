@@ -33,8 +33,11 @@ namespace DefaultTestServer
                 //Here, we will enable and configure 
                 //services and server modules.
                 //More details on the Wiki project
-                RegisterController(typeof(DeviceController));
+           //     RegisterController(typeof(DeviceController));
                 DisableStatisticsComputing();
+                EnableLoadBalanceServer()
+                    .AddSubServer("localhost", 4001, Encoding.UTF8, 10000000, 3, 10)
+                    .AddSubServer("localhost", 4002, Encoding.UTF8, 10000000, 3, 10);
             }
 
             public override ServerConfiguration GetServerConfiguration()
@@ -43,7 +46,7 @@ namespace DefaultTestServer
                 //the server's operating parameters, such as port, 
                 //Encoding, buffer and connection limit
                 return new ServerConfiguration(Encoding.UTF8,
-                         5000, 1024000 * 10, false, 100, true);
+                         4000, 10000000, false, 100, true);
             }
         }
 
