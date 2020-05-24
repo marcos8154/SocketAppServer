@@ -39,9 +39,11 @@ namespace SocketAppServer.Security
         public InterceptorHandleResult PreHandle(SocketRequest socketRequest)
         {
             string controllerName = socketRequest.Controller.GetType().Name;
-            if (controllerName.Equals("AuthorizationController") )
+            string action = socketRequest.Action;
+            if (controllerName.Equals("AuthorizationController") ||
+                controllerName.Equals("ServerInfoController"))
                 return new InterceptorHandleResult(false, true, "", "");
-            
+
             var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));
             if (paramToken == null)
                 return new InterceptorHandleResult(true, false, "Unauthorized. Check 'authorization' parameter in request body", "");
@@ -49,7 +51,7 @@ namespace SocketAppServer.Security
             string token = paramToken.Value.ToString();
             if (!TokenRepository.Instance.IsValid(token, ref socketRequest))
                 return new InterceptorHandleResult(true, false, "Invalid or expired token. Check 'authorization' parameter in request body", "");
-            
+
             return new InterceptorHandleResult(false, true, "Authorized", "");
         }
     }

@@ -37,7 +37,8 @@ namespace SocketAppServer.Security
         {
             string controllerName = socketRequest.Controller.GetType().Name;
             string actionName = socketRequest.Action;
-            if (controllerName.Equals("AuthorizationController"))
+            if (controllerName.Equals("AuthorizationController") ||
+                controllerName.Equals("ServerInfoController"))
                 return new InterceptorHandleResult(false, true, "", "");
 
             var paramToken = socketRequest.Parameters.FirstOrDefault(p => p.Name.Equals("authorization"));

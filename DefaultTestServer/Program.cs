@@ -30,14 +30,10 @@ namespace DefaultTestServer
         {
             public override void ConfigureServices(IServiceManager serviceManager)
             {
-                //Here, we will enable and configure 
-                //services and server modules.
-                //More details on the Wiki project
-           //     RegisterController(typeof(DeviceController));
                 DisableStatisticsComputing();
-                EnableLoadBalanceServer()
-                    .AddSubServer("localhost", 4001, Encoding.UTF8, 10000000, 3, 10)
-                    .AddSubServer("localhost", 4002, Encoding.UTF8, 10000000, 3, 10);
+                DisableTelemetryServices();
+
+                RegisterController(typeof(ImageController));
             }
 
             public override ServerConfiguration GetServerConfiguration()
@@ -46,9 +42,10 @@ namespace DefaultTestServer
                 //the server's operating parameters, such as port, 
                 //Encoding, buffer and connection limit
                 return new ServerConfiguration(Encoding.UTF8,
-                         4000, 10000000, false, 100, true);
+                         7000, 10000000, false, 100, true);
             }
         }
+
 
         public class UserRepository : IServerUserRepository
         {
@@ -56,7 +53,13 @@ namespace DefaultTestServer
             {
                 return new ServerUser("1235", "UserName", "email@provider.com", "Organization Test Name");
             }
+
+            public void OnSuccessFulAuthentication(string token)
+            {
+                throw new NotImplementedException();
+            }
         }
+
 
         public class DeviceController : IController
         {

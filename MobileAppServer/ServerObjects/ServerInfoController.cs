@@ -70,6 +70,7 @@ namespace SocketAppServer.ServerObjects
                 .ToList();
         }
 
+        [NotListed]
         public ActionResult Reboot()
         {
             coreServer.Reboot();
@@ -110,14 +111,9 @@ namespace SocketAppServer.ServerObjects
         public ActionResult FullServerInfo()
         {
             ServerInfo info = new ServerInfo();
-
+            info.IsLoadBanancingServer = coreServer.IsLoadBalanceEnabled();
             foreach (ControllerRegister controller in controllerManager.GetRegisteredControllers())
-            {
-                ControllerInfo controllerInfo = new ControllerInfo();
-                controllerInfo.ControllerName = controller.Name;
-
                 info.ServerControllers.Add(GetControllerInfo(controller.Name));
-            }
 
             return ActionResult.Json(new OperationResult(info, 600, "Server info"));
         }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace SocketAppServerClient
 {
@@ -42,7 +43,7 @@ namespace SocketAppServerClient
         public string Server { get; private set; }
         public int Port { get; private set; }
         public Encoding Encoding { get; private set; }
-        public int ByteBuffer { get; private set; }
+        public int BufferSize { get; private set; }
         private Socket clientSocket = null;
 
         private static ClientConfiguration staticConf;
@@ -112,7 +113,7 @@ namespace SocketAppServerClient
             Server = server;
             Port = port;
             Encoding = encoding;
-            ByteBuffer = byteBuffer;
+            BufferSize = byteBuffer;
             thisStr = $"Connected on {server}:{port}";
         }
 
@@ -266,12 +267,36 @@ namespace SocketAppServerClient
 
         private byte[] ReceiveBytes()
         {
-            byte[] buffer = new byte[ByteBuffer];
-            int received = clientSocket.Receive(buffer, SocketFlags.None);
-            var data = new byte[received];
-            Array.Copy(buffer, data, received);
+            var readEvent = new AutoResetEvent(false);
+            var buffer = new byte[BufferSize]; //Receive buffer
+            var totalRecieved = 0;
+            do
+            {
+                var recieveArgs = new SocketAsyncEventArgs()
+                {
+                    UserToken = readEvent
+                };
+                recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);//Receive bytes from x to total - x, x is the number of bytes already recieved
+                recieveArgs.Completed += recieveArgs_Completed;
+                clientSocket.ReceiveAsync(recieveArgs);
+                readEvent.WaitOne();//Wait for recieve
 
-            return data;
+                if (recieveArgs.BytesTransferred == 0)//If now bytes are recieved then there is an error
+                {
+                    if (recieveArgs.SocketError != SocketError.Success)
+                        throw new Exception("Unexpected Disconnect");
+                    return buffer;
+                }
+                totalRecieved += recieveArgs.BytesTransferred;
+
+            } while (totalRecieved != BufferSize);//Check if all bytes has been received
+            return buffer;
+        }
+
+        void recieveArgs_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            var are = (AutoResetEvent)e.UserToken;
+            are.Set();
         }
 
         private ServerResponse ReadResponseInternal(string responseText)

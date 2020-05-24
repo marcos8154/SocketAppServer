@@ -33,7 +33,7 @@ namespace SocketAppServerClient
                 while (canRead)
                 {
                     Client c = new Client(Client.Server,
-                        Client.Port, Client.Encoding, Client.ByteBuffer);
+                        Client.Port, Client.Encoding, Client.BufferSize);
 
                     RequestBody rb = RequestBody.Create("ResponseStorageController",
                         "ReadContent")
