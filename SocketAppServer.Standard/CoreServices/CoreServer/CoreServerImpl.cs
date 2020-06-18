@@ -244,7 +244,12 @@ namespace SocketAppServer.CoreServices.CoreServer
             if (_basicProcessorType != null)
                 EnableBasicServerProcessorModeInternal();
 
-            Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
+            try
+            {
+                Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
+            }
+            catch { }
+
             Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
             Console.WriteLine($"Server Encoding: '{configuration.ServerEncoding.EncodingName}'");
             if (configuration.MaxThreadsCount > 0)

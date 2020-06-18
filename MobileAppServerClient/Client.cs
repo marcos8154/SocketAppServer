@@ -279,7 +279,7 @@ namespace SocketAppServerClient
                 recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);//Receive bytes from x to total - x, x is the number of bytes already recieved
                 recieveArgs.Completed += recieveArgs_Completed;
                 clientSocket.ReceiveAsync(recieveArgs);
-                readEvent.WaitOne();//Wait for recieve
+                readEvent.WaitOne(2000);//Wait for recieve
 
                 if (recieveArgs.BytesTransferred == 0)//If now bytes are recieved then there is an error
                 {
@@ -287,6 +287,9 @@ namespace SocketAppServerClient
                         throw new Exception("Unexpected Disconnect");
                     return buffer;
                 }
+
+                if (recieveArgs.BytesTransferred <= 0)
+                    return buffer;
                 totalRecieved += recieveArgs.BytesTransferred;
 
             } while (totalRecieved != BufferSize);//Check if all bytes has been received
