@@ -18,15 +18,18 @@ namespace SocketAppServerClient
         public Encoding Encoding { get; private set; }
         public int PacketSize { get; private set; }
         public int MaxAttempts { get; private set; }
+        public int ReceiveTimeOut { get; }
 
         public ClientConfiguration(string server, int port,
-            Encoding encoding, int packetSize, int maxAttempts)
+            Encoding encoding, int packetSize, int maxAttempts,
+            int receiveTimeOut)
         {
             Server = server;
             Port = port;
             Encoding = encoding;
             PacketSize = packetSize;
             MaxAttempts = maxAttempts;
+            ReceiveTimeOut = receiveTimeOut;
         }
     }
 
@@ -56,15 +59,18 @@ namespace SocketAppServerClient
         /// <param name="encoding">Server encoding</param>
         /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
         /// <param name="maxAttempts">Maximum connection attempts</param>
+        /// <param name="maxAttempts">Maximum waiting time (in milliseconds) for receiving request data</param>
         public static void Configure(string server, int port,
-            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10)
+            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
+            int receiveTimeOut = 200)
         {
             staticConf = new ClientConfiguration(
                 server,
                 port,
                 encoding,
                 packetSize,
-                maxAttempts);
+                maxAttempts,
+                receiveTimeOut);
         }
 
         /// <summary>
@@ -88,11 +94,14 @@ namespace SocketAppServerClient
         /// <param name="encoding">Server encoding</param>
         /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
         /// <param name="maxAttempts">Maximum connection attempts</param>
+        /// <param name="maxAttempts">Maximum waiting time (in milliseconds) for receiving request data</param>
         public Client(string server, int port,
-            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10)
+            Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
+            int receiveTimeOut = 200)
         {
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ConnectToServer(server, port, encoding, packetSize, maxAttempts);
+            ReceiveTimeOut = receiveTimeOut;
         }
 
         private void ConnectToServer(string server,
@@ -114,10 +123,11 @@ namespace SocketAppServerClient
             Port = port;
             Encoding = encoding;
             BufferSize = byteBuffer;
-            thisStr = $"Connected on {server}:{port}";
+            thisStr = $"SocketClient for .NET Framework. Connected on {server}:{port}";
         }
 
         public ServerResponse Response { get; private set; }
+        public int ReceiveTimeOut { get; }
 
         /// <summary>
         /// Retrieves the file returned by an action on the server
@@ -268,7 +278,7 @@ namespace SocketAppServerClient
         private byte[] ReceiveBytes()
         {
             var readEvent = new AutoResetEvent(false);
-            var buffer = new byte[BufferSize]; //Receive buffer
+            var buffer = new byte[BufferSize];
             var totalRecieved = 0;
             do
             {
@@ -276,23 +286,21 @@ namespace SocketAppServerClient
                 {
                     UserToken = readEvent
                 };
-                recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);//Receive bytes from x to total - x, x is the number of bytes already recieved
+                recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);
                 recieveArgs.Completed += recieveArgs_Completed;
                 clientSocket.ReceiveAsync(recieveArgs);
-                readEvent.WaitOne(2000);//Wait for recieve
+                readEvent.WaitOne(ReceiveTimeOut);
 
-                if (recieveArgs.BytesTransferred == 0)//If now bytes are recieved then there is an error
+                if (recieveArgs.BytesTransferred <= 0)
                 {
                     if (recieveArgs.SocketError != SocketError.Success)
                         throw new Exception("Unexpected Disconnect");
                     return buffer;
                 }
 
-                if (recieveArgs.BytesTransferred <= 0)
-                    return buffer;
                 totalRecieved += recieveArgs.BytesTransferred;
 
-            } while (totalRecieved != BufferSize);//Check if all bytes has been received
+            } while (totalRecieved != BufferSize);
             return buffer;
         }
 
