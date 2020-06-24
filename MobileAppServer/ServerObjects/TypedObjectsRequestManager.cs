@@ -35,6 +35,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using SocketAppServer.ServerUtils;
 
 namespace SocketAppServer.ServerObjects
 {
@@ -113,7 +114,7 @@ namespace SocketAppServer.ServerObjects
             {
                 var type = property.PropertyType.GenericTypeArguments[0];
                 Type typeList = typeof(List<>).MakeGenericType(type);
-                object list = JsonConvert.DeserializeObject(requestValue, typeList);
+                object list = JsonConvert.DeserializeObject(requestValue, typeList, AppServerConfigurator.SerializerSettings);
                 property.SetValue(entity, list, null);
             }
         }
@@ -185,6 +186,7 @@ namespace SocketAppServer.ServerObjects
                     using (JsonReader reader = new JsonTextReader(sr))
                     {
                         JsonSerializer ser = new JsonSerializer();
+                        ser.ApplyCustomSettings();
                         list = ser.Deserialize(reader, typeList);
                     }
                 }
@@ -288,6 +290,7 @@ namespace SocketAppServer.ServerObjects
                             using (JsonReader jr = new JsonTextReader(sr))
                             {
                                 JsonSerializer js = new JsonSerializer();
+                                js.ApplyCustomSettings();
                                 requestParameter.Value = js.Deserialize(jr, parameterInfo.ParameterType);
                             }
                         }

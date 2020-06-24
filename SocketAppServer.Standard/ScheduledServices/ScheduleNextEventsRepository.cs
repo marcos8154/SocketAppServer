@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using Newtonsoft.Json;
+using SocketAppServer.CoreServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -90,13 +91,13 @@ namespace SocketAppServer.ScheduledServices
                 return new List<ScheduleNextEvent>();
 
             string json = File.ReadAllText(file);
-            return JsonConvert.DeserializeObject<List<ScheduleNextEvent>>(json);
+            return JsonConvert.DeserializeObject<List<ScheduleNextEvent>>(json, AppServerConfigurator.SerializerSettings);
         }
 
         private void SaveNextEvents(List<ScheduleNextEvent> nextEvents)
         {
             string file = $@"{defaultDir}\next_events.stn";
-            string json = JsonConvert.SerializeObject(nextEvents);
+            string json = JsonConvert.SerializeObject(nextEvents, AppServerConfigurator.SerializerSettings);
             File.WriteAllText(file, json);
         }
     }

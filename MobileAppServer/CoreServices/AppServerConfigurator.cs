@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using Newtonsoft.Json;
 using SocketAppServer.CoreServices.CLIHost;
 using SocketAppServer.CoreServices.ControllerManagement;
 using SocketAppServer.CoreServices.CoreServer;
@@ -50,12 +51,15 @@ namespace SocketAppServer.CoreServices
     public abstract class AppServerConfigurator
     {
         internal IServiceManager Services { get; set; }
+
         internal static Type DefaultExceptionHandlerType { get; private set; }
         internal static bool DisableStatisticsCalculating { get; private set; }
+        internal static JsonSerializerSettings SerializerSettings { get; private set; }
+
         public AppServerConfigurator()
         {
             Services = ServiceManager.GetInstance();
-
+      
             Services.Bind<ILoggingService>(typeof(LoggingServiceImpl), true);
             Services.Bind<IControllerManager>(typeof(ControllerManagerImpl), true);
             Services.Bind<IDomainModelsManager>(typeof(DomainModelsManager), true);
@@ -85,6 +89,17 @@ namespace SocketAppServer.CoreServices
         protected void DisableStatisticsComputing()
         {
             DisableStatisticsCalculating = true;
+        }
+
+        /// <summary>
+        /// Changes the default serializer settings for Newtonsoft.Json
+        /// </summary>
+        /// <param name="settings">JsonSerializerSettings object</param>
+        protected void SetJsonSerializerSettings(JsonSerializerSettings settings)
+        {
+            if (settings == null)
+                throw new InvalidOperationException("Cannot be null.");
+            SerializerSettings = settings;
         }
 
         /// <summary>

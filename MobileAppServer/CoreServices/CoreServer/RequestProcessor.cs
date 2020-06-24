@@ -37,6 +37,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using SocketAppServer.ServerUtils;
 
 namespace SocketAppServer.CoreServices.CoreServer
 {
@@ -81,6 +82,7 @@ namespace SocketAppServer.CoreServices.CoreServer
                     using (JsonReader reader = new JsonTextReader(sr))
                     {
                         JsonSerializer ser = new JsonSerializer();
+                        ser.ApplyCustomSettings();
                         requestBody = ser.Deserialize<RequestBody>(reader);
                     }
                 }

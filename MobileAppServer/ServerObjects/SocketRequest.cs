@@ -34,6 +34,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using SocketAppServer.ServerUtils;
 
 namespace SocketAppServer.ServerObjects
 {
@@ -141,6 +142,7 @@ namespace SocketAppServer.ServerObjects
                 using (JsonWriter jw = new JsonTextWriter(sw))
                 {
                     JsonSerializer js = new JsonSerializer();
+                    js.ApplyCustomSettings();
                     js.Serialize(jw, result.Content);
                 }
             }
@@ -253,11 +255,11 @@ Operation has stopped.";
                 if (TypedObjectsRequestManager.IsSimpleType(response.Content.GetType()))
                     responseStorage.CreateStorage(ResponseStorageId, response.Content.ToString());
                 else
-                    responseStorage.CreateStorage(ResponseStorageId, JsonConvert.SerializeObject(response.Content));
+                    responseStorage.CreateStorage(ResponseStorageId, JsonConvert.SerializeObject(response.Content, AppServerConfigurator.SerializerSettings));
                 response.Content = null;
             }
 
-            string json = JsonConvert.SerializeObject(response);
+            string json = JsonConvert.SerializeObject(response, AppServerConfigurator.SerializerSettings);
             byte[] resultData = encoder.ConvertToByteArray(json);
             SendBytes(resultData);
             json = null;

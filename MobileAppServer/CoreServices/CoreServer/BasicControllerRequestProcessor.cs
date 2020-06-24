@@ -64,7 +64,7 @@ namespace SocketAppServer.CoreServices.CoreServer
                 ActionResult result = basicController.RunAction(receivedData);
                 s.Stop();
 
-                string resultToJson = JsonConvert.SerializeObject(result);
+                string resultToJson = JsonConvert.SerializeObject(result, AppServerConfigurator.SerializerSettings);
 
                 byte[] resultBytes = coreServer.GetConfiguration().ServerEncoding.GetBytes(resultToJson);
                 preProcessor.clientSocket.Send(resultBytes);

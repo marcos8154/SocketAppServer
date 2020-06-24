@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using Newtonsoft.Json;
+using SocketAppServer.ServerUtils;
 using System;
 using System.IO;
 using System.Text;
@@ -43,6 +44,7 @@ namespace SocketAppServer.ServerObjects
                     using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                     {
                         var serializer = new JsonSerializer();
+                        serializer.ApplyCustomSettings();
                         serializer.Serialize(writer, obj);
                     }
                 }

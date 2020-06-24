@@ -50,9 +50,17 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\SocketAppServer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -173,6 +181,7 @@
     <Compile Include="ServerObjects\ServerSocketResponse.cs" />
     <Compile Include="CoreServices\CoreServer\SocketSession.cs" />
     <Compile Include="ServerObjects\TypedObjectsRequestManager.cs" />
+    <Compile Include="ServerUtils\JsonExt.cs" />
     <Compile Include="ServerUtils\LambdaExt.cs" />
     <Compile Include="ServerUtils\ParameterRebinder.cs" />
     <Compile Include="ServerUtils\StringCompactor.cs" />

@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 
 namespace SocketAppServerClient
 {
@@ -59,10 +60,10 @@ namespace SocketAppServerClient
         /// <param name="encoding">Server encoding</param>
         /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
         /// <param name="maxAttempts">Maximum connection attempts</param>
-        /// <param name="maxAttempts">Maximum waiting time (in milliseconds) for receiving request data</param>
+        /// <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
         public static void Configure(string server, int port,
             Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
-            int receiveTimeOut = 200)
+            int receiveTimeOut = 0)
         {
             staticConf = new ClientConfiguration(
                 server,
@@ -94,10 +95,10 @@ namespace SocketAppServerClient
         /// <param name="encoding">Server encoding</param>
         /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
         /// <param name="maxAttempts">Maximum connection attempts</param>
-        /// <param name="maxAttempts">Maximum waiting time (in milliseconds) for receiving request data</param>
+        /// <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
         public Client(string server, int port,
             Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
-            int receiveTimeOut = 200)
+            int receiveTimeOut = 0)
         {
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ConnectToServer(server, port, encoding, packetSize, maxAttempts);
@@ -123,7 +124,7 @@ namespace SocketAppServerClient
             Port = port;
             Encoding = encoding;
             BufferSize = byteBuffer;
-            thisStr = $"SocketClient for .NET Framework. Connected on {server}:{port}";
+            thisStr = $"SocketClient for .NET Standard. Connected on {server}:{port}";
         }
 
         public ServerResponse Response { get; private set; }
@@ -280,6 +281,8 @@ namespace SocketAppServerClient
             var readEvent = new AutoResetEvent(false);
             var buffer = new byte[BufferSize];
             var totalRecieved = 0;
+            int receivedChunk = 0;
+            int dynamicTimeOut = 0;
             do
             {
                 var recieveArgs = new SocketAsyncEventArgs()
@@ -289,7 +292,23 @@ namespace SocketAppServerClient
                 recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);
                 recieveArgs.Completed += recieveArgs_Completed;
                 clientSocket.ReceiveAsync(recieveArgs);
-                readEvent.WaitOne(ReceiveTimeOut);
+
+                if (ReceiveTimeOut == 0)
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
+                    if (dynamicTimeOut == 0)
+                        readEvent.WaitOne();
+                    else
+                        readEvent.WaitOne(dynamicTimeOut);
+
+                    sw.Stop();
+                    dynamicTimeOut = (int)sw.ElapsedMilliseconds;
+                    if (dynamicTimeOut > 1000)
+                        dynamicTimeOut = 1000;
+                }
+                else readEvent.WaitOne(ReceiveTimeOut);
 
                 if (recieveArgs.BytesTransferred <= 0)
                 {
@@ -298,9 +317,10 @@ namespace SocketAppServerClient
                     return buffer;
                 }
 
-                totalRecieved += recieveArgs.BytesTransferred;
+                receivedChunk = recieveArgs.BytesTransferred;
+                totalRecieved += receivedChunk;
 
-            } while (totalRecieved != BufferSize);
+            } while (receivedChunk > 0);
             return buffer;
         }
 

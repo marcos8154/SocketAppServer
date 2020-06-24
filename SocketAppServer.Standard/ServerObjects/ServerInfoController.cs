@@ -111,7 +111,6 @@ namespace SocketAppServer.ServerObjects
         public ActionResult FullServerInfo()
         {
             ServerInfo info = new ServerInfo();
-
             info.IsLoadBanancingServer = coreServer.IsLoadBalanceEnabled();
             foreach (ControllerRegister controller in controllerManager.GetRegisteredControllers())
                 info.ServerControllers.Add(GetControllerInfo(controller.Name));

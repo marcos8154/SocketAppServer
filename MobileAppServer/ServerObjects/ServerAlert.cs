@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using Newtonsoft.Json;
+using SocketAppServer.CoreServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -68,7 +69,7 @@ namespace SocketAppServer.ServerObjects
                         return new List<ServerAlert>();
 
                     string txt = File.ReadAllText(file);
-                    List<ServerAlert> json = JsonConvert.DeserializeObject<List<ServerAlert>>(txt);
+                    List<ServerAlert> json = JsonConvert.DeserializeObject<List<ServerAlert>>(txt, AppServerConfigurator.SerializerSettings);
                     return json;
                 }
                 catch
@@ -96,7 +97,7 @@ namespace SocketAppServer.ServerObjects
                 }
 
                 alerts.Add(alert);
-                File.WriteAllText(file, JsonConvert.SerializeObject(alerts));
+                File.WriteAllText(file, JsonConvert.SerializeObject(alerts, AppServerConfigurator.SerializerSettings));
             }
         }
     }

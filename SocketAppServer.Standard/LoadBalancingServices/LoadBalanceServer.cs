@@ -246,12 +246,13 @@ namespace SocketAppServer.LoadBalancingServices
 
         public ActionResult RunAction(string receivedData)
         {
-            SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData);
+            SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData,
+                AppServerConfigurator.SerializerSettings);
 
             if (rb.Controller.Equals("ServerInfoController") &&
                 rb.Action.Equals("FullServerInfo"))
                 return new ServerInfoController().FullServerInfo();
-            
+
             string cacheResultKey = BuildCacheResultKey(rb);
             SubServer targetServer = GetAvailableSubServer();
 

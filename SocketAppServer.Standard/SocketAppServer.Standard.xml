@@ -1,0 +1,361 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SocketAppServer.Standard</name>
+    </assembly>
+    <members>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.DisableStatisticsComputing">
+            <summary>
+            Disables the calculation of server buffer usage statistics. 
+            Disabling this feature will bring performance gains to the 
+            server, but in return finding the cause of problems in 
+            Controllers/Actions will become more difficult
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.ConfigureDefaultExceptionHandler(System.Type)">
+            <summary>
+            Configures a standard exception handler for all server actions
+            that use the annotation/attribute [ServerAction]
+            </summary>
+            <param name="exceptionHandlerType">IActionExceptionHandler implementation class type</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableExtension(SocketAppServer.EFI.IExtensibleFrameworkInterface)">
+            <summary>
+            Enable the loading of a framework extension (EFI) as soon as the server core is booted
+            </summary>
+            <param name="extension"></param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterCLICommand(System.String,System.String,SocketAppServer.CoreServices.CLIHost.ICLIClient)">
+            <summary>
+            It allows integration with the CLI of the framework, which allows execution of specific routines from commands typed at the ConsoleApp prompt
+            </summary>
+            <param name="commandText">Initial command that triggers the execution client</param>
+            <param name="commandDescription">Brief description of the purpose of the command</param>
+            <param name="executorClient">Instance of the implementation of the ICLIClient interface, which connects the CLI of ConsoleApp with the target class that will perform the tasks</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableLoadBalanceServer(System.Int32,System.Boolean)">
+            <summary>
+            Enables load balancing features on the current server
+            </summary>
+            <param name="maxAttemptsToGetAvailableSubServer">In a pool of sub-servers, determines the maximum number of attempts to obtain an eligible server to meet the request from the connected client</param>
+            <param name="cacheResultsForUnreachableServers">If the number of attempts to obtain a server from the pool has exceeded, it will return a cache of the last request successfully made in the controller/action</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.DisableTelemetryServices">
+            <summary>
+            Disables standard telemetry services on the server
+            WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.UseAuthentication(SocketAppServer.Security.IServerUserRepository,System.Int32,System.String)">
+            <summary>
+            Enables authentication features on the current server
+            </summary>
+            <param name="repository">Implementation of a ServerUser repository for authentication</param>
+            <param name="tokenLifetime">Authentication Token lifetime (in minutes)</param>
+            <param name="tokenCryptPassword">(Optional) A password used to encrypt the data that will make up the authentication Token. If it is an empty string, the authentication service will take care of generating dynamic passwords for each connected client. For the password generation process, see Wiki section on GitHub project</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.SetDefaultLoggerWrapper(SocketAppServer.CoreServices.Logging.ILoggerWrapper)">
+            <summary>
+            Provide a wrapper for capturing logs fired by the Logging service
+            </summary>
+            <param name="loggerWrapper">Implementation of the wrapper that will capture and provide query logs</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddInterceptor(SocketAppServer.ServerObjects.IHandlerInterceptor)">
+            <summary>
+            Adds a request interceptor for a specific server controller/action
+            </summary>
+            <param name="interceptor">Implementation of Interceptor</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddDependencyInjector(SocketAppServer.ServerObjects.IDependencyInjectorMaker)">
+            <summary>
+            Adds a dependency injection helper for server controllers
+            </summary>
+            <param name="dependencyInjector">Implementation of injector helper</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterController(System.Type)">
+            <summary>
+            Register a controller on the server
+            </summary>
+            <param name="controllerType">Concrete type of controller. It is mandatory to implement the "IController" interface</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterAllControllers(System.Reflection.Assembly,System.String)">
+            <summary>
+            Adds a set of Controllers to the server. A scan will be performed on the specified Assembly namespace to search for possible Controllers and register them automatically
+            </summary>
+            <param name="assembly">Assembly in which Controller classes are contained</param>
+            <param name="namespaceName">Assembly namespace in which the controllers are contained</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterModel(System.Type)">
+            <summary>
+            Registers a model class so that the Controller can inject them into the Actions they need
+            </summary>
+            <param name="modelType">Base type of the class to be registered</param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterAllModels(System.Reflection.Assembly,System.String)">
+            <summary>
+            Adds a set of model classes to the server. A scan will be performed on the specified Assembly namespace to search for possible classes and register them automatically
+            </summary>
+            <param name="assembly"></param>
+            <param name="namespaceName"></param>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddScheduledTask(SocketAppServer.ScheduledServices.ScheduledTask)">
+            <summary>
+            Adds a scheduled task on the server
+            </summary>
+            <param name="task">Implementation of the scheduled task class</param>
+        </member>
+        <member name="T:SocketAppServer.CoreServices.CoreServer.BasicControllerRequestProcess">
+            <summary>
+            Basic request processor, works dedicated with a single controller type and does not support advanced features like the standard processor (RequestProcessor)
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.CoreServices.CoreServer.RequestProcessor">
+            <summary>
+            Standard request processor. Supports all server resources such as dependency injection, interceptors and more.
+            In addition to dynamically instantiating any type of Controller and injecting any type of parameter into Actions.
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.CoreServer.ServerConfiguration.#ctor(System.Text.Encoding,System.Int32,System.Int32,System.Boolean,System.Int32,System.Boolean)">
+            <summary>
+            Provides parameters for configuring the current server
+            </summary>
+            <param name="serverEncoding">Encoding of server input and output data</param>
+            <param name="port">Server listening port</param>
+            <param name="bufferSize">Maximum size of memory allocated to store the data for each request. It does not mean that each process will necessarily allocate this size in bytes, but rather the maximum possible buffer to be allocated. At the end of each request, the buffer will be dispensed by the server's memory and will be available for collection from the GC</param>
+            <param name="isSingleThreaded">Indicates whether the server will use only one Thread to fulfill requests. If enabled, a queue will be created for requesting clients</param>
+            <param name="maxThreadsCount">Maximum number of simultaneous tasks possible to be attended by the server. Note that this number is related to the BufferSize and each process will allocate its own buffer in memory. If the maximum number is exceeded and the server is busy, clients that have not yet been served will join a queue and be served according to the order of arrival and as current processes are released</param>
+            <param name="isConsoleApplication">If this application is a ConsoleApp, the server will take care of holding the process in memory. If your application is a DesktopApp or WebApp, set this parameter to false</param>
+        </member>
+        <member name="T:SocketAppServer.CoreServices.IBasicServerController">
+            <summary>
+            Basic request processor, works dedicated with a single controller type and does not support advanced features like the standard processor (RequestProcessor)
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.ICoreServerService.DisableTelemetryServices">
+            <summary>
+            Disables standard telemetry services on the server
+            WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.CoreServices.IHardwareServices">
+            <summary>
+            Obtains basic hardware information about the current server process
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageCPUUsage(System.Int32)">
+            <summary>
+            Gets the average % CPU usage in the last X hours
+            </summary>
+            <param name="lastHours"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageMemoryUsage(System.Int32)">
+            <summary>
+            Gets the average MB memory usage in the last X hours
+            </summary>
+            <param name="lastHours"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.CoreServices.IHardwareServices.ReleaseMemory">
+            <summary>
+            Waits for current processes to end on the server to force 
+            immediate freeing of memory in the current server process
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.LoadBalancingServices.LoadBalanceConfigurator">
+            <summary>
+            Load balancing service configurator for the current server
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.LoadBalancingServices.LoadBalanceConfigurator.EnableDynamicInstanceAllocationManagement(SocketAppServer.LoadBalancingServices.INotifiableSubServerRequirement,System.Int32)">
+            <summary>
+            Enables the request for dynamic allocation of new instances of sub-servers to the pool
+            </summary>
+            <param name="notifiable">Implementation of a notifying interface for the acquisition and shutdown of instances dynamically allocated to the sub-server pool</param>
+            <param name="serversLifetimeInMinutes">Lifetime (in minutes) that the sub-server instance should remain in the pool. At the end of the lifetime, the server will be detached from the pool and the INotifiableSubServerRequirement class will be notified to shut down the sub-server</param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SocketAppServer.LoadBalancingServices.LoadBalanceConfigurator.AddSubServer(System.String,System.Int32,System.Text.Encoding,System.Int32,System.Int32,System.Int32)" -->
+        <member name="T:SocketAppServer.ManagedServices.IServiceManager">
+            <summary>
+            Interface for allocating and managing instances of other service interfaces (IoC)
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.Bind``1(System.Type,System.Boolean)">
+            <summary>
+            Binds an interface to a single implementation possibility
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+            <param name="implementation">Concrete type of interface implementation</param>
+            <param name="singletonInstance">Determines whether the instance of the implementation should be "singleton"</param>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.Bind``1(System.String,System.Type,System.Boolean)">
+            <summary>
+            Binds an interface to a multiple implementations possibilities
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+            <param name="alias">A simplified alias to locate one of the possible concrete instances of the interface</param>
+            <param name="implementation">Concrete type of interface implementation</param>
+            <param name="singletonInstance">Determines whether the instance of the implementation should be "singleton"</param>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.GetService``1(System.Object[])">
+            <summary>
+            Obtains the instance of an implementation through the alias
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+            <param name="args">Constructor arguments for concrete implementation. If no parameter is entered, the default constructor will be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.GetService``1(System.String,System.Object[])">
+            <summary>
+            Obtains the instance of an implementation through the alias
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+            <param name="alias">Alias identifier for one of the possible implementations</param>
+            <param name="args">Constructor arguments for concrete implementation. If no parameter is entered, the default constructor will be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.GetService``1(System.Type,System.Object[])">
+            <summary>
+            Obtains the instance of an implementation through the alias
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+            <param name="implementation">The type of a unique, interface-specific implementation</param>
+            <param name="args">Constructor arguments for concrete implementation. If no parameter is entered, the default constructor will be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.Unbind``1">
+            <summary>
+            Unbind all bindings from interface
+            </summary>
+            <typeparam name="T">Interface type</typeparam>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.Unbind(System.String)">
+            <summary>
+            Unbind interface bindings from alias name
+            </summary>
+            <param name="alias">Alias name for binding</param>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.Unbind(System.Type)">
+            <summary>
+            Unbind interface bindings by implementation concrete type
+            </summary>
+            <param name="implementation"></param>
+        </member>
+        <member name="M:SocketAppServer.ManagedServices.IServiceManager.GetAllServices">
+            <summary>
+            List all binding services from current service manager instance
+            </summary>
+            <returns>List of ManagedServiceBinding</returns>
+        </member>
+        <member name="T:SocketAppServer.Security.ServerToken">
+            added comment
+        </member>
+        <member name="T:SocketAppServer.ServerObjects.NotListed">
+            <summary>
+            Prevents the action from being publicly listed when requesting ServerInfoController/FullServerInfo
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.ServerObjects.ServerAction">
+            <summary>
+            Allows you to define void or object as an action return, instead of ActionResult
+            </summary>
+        </member>
+        <member name="P:SocketAppServer.ServerObjects.ServerAction.DefaultErrorCode">
+            <summary>
+            Customized error code for response to the client, 
+            instead of using the default code of the server (500)
+            </summary>
+        </member>
+        <member name="P:SocketAppServer.ServerObjects.ServerAction.ExceptionHandler">
+            <summary>
+            Defines the type of an IActionExceptionHandler for handling 
+            exceptions thrown by this action
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.ServerObjects.SingleThreaded">
+            <summary>
+            Prevents the action from receiving simultaneous requests
+            It is possible to customize the behavior through the parameters of this attribute
+            </summary>
+        </member>
+        <member name="P:SocketAppServer.ServerObjects.SingleThreaded.WaitingAttempts">
+            <summary>
+            Maximum number of waiting attempts to release the action
+            Default value = 10
+            </summary>
+        </member>
+        <member name="P:SocketAppServer.ServerObjects.SingleThreaded.WaitingInterval">
+            <summary>
+            Waiting time between each attempt (in miliseconds)
+            Default value = 100
+            </summary>
+        </member>
+        <member name="T:SocketAppServer.TelemetryServices.ITelemetryServicesProvider">
+            <summary>
+            The telemetry service provider allows the storage, search and maintenance of the events collected
+            </summary>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.ActionExecutionTime(System.Collections.Generic.IEnumerable{SocketAppServer.TelemetryServices.Events.ActionExecutionTime})">
+            <summary>
+            Store/Persist collected ActionExecutionTime events
+            </summary>
+            <param name="actions"></param>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.ActionError(System.Collections.Generic.IEnumerable{SocketAppServer.TelemetryServices.Events.ActionError})">
+            <summary>
+            Store/Persist collected ActionError events
+            </summary>
+            <param name="error"></param>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.InterceptorExecutionTime(System.Collections.Generic.IEnumerable{SocketAppServer.TelemetryServices.Events.InterceptorExecutionTime})">
+            <summary>
+            Store/Persist collected InterceptorExecutionTime events
+            </summary>
+            <param name="interceptors"></param>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.DependencyInjectionExecutiontime(System.Collections.Generic.IEnumerable{SocketAppServer.TelemetryServices.Events.DependencyInjectorExecutionTime})">
+            <summary>
+            Store/Persist collected DependencyInjectorExecutionTime events
+            </summary>
+            <param name="dependencyInjectors"></param>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.HWUsage(System.Collections.Generic.IEnumerable{SocketAppServer.TelemetryServices.Events.HardwareUsage})">
+            <summary>
+            Store/Persist collected HardwareUsage events
+            </summary>
+            <param name="usage"></param>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.GetActionErrors(System.DateTime,System.DateTime,System.String,System.String)">
+            <summary>
+            Retrieves a set of ActionError events persisted in a repository managed by the provider's implementation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.GetActionExecutionTimes(System.DateTime,System.DateTime,System.String,System.String)">
+            <summary>
+            Retrieves a set of ActionExecutionTime events persisted in a repository managed by the provider's implementation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.GetDependencyInjectorExecutionTimes(System.DateTime,System.DateTime,System.String)">
+            <summary>
+            Retrieves a set of DependencyInjectorExecutionTime events persisted in a repository managed by the provider's implementation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.GetHardwareUsages(System.DateTime,System.DateTime)">
+            <summary>
+            Retrieves a set of HardwareUsage events persisted in a repository managed by the provider's implementation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServer.TelemetryServices.ITelemetryServicesProvider.GetInterceptorExecutionTimes(System.DateTime,System.DateTime,System.String,System.String)">
+            <summary>
+            Retrieves a set of HardwareUsage events persisted in a repository managed by the provider's implementation
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
