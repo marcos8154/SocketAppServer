@@ -99,7 +99,19 @@ namespace SocketAppServer.CoreServices
         {
             if (settings == null)
                 throw new InvalidOperationException("Cannot be null.");
-            SerializerSettings = settings;
+
+            SerializerSettings = new JsonSerializerSettings();
+            foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
+            {
+                try
+                {
+                    var value = settings.GetType().GetProperty(prop.Name).GetValue(settings);
+                    if (value == null)
+                        continue;
+                    prop.SetValue(SerializerSettings, value);
+                }
+                catch { }
+            }
         }
 
         /// <summary>

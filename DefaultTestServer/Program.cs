@@ -1,4 +1,5 @@
-﻿using SocketAppServer.CoreServices;
+﻿using Newtonsoft.Json;
+using SocketAppServer.CoreServices;
 using SocketAppServer.CoreServices.CoreServer;
 using SocketAppServer.Extensions.ClientMaker;
 using SocketAppServer.Hosting;
@@ -32,7 +33,10 @@ namespace DefaultTestServer
             {
                 DisableStatisticsComputing();
                 DisableTelemetryServices();
-
+                SetJsonSerializerSettings(new JsonSerializerSettings
+                {
+                    Formatting = Formatting.None,
+                });
                 RegisterController(typeof(ImageController));
             }
 
@@ -42,7 +46,7 @@ namespace DefaultTestServer
                 //the server's operating parameters, such as port, 
                 //Encoding, buffer and connection limit
                 return new ServerConfiguration(Encoding.UTF8,
-                         7000, 10000000, false, 100, true);
+                         6000, 10000000, false, 100, true);
             }
         }
 

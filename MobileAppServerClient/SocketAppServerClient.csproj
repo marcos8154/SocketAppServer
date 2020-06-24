@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="ChunkedResponseReader.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="ClientUtils\JsonExt.cs" />
     <Compile Include="ControllerInfo.cs" />
     <Compile Include="OperationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SocketAppServerClient
 {
@@ -20,10 +21,11 @@ namespace SocketAppServerClient
         public int PacketSize { get; private set; }
         public int MaxAttempts { get; private set; }
         public int ReceiveTimeOut { get; }
+        public JsonSerializerSettings SerializerSettings { get; private set; }
 
         public ClientConfiguration(string server, int port,
             Encoding encoding, int packetSize, int maxAttempts,
-            int receiveTimeOut)
+            int receiveTimeOut, JsonSerializerSettings settings)
         {
             Server = server;
             Port = port;
@@ -31,6 +33,19 @@ namespace SocketAppServerClient
             PacketSize = packetSize;
             MaxAttempts = maxAttempts;
             ReceiveTimeOut = receiveTimeOut;
+
+            SerializerSettings = new JsonSerializerSettings();
+            foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
+            {
+                try
+                {
+                    var value = settings.GetType().GetProperty(prop.Name).GetValue(settings);
+                    if (value == null)
+                        continue;
+                    prop.SetValue(SerializerSettings, value);
+                }
+                catch { }
+            }
         }
     }
 
@@ -48,6 +63,7 @@ namespace SocketAppServerClient
         public int Port { get; private set; }
         public Encoding Encoding { get; private set; }
         public int BufferSize { get; private set; }
+        public JsonSerializerSettings SerializerSettings { get; private set; }
         private Socket clientSocket = null;
 
         private static ClientConfiguration staticConf;
@@ -61,9 +77,11 @@ namespace SocketAppServerClient
         /// <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
         /// <param name="maxAttempts">Maximum connection attempts</param>
         /// <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
+        /// <param name="serializerSettings">Maximum waiting time (in milliseconds) for receiving request data</param>
         public static void Configure(string server, int port,
             Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
-            int receiveTimeOut = 0)
+            int receiveTimeOut = 0,
+            JsonSerializerSettings serializerSettings = null)
         {
             staticConf = new ClientConfiguration(
                 server,
@@ -71,7 +89,8 @@ namespace SocketAppServerClient
                 encoding,
                 packetSize,
                 maxAttempts,
-                receiveTimeOut);
+                receiveTimeOut,
+                serializerSettings);
         }
 
         /// <summary>
@@ -81,10 +100,11 @@ namespace SocketAppServerClient
         public Client()
         {
             if (staticConf == null)
-                throw new Exception("");
+                throw new Exception("Client Configuration has not been defined");
             ConnectToServer(staticConf.Server,
                 staticConf.Port, staticConf.Encoding,
-                staticConf.PacketSize, staticConf.MaxAttempts);
+                staticConf.PacketSize, staticConf.MaxAttempts,
+                staticConf.SerializerSettings);
         }
 
         /// <summary>
@@ -98,15 +118,17 @@ namespace SocketAppServerClient
         /// <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
         public Client(string server, int port,
             Encoding encoding, int packetSize = 1024 * 100, int maxAttempts = 10,
-            int receiveTimeOut = 0)
+            int receiveTimeOut = 0,
+            JsonSerializerSettings serializerSettings = null)
         {
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ConnectToServer(server, port, encoding, packetSize, maxAttempts);
+            ConnectToServer(server, port, encoding, packetSize, maxAttempts, serializerSettings);
             ReceiveTimeOut = receiveTimeOut;
         }
 
         private void ConnectToServer(string server,
-            int port, Encoding encoding, int byteBuffer = 4098 * 50, int maxAttempts = 10)
+            int port, Encoding encoding, int byteBuffer = 4098 * 50, int maxAttempts = 10,
+            JsonSerializerSettings serializerSettings = null)
         {
             int attempts = 0;
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -124,6 +146,20 @@ namespace SocketAppServerClient
             Port = port;
             Encoding = encoding;
             BufferSize = byteBuffer;
+
+            SerializerSettings = new JsonSerializerSettings();
+            foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
+            {
+                try
+                {
+                    var value = serializerSettings.GetType().GetProperty(prop.Name).GetValue(serializerSettings);
+                    if (value == null)
+                        continue;
+                    prop.SetValue(SerializerSettings, value);
+                }
+                catch { }
+            }
+
             thisStr = $"SocketClient for .NET Standard. Connected on {server}:{port}";
         }
 
@@ -156,6 +192,7 @@ namespace SocketAppServerClient
                 using (JsonReader jr = new JsonTextReader(sr))
                 {
                     JsonSerializer js = new JsonSerializer();
+                    js.ApplyCustomSettings(SerializerSettings);
                     OperationResult result = js.Deserialize<OperationResult>(jr);
                     return result;
                 }
@@ -170,6 +207,7 @@ namespace SocketAppServerClient
                 using (JsonReader jr = new JsonTextReader(sr))
                 {
                     JsonSerializer js = new JsonSerializer();
+                    js.ApplyCustomSettings(SerializerSettings);
                     object entityResult = js.Deserialize(jr, entityType);
                     return entityResult;
                 }
@@ -271,7 +309,7 @@ namespace SocketAppServerClient
         public void SendRequest(RequestBody body)
         {
             _chunkeResultStorageId = body.InTo;
-            string commandRequest = JsonConvert.SerializeObject(body);
+            string commandRequest = JsonConvert.SerializeObject(body, SerializerSettings);
             byte[] buffer = Encoding.GetBytes(commandRequest);
             clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
         }
@@ -337,6 +375,7 @@ namespace SocketAppServerClient
                 using (JsonReader jr = new JsonTextReader(sr))
                 {
                     JsonSerializer js = new JsonSerializer();
+                    js.ApplyCustomSettings(SerializerSettings);
                     ServerResponse response = js.Deserialize<ServerResponse>(jr);
                     return response;
                 }

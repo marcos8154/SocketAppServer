@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SocketAppServer.CoreServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +6,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocketAppServer.ServerUtils
+namespace SocketAppServerClient.ClientUtils
 {
     public static class JsonExt
     {
-        public static void ApplyCustomSettings(this JsonSerializer serializer)
+        public static void ApplyCustomSettings(this JsonSerializer serializer,
+            JsonSerializerSettings settings)
         {
-            if (AppServerConfigurator.SerializerSettings == null)
-                return;
-
-            var settings = AppServerConfigurator.SerializerSettings;
-
             foreach (PropertyInfo prop in serializer.GetType().GetProperties())
             {
                 try

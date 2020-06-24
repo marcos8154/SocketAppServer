@@ -12,6 +12,12 @@
             Controllers/Actions will become more difficult
             </summary>
         </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.SetJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Changes the default serializer settings for Newtonsoft.Json
+            </summary>
+            <param name="settings">JsonSerializerSettings object</param>
+        </member>
         <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.ConfigureDefaultExceptionHandler(System.Type)">
             <summary>
             Configures a standard exception handler for all server actions
