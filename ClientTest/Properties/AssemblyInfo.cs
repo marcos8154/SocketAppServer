@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 
 // As informações gerais sobre um assembly são controladas por
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
-// associada a um assembly.
-[assembly: AssemblyTitle("SocketAppServerClient")]
+// associadas a um assembly.
+[assembly: AssemblyTitle("ClientTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SocketAppServerClient")]
+[assembly: AssemblyProduct("ClientTest")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // O GUID a seguir será destinado à ID de typelib se este projeto for exposto para COM
-[assembly: Guid("d70a4664-cc13-442b-ab28-dcac82e1c7a9")]
+[assembly: Guid("2a36411b-54c6-4f60-91f8-0be58bfabede")]
 
 // As informações da versão de um assembly consistem nos quatro valores a seguir:
 //
@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 //      Revisão
 //
 // É possível especificar todos os valores ou usar como padrão os Números de Build e da Revisão
-// usando o '*' como mostrado abaixo:
+// usando o "*" como mostrado abaixo:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.15.0")]
-[assembly: AssemblyFileVersion("2.0.15.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

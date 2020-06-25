@@ -35,9 +35,11 @@ namespace DefaultTestServer
                 DisableTelemetryServices();
                 SetJsonSerializerSettings(new JsonSerializerSettings
                 {
-                    Formatting = Formatting.None,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 });
-                RegisterController(typeof(ImageController));
+                RegisterController(typeof(CustomerController));
+                RegisterModel(typeof(Customer));
+                RegisterModel(typeof(Info));
             }
 
             public override ServerConfiguration GetServerConfiguration()
@@ -65,42 +67,43 @@ namespace DefaultTestServer
         }
 
 
-        public class DeviceController : IController
+        public class CustomerController : IController
         {
-            static List<Customer> result = new List<Customer>();
             [ServerAction]
-            public List<Customer> SearchCustomers()
+            public void AddCustomer(Customer customer)
             {
-                if (result.Count > 0)
-                    return result;
 
-                for (int i = 0; i < 95000; i++)
-                    result.Add(new Customer($"Customer {i + 1}", "24 99856865"));
-                return result;
             }
+        }
+    }
 
-            [ServerAction]
-            public string BigString()
-            {
-                string result = "";
-                for (int i = 0; i < 1000; i++)
-                    result += new Random(i).Next().ToString();
-                return result;
-            }
+    public class Info
+    {
+        public string InfoName { get; set; }
+
+        public Customer Customer { get; set; }
+
+        public Info(string infoName, Customer customer)
+        {
+            InfoName = infoName;
+            Customer = customer;
         }
     }
 
     public class Customer
     {
-        public Guid Id { get; private set; }
-        public string Name { get; private set; }
-        public string Phone { get; private set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+        public Info Info { get; set; }
 
-        public Customer(string name, string phone)
+        public Customer(string name, string phone,
+            Info info)
         {
             Id = Guid.NewGuid();
             Name = name;
             Phone = phone;
+            Info = info;
         }
     }
 }

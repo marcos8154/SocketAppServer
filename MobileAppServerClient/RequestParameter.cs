@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SocketAppServerClient.ClientUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,13 +10,17 @@ namespace SocketAppServerClient
 {
     public class RequestParameter
     {
+        [JsonIgnore]
+        public JsonSerializerSettings SerializerSettings { get; }
+
         public string Name { get; set; }
         public string Value { get; set; }
 
-        public RequestParameter(string name, object value)
+        public RequestParameter(string name, object value,
+            JsonSerializerSettings serializerSettings)
         {
             Name = name;
-
+            SerializerSettings = serializerSettings;
             if (value != null)
             {
                 if (IsSimpleType(value.GetType()))
@@ -47,6 +52,7 @@ namespace SocketAppServerClient
                 using (JsonWriter jw = new JsonTextWriter(sw))
                 {
                     JsonSerializer js = new JsonSerializer();
+                    js.ApplyCustomSettings(SerializerSettings);
                     js.Serialize(jw, value);
                 }
             }

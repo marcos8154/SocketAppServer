@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace SocketAppServerClient
 {
-    internal class ClientConfiguration
+    public class ClientConfiguration
     {
         public string Server { get; private set; }
         public int Port { get; private set; }
@@ -22,6 +22,11 @@ namespace SocketAppServerClient
         public int MaxAttempts { get; private set; }
         public int ReceiveTimeOut { get; }
         public JsonSerializerSettings SerializerSettings { get; private set; }
+
+        public ClientConfiguration()
+        {
+
+        }
 
         public ClientConfiguration(string server, int port,
             Encoding encoding, int packetSize, int maxAttempts,
@@ -91,6 +96,26 @@ namespace SocketAppServerClient
                 maxAttempts,
                 receiveTimeOut,
                 serializerSettings);
+        }
+
+        public static ClientConfiguration GetConfiguration()
+        {
+            if (staticConf == null)
+                throw new Exception("Client Configuration has not been defined");
+
+            ClientConfiguration conf = new ClientConfiguration();
+            foreach (PropertyInfo prop in conf.GetType().GetProperties())
+            {
+                try
+                {
+                    var value = staticConf.GetType().GetProperty(prop.Name).GetValue(staticConf);
+                    if (value == null)
+                        continue;
+                    prop.SetValue(conf, value);
+                }
+                catch { }
+            }
+            return conf;
         }
 
         /// <summary>

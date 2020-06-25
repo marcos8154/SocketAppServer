@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,9 @@ namespace SocketAppServerClient
 {
     public class RequestBody
     {
+        [JsonIgnore]
+        private JsonSerializerSettings SerializerSettings { get; set; }
+
         public string Action { get; set; }
         public string Controller { get; set; }
         public List<RequestParameter> Parameters { get; set; }
@@ -15,7 +19,12 @@ namespace SocketAppServerClient
 
         private RequestBody()
         {
+            SerializerSettings = Client.GetConfiguration().SerializerSettings;
+        }
 
+        private RequestBody(JsonSerializerSettings settings)
+        {
+            SerializerSettings = settings;
         }
 
         public static RequestBody Create(string controller, string action)
@@ -24,6 +33,15 @@ namespace SocketAppServerClient
             rb.Controller = controller;
             rb.Action = action;
 
+            return rb;
+        }
+
+        public static RequestBody Create(string controller, string action,
+            JsonSerializerSettings serializerSettings)
+        {
+            RequestBody rb = new RequestBody(serializerSettings);
+            rb.Controller = controller;
+            rb.Action = action;
             return rb;
         }
 
@@ -38,7 +56,7 @@ namespace SocketAppServerClient
             if (Parameters == null)
                 Parameters = new List<RequestParameter>();
 
-            Parameters.Add(new RequestParameter(name, value));
+            Parameters.Add(new RequestParameter(name, value, SerializerSettings));
             return this;
         }
     }
