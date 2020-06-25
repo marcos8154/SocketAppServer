@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SocketAppServerClient.Standard</name>
+    </assembly>
+    <members>
+        <member name="M:SocketAppServerClient.Client.Configure(System.String,System.Int32,System.Text.Encoding,System.Int32,System.Int32,System.Int32,Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Defines a global, static configuration for any future connections needed by this client
+            </summary>
+            <param name="server">Server network address</param>
+            <param name="port">Server port</param>
+            <param name="encoding">Server encoding</param>
+            <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
+            <param name="maxAttempts">Maximum connection attempts</param>
+            <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
+            <param name="serializerSettings">Maximum waiting time (in milliseconds) for receiving request data</param>
+        </member>
+        <member name="M:SocketAppServerClient.Client.#ctor">
+            <summary>
+            The static configuration of the client has not been defined. 
+            Invoke the "Configure()" method before using this constructor
+            </summary>
+        </member>
+        <member name="M:SocketAppServerClient.Client.#ctor(System.String,System.Int32,System.Text.Encoding,System.Int32,System.Int32,System.Int32,Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Use this constructor when you need to connect to different servers at different points in your application
+            </summary>
+            <param name="server">Server network address</param>
+            <param name="port">Server port</param>
+            <param name="encoding">Server encoding</param>
+            <param name="packetSize">Packet/buffer size. The SAME size used on the server must be defined</param>
+            <param name="maxAttempts">Maximum connection attempts</param>
+            <param name="receiveTimeOut">Maximum waiting time (in milliseconds) for receiving request data</param>
+        </member>
+        <member name="M:SocketAppServerClient.Client.GetResultFile">
+            <summary>
+            Retrieves the file returned by an action on the server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.Client.GetResult(System.Type)">
+            <summary>
+            [OBSOLETE!!!] Gets the result of a request on the server
+            </summary>
+            <param name="entityType">Defines the type of object to convert from the json returned by the action on the server</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.Client.GetChunkedResult(System.Int32)">
+            <summary>
+            Gets the chunked response from the server. 
+            It should be used in actions that tend to return great responses. 
+            In this case, the reading will be made progressively through
+            the length informed
+            </summary>
+            <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
+            <param name="chunkLength">Size of each part of the response</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.Client.GetResult``1">
+            <summary>
+             Gets the result of a request on the server
+            </summary>
+            <param name="T">Defines the type of object to convert from the json returned by the action on the server</param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.Client.SendRequest(SocketAppServerClient.RequestBody)">
+            <summary>
+            Send a request to connected server
+            </summary>
+            <param name="body">Request body and parameters</param>
+        </member>
+        <member name="M:SocketAppServerClient.Client.ReadResponse">
+            <summary>
+            Gets the response to a request made on the connected server. Conversion of objects are not handled here
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.Client.Close">
+            <summary>
+            Closes current connection on server
+            </summary>
+        </member>
+    </members>
+</doc>

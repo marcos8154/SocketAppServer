@@ -33,10 +33,6 @@ namespace DefaultTestServer
             {
                 DisableStatisticsComputing();
                 DisableTelemetryServices();
-                SetJsonSerializerSettings(new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                });
                 RegisterController(typeof(CustomerController));
                 RegisterModel(typeof(Customer));
                 RegisterModel(typeof(Info));
