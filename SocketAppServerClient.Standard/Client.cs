@@ -101,7 +101,7 @@ namespace SocketAppServerClient
         public static ClientConfiguration GetConfiguration()
         {
             if (staticConf == null)
-                throw new Exception("Client Configuration has not been defined");
+                return null;
 
             ClientConfiguration conf = new ClientConfiguration();
             foreach (PropertyInfo prop in conf.GetType().GetProperties())
@@ -172,17 +172,20 @@ namespace SocketAppServerClient
             Encoding = encoding;
             BufferSize = byteBuffer;
 
-            SerializerSettings = new JsonSerializerSettings();
-            foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
+            if (serializerSettings != null)
             {
-                try
+                SerializerSettings = new JsonSerializerSettings();
+                foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
                 {
-                    var value = serializerSettings.GetType().GetProperty(prop.Name).GetValue(serializerSettings);
-                    if (value == null)
-                        continue;
-                    prop.SetValue(SerializerSettings, value);
+                    try
+                    {
+                        var value = serializerSettings.GetType().GetProperty(prop.Name).GetValue(serializerSettings);
+                        if (value == null)
+                            continue;
+                        prop.SetValue(SerializerSettings, value);
+                    }
+                    catch { }
                 }
-                catch { }
             }
 
             thisStr = $"SocketClient for .NET Standard. Connected on {server}:{port}";

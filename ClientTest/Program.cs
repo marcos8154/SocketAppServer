@@ -13,21 +13,23 @@ namespace ClientTest
         static void Main(string[] args)
         {
             //Configuração do Json em modo GLOBAL
+        
             Client.Configure("localhost", 6000,
                 Encoding.UTF8, 4096, 10, 0, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
+        
 
             Customer ct = new Customer();
             ct.Info = new Info
             {
-                Customer = ct
+              //  Customer = ct
             };
 
             Client c = new Client();
 
-            RequestBody rb = RequestBody.Create("CustomerController", "AddCustomer", c.SerializerSettings)
+            RequestBody rb = RequestBody.Create("CustomerController", "AddCustomer")
              .AddParameter("customer", ct);
 
             c.SendRequest(rb);

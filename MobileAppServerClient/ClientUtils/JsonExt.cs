@@ -13,6 +13,9 @@ namespace SocketAppServerClient.ClientUtils
         public static void ApplyCustomSettings(this JsonSerializer serializer,
             JsonSerializerSettings settings)
         {
+            if (settings == null)
+                return;
+
             foreach (PropertyInfo prop in serializer.GetType().GetProperties())
             {
                 try

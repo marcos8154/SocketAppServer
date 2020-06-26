@@ -19,7 +19,9 @@ namespace SocketAppServerClient
 
         private RequestBody()
         {
-            SerializerSettings = Client.GetConfiguration().SerializerSettings;
+            var globalConf = Client.GetConfiguration();
+            if (globalConf != null)
+                SerializerSettings = globalConf.SerializerSettings;
         }
 
         private RequestBody(JsonSerializerSettings settings)
