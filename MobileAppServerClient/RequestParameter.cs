@@ -14,20 +14,23 @@ namespace SocketAppServerClient
         public JsonSerializerSettings SerializerSettings { get; }
 
         public string Name { get; set; }
-        public string Value { get; set; }
+        public object Value { get; set; }
 
         public RequestParameter(string name, object value,
             JsonSerializerSettings serializerSettings)
         {
             Name = name;
+            Value = value;
             SerializerSettings = serializerSettings;
+
+            /*
             if (value != null)
             {
                 if (IsSimpleType(value.GetType()))
                     Value = $"{value}";
                 else
                     FillValue(value);
-            }
+            }*/
         }
 
         internal bool IsSimpleType(Type type)

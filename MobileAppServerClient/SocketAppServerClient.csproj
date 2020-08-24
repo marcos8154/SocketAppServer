@@ -57,6 +57,8 @@
     <Compile Include="ServerInfo.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="ClientUtils\StringCompactor.cs" />
+    <Compile Include="ServerResponseHelper.cs" />
+    <Compile Include="SocketClientConnection.cs" />
     <Compile Include="StatusResult.cs" />
   </ItemGroup>
   <ItemGroup>

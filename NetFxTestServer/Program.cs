@@ -1,5 +1,9 @@
 ﻿
 using BalcaoMobileApp.ViewModels;
+using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.CoreServer;
+using SocketAppServer.Hosting;
+using SocketAppServer.ManagedServices;
 using SocketAppServerClient;
 using System;
 using System.Collections.Generic;
@@ -24,16 +28,15 @@ namespace NetFxTestServer
 
         static void Main(string[] args)
         {
+            /*
             Client.Configure("localhost", 4050, Encoding.UTF8, 1000000);
             Handle();
-            /*
+            */
             Console.ForegroundColor = ConsoleColor.White;
             SocketServerHost.CreateHostBuilder()
                    .UseStartup<Startup>()
                    .Run();
-                   */
         }
-        /*
         public class Startup : AppServerConfigurator
         {
             public override void ConfigureServices(IServiceManager serviceManager)
@@ -53,6 +56,5 @@ namespace NetFxTestServer
                          7000, 10000000, false, 100, true);
             }
         }
-  */
     }
 }

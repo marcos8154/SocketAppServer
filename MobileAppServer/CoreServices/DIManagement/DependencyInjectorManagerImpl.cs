@@ -49,7 +49,10 @@ namespace SocketAppServer.CoreServices.DIManagement
 
         public IDependencyInjectorMaker GetInjectorMaker(string controllerName)
         {
-            return dependencyInjectors.FirstOrDefault(di => di.ControllerName.Equals(controllerName));
+            IDependencyInjectorMaker controllerMaker = dependencyInjectors.FirstOrDefault(di => di.ControllerName.Equals(controllerName));
+            if(controllerMaker == null)
+                controllerMaker = dependencyInjectors.FirstOrDefault(di => di.ControllerName.Equals("*"));
+            return controllerMaker;
         }
     }
 }

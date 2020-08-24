@@ -18,7 +18,7 @@ namespace SocketAppServerClient
         public string Server { get; private set; }
         public int Port { get; private set; }
         public Encoding Encoding { get; private set; }
-        public int PacketSize { get; private set; }
+        public int BufferSize { get; private set; }
         public int MaxAttempts { get; private set; }
         public int ReceiveTimeOut { get; }
         public JsonSerializerSettings SerializerSettings { get; private set; }
@@ -35,7 +35,7 @@ namespace SocketAppServerClient
             Server = server;
             Port = port;
             Encoding = encoding;
-            PacketSize = packetSize;
+            BufferSize = packetSize;
             MaxAttempts = maxAttempts;
             ReceiveTimeOut = receiveTimeOut;
 
@@ -54,6 +54,7 @@ namespace SocketAppServerClient
         }
     }
 
+    [Obsolete]
     public class Client
     {
         private string thisStr = null;
@@ -128,7 +129,7 @@ namespace SocketAppServerClient
                 throw new Exception("Client Configuration has not been defined");
             ConnectToServer(staticConf.Server,
                 staticConf.Port, staticConf.Encoding,
-                staticConf.PacketSize, staticConf.MaxAttempts,
+                staticConf.BufferSize, staticConf.MaxAttempts,
                 staticConf.SerializerSettings);
         }
 
@@ -351,13 +352,13 @@ namespace SocketAppServerClient
             int dynamicTimeOut = 0;
             do
             {
-                var recieveArgs = new SocketAsyncEventArgs()
+                var receiveArgs = new SocketAsyncEventArgs()
                 {
                     UserToken = readEvent
                 };
-                recieveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);
-                recieveArgs.Completed += recieveArgs_Completed;
-                clientSocket.ReceiveAsync(recieveArgs);
+                receiveArgs.SetBuffer(buffer, totalRecieved, BufferSize - totalRecieved);
+                receiveArgs.Completed += recieveArgs_Completed;
+                clientSocket.ReceiveAsync(receiveArgs);
 
                 if (ReceiveTimeOut == 0)
                 {
@@ -376,17 +377,24 @@ namespace SocketAppServerClient
                 }
                 else readEvent.WaitOne(ReceiveTimeOut);
 
-                if (recieveArgs.BytesTransferred <= 0)
+                if (receiveArgs.BytesTransferred <= 0)
                 {
-                    if (recieveArgs.SocketError != SocketError.Success)
+                    receiveArgs.Completed -= recieveArgs_Completed;
+                    if (receiveArgs.SocketError != SocketError.Success)
                         throw new Exception("Unexpected Disconnect");
-                    return buffer;
+
+                    int count = buffer.Count(b => b > 0);
+                    byte[] result = new byte[count];
+                    Array.Copy(buffer, result, count);
+                    return result;
                 }
 
-                receivedChunk = recieveArgs.BytesTransferred;
+                receivedChunk = receiveArgs.BytesTransferred;
                 totalRecieved += receivedChunk;
+                receiveArgs.Completed -= recieveArgs_Completed;
 
             } while (receivedChunk > 0);
+
             return buffer;
         }
 
@@ -416,16 +424,22 @@ namespace SocketAppServerClient
         /// <returns></returns>
         public ServerResponse ReadResponse()
         {
+            string responseText = null;
             try
             {
-                string responseText = Encoding.GetString(ReceiveBytes());
-                responseText = responseText.Replace("\t", "");
+                var buffer = ReceiveBytes();
+                responseText = Encoding.GetString(buffer, 0, buffer.Length);
+
+                buffer = null;
+                if (responseText.Contains("\t"))
+                    responseText = responseText.Replace("\t", "");
 
                 ServerResponse response = ReadResponseInternal(responseText);
                 if (response.Type == 1)
                     if (response.FileState == "BOF")
                         response.Content = Encoding.GetBytes(response.Content.ToString()); ;
 
+                responseText = null;
                 return response;
             }
             catch (Exception ex)
@@ -443,7 +457,8 @@ namespace SocketAppServerClient
                 return;
             try
             {
-                clientSocket.Close();
+                if (clientSocket.Connected)
+                    clientSocket.Close();
                 clientSocket.Dispose();
                 clientSocket = null;
             }

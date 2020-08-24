@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SocketAppServerClient;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ClientTest
 {
@@ -13,18 +10,18 @@ namespace ClientTest
         static void Main(string[] args)
         {
             //Configuração do Json em modo GLOBAL
-        
+
             Client.Configure("localhost", 6000,
                 Encoding.UTF8, 4096, 10, 0, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
-        
+
 
             Customer ct = new Customer();
             ct.Info = new Info
             {
-              //  Customer = ct
+                //  Customer = ct
             };
 
             Client c = new Client();
