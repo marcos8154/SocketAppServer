@@ -53,6 +53,12 @@ namespace SocketAppServerClient
             return this;
         }
 
+        public void SetParameterValue(string name, object newValue)
+        {
+            var parameter = Parameters.FirstOrDefault(p => p.Name.Equals(name));
+            parameter.Value = newValue;
+        }
+
         public RequestBody AddParameter(string name, object value)
         {
             if (Parameters == null)

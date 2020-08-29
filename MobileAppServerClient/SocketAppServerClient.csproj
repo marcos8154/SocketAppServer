@@ -46,20 +46,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChunkedResponseReader.cs" />
+    <Compile Include="ClientUtils\ChunkedResponseReader.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="IServerInformationService.cs" />
+    <Compile Include="ISocketClientConnection.cs" />
+    <Compile Include="ServerInfoServiceImpl.cs" />
+    <Compile Include="SocketClientSettings.cs" />
     <Compile Include="ClientUtils\JsonExt.cs" />
-    <Compile Include="ControllerInfo.cs" />
+    <Compile Include="ClientUtils\ControllerInfo.cs" />
     <Compile Include="OperationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestBody.cs" />
     <Compile Include="RequestParameter.cs" />
-    <Compile Include="ServerInfo.cs" />
-    <Compile Include="ServerResponse.cs" />
+    <Compile Include="ClientUtils\ServerInfo.cs" />
+    <Compile Include="ClientUtils\ServerResponse.cs" />
     <Compile Include="ClientUtils\StringCompactor.cs" />
-    <Compile Include="ServerResponseHelper.cs" />
+    <Compile Include="ClientUtils\ServerResponseHelper.cs" />
     <Compile Include="SocketClientConnection.cs" />
-    <Compile Include="StatusResult.cs" />
+    <Compile Include="ClientUtils\StatusResult.cs" />
+    <Compile Include="SocketConnectionFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

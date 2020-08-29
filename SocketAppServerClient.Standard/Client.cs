@@ -13,47 +13,7 @@ using System.Reflection;
 
 namespace SocketAppServerClient
 {
-    public class ClientConfiguration
-    {
-        public string Server { get; private set; }
-        public int Port { get; private set; }
-        public Encoding Encoding { get; private set; }
-        public int PacketSize { get; private set; }
-        public int MaxAttempts { get; private set; }
-        public int ReceiveTimeOut { get; }
-        public JsonSerializerSettings SerializerSettings { get; private set; }
-
-        public ClientConfiguration()
-        {
-
-        }
-
-        public ClientConfiguration(string server, int port,
-            Encoding encoding, int packetSize, int maxAttempts,
-            int receiveTimeOut, JsonSerializerSettings settings)
-        {
-            Server = server;
-            Port = port;
-            Encoding = encoding;
-            PacketSize = packetSize;
-            MaxAttempts = maxAttempts;
-            ReceiveTimeOut = receiveTimeOut;
-
-            SerializerSettings = new JsonSerializerSettings();
-            foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())
-            {
-                try
-                {
-                    var value = settings.GetType().GetProperty(prop.Name).GetValue(settings);
-                    if (value == null)
-                        continue;
-                    prop.SetValue(SerializerSettings, value);
-                }
-                catch { }
-            }
-        }
-    }
-
+    [Obsolete("This class will no longer be supported. Instead, use the new ISocketClientConnection interface, obtained through SocketConnectionFactory.GetConnection()")]
     public class Client
     {
         private string thisStr = null;
@@ -71,7 +31,7 @@ namespace SocketAppServerClient
         public JsonSerializerSettings SerializerSettings { get; private set; }
         private Socket clientSocket = null;
 
-        private static ClientConfiguration staticConf;
+        private static SocketClientSettings staticConf;
 
         /// <summary>
         /// Defines a global, static configuration for any future connections needed by this client
@@ -88,7 +48,7 @@ namespace SocketAppServerClient
             int receiveTimeOut = 0,
             JsonSerializerSettings serializerSettings = null)
         {
-            staticConf = new ClientConfiguration(
+            staticConf = new SocketClientSettings(
                 server,
                 port,
                 encoding,
@@ -98,12 +58,12 @@ namespace SocketAppServerClient
                 serializerSettings);
         }
 
-        public static ClientConfiguration GetConfiguration()
+        public static SocketClientSettings GetConfiguration()
         {
             if (staticConf == null)
                 return null;
 
-            ClientConfiguration conf = new ClientConfiguration();
+            SocketClientSettings conf = new SocketClientSettings();
             foreach (PropertyInfo prop in conf.GetType().GetProperties())
             {
                 try
@@ -128,7 +88,7 @@ namespace SocketAppServerClient
                 throw new Exception("Client Configuration has not been defined");
             ConnectToServer(staticConf.Server,
                 staticConf.Port, staticConf.Encoding,
-                staticConf.PacketSize, staticConf.MaxAttempts,
+                staticConf.BufferSize, staticConf.MaxAttempts,
                 staticConf.SerializerSettings);
         }
 
@@ -416,16 +376,22 @@ namespace SocketAppServerClient
         /// <returns></returns>
         public ServerResponse ReadResponse()
         {
+            string responseText = null;
             try
             {
-                string responseText = Encoding.GetString(ReceiveBytes());
-                responseText = responseText.Replace("\t", "");
+                var buffer = ReceiveBytes();
+                responseText = Encoding.GetString(buffer, 0, buffer.Length);
+
+                buffer = null;
+                if (responseText.Contains("\t"))
+                    responseText = responseText.Replace("\t", "");
 
                 ServerResponse response = ReadResponseInternal(responseText);
                 if (response.Type == 1)
                     if (response.FileState == "BOF")
                         response.Content = Encoding.GetBytes(response.Content.ToString()); ;
 
+                responseText = null;
                 return response;
             }
             catch (Exception ex)
@@ -443,7 +409,8 @@ namespace SocketAppServerClient
                 return;
             try
             {
-                clientSocket.Close();
+                if (clientSocket.Connected)
+                    clientSocket.Close();
                 clientSocket.Dispose();
                 clientSocket = null;
             }
