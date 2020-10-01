@@ -91,14 +91,14 @@ namespace SocketAppServer.LoadBalancingServices
         }
 
         public static void AddSubServer(string address, int port,
-            Encoding encoding, int bufferSize, int maxConnectionAttempts,
+            Encoding encoding, int maxConnectionAttempts,
             int acceptableProcesses)
         {
             if (SubServers == null)
                 SubServers = new List<SubServer>();
 
             var server = new SubServer(address, port, encoding,
-                bufferSize, maxConnectionAttempts, acceptableProcesses);
+                maxConnectionAttempts, acceptableProcesses);
 
             AddSubServerInternal(server);
         }
@@ -109,14 +109,16 @@ namespace SocketAppServer.LoadBalancingServices
             Logger = manager.GetService<ILoggingService>();
         }
 
-        private Client BuildClient(SubServer server)
+        private ISocketClientConnection BuildClient(SubServer server)
         {
             try
             {
-                Client client = new Client(server.Address,
-                    server.Port, server.Encoding, server.BufferSize,
-                    server.MaxConnectionAttempts);
-                return client;
+                return SocketConnectionFactory.GetConnection(new SocketClientSettings(
+                        server: server.Address,
+                        port: server.Port,
+                        encoding: server.Encoding,
+                        maxAttempts: server.MaxConnectionAttempts
+                    ));
             }
             catch (Exception ex)
             {
@@ -125,16 +127,17 @@ namespace SocketAppServer.LoadBalancingServices
             }
         }
 
-        private int GetCurrentThreadCountOnServer(SubServer server, Client client)
+        private int GetCurrentThreadCountOnServer(SubServer server)
         {
-            Logger.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
+            using (ISocketClientConnection client = BuildClient(server))
+            {
+                Logger.WriteLog($"Querying availability on '{server.Address}:{server.Port}'", ServerLogType.INFO);
 
-            SocketAppServerClient.RequestBody rb = SocketAppServerClient
-                .RequestBody.Create("ServerInfoController", "GetCurrentThreadsCount");
-            client.SendRequest(rb);
+                client.SendRequest("ServerInfoController", "GetCurrentThreadsCount");
 
-            int result = int.Parse(client.GetResult().Entity.ToString());
-            return result;
+                int result = int.Parse(client.GetResult().Entity.ToString());
+                return result;
+            }
         }
 
         int attemptsToGetServerAvailable = 0;
@@ -148,56 +151,73 @@ namespace SocketAppServer.LoadBalancingServices
             return cached != null;
         }
 
+        private bool AreServerConnected(SubServer server, string cacheKey)
+        {
+            try
+            {
+                using (ISocketClientConnection client = BuildClient(server))
+                    return true;
+            }
+            catch
+            {
+
+                Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
+                CacheRepository<bool>.Set(cacheKey, true, 120);
+                return false;
+            }
+        }
+
+        private bool CanOperate(string key, SubServer server)
+        {
+            int serverCurrentThreadsCount;
+            try
+            {
+                serverCurrentThreadsCount = GetCurrentThreadCountOnServer(server);
+            }
+            catch
+            {
+                CacheRepository<bool>.Set(key, true, 120);
+                return false;
+            }
+
+            if (serverCurrentThreadsCount > server.AcceptableProcesses)
+            {
+                Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is too busy", ServerLogType.ALERT);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static object lckGtAvlb = new object();
+
+
+        private static int selectedSubServerIndex = 0;
         private SubServer GetAvailableSubServer()
         {
-            foreach (SubServer server in SubServers)
+            lock(lckGtAvlb)
             {
-                if (IsServerUnavailable(server))
-                    continue;
-
-                string key = $"unavailable-{server.Address}:{server.Port}";
-                Client client = BuildClient(server);
-                if (client == null)
+                for(int i = 0; i < SubServers.Count; i++)
                 {
-                    Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is unreachable", ServerLogType.ALERT);
-                    CacheRepository<bool>.Set(key, true, 120);
-                    continue;
+                    if (selectedSubServerIndex >= SubServers.Count)
+                        selectedSubServerIndex = 0;
+
+                    SubServer server = SubServers[selectedSubServerIndex];
+
+                    if (IsServerUnavailable(server))
+                        continue;
+
+                    string key = $"unavailable-{server.Address}:{server.Port}";
+
+                    if (!CanOperate(key, server))
+                        continue;
+
+                    selectedSubServerIndex += 1;
+                    return server;
                 }
 
-                int serverCurrentThreadsCount = 0;
-
-                try
-                {
-                    serverCurrentThreadsCount = GetCurrentThreadCountOnServer(server, client);
-                }
-                catch
-                {
-                    CacheRepository<bool>.Set(key, true, 120);
-                    continue;
-                }
-
-                if (serverCurrentThreadsCount > server.AcceptableProcesses)
-                {
-                    Logger.WriteLog($"Sub-server node '{server.Address}:{server.Port}' is too busy", ServerLogType.ALERT);
-                    //It is not necessary to close the client
-                    //because it was already closed when making the request
-                    continue;
-                }
-
-                Logger.WriteLog($"Elected sub-server: '{server.Address}:{server.Port}'");
-                return server;
-            }
-
-            if (attemptsToGetServerAvailable == AttemptsToGetSubServerAvailable)
-            {
-                Logger.WriteLog($"It was not possible to choose a sub-server to fulfill the request after {attemptsToGetServerAvailable} attempts", ServerLogType.ERROR);
                 return null;
             }
-
-            Logger.WriteLog($"It was not possible to elect a sub-server to process the request, but a new attempt will be made ...", ServerLogType.ERROR);
-            attemptsToGetServerAvailable += 1;
-            Thread.Sleep(500);
-            return GetAvailableSubServer();
         }
 
         private string BuildCacheResultKey(SocketAppServerClient.RequestBody rb)
@@ -228,17 +248,29 @@ namespace SocketAppServer.LoadBalancingServices
             }
         }
 
-        private bool subServerAlreadyRequested = false;
+        private static object lckAllocate = new object();
         private void CheckAllocateNewInstance()
         {
-            if (subServerAlreadyRequested)
-                return;
             if (NotifiableSubServerRequirement != null)
             {
-                AddSubServerInternal(NotifiableSubServerRequirement.StartNewInstance(), true);
-                Logger.WriteLog("A new server instance was requested to meet the next requests", ServerLogType.ALERT);
-                Thread.Sleep(1000);
-                subServerAlreadyRequested = true;
+                lock (lckAllocate)
+                {
+                    try
+                    {
+                        SubServer subServer = NotifiableSubServerRequirement.StartNewInstance();
+                        if (subServer == null)
+                            return;
+
+                        AddSubServerInternal(subServer, true);
+                        Logger.WriteLog("A new server instance was requested to meet the next requests", ServerLogType.ALERT);
+                        Thread.Sleep(1000);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteLog($"Failed to request a new sub-server instance for the implementation of 'NotifiableSubServerRequirement': {ex.Message}",
+                            ServerLogType.ERROR);
+                    }
+                }
             }
         }
 
@@ -269,16 +301,18 @@ namespace SocketAppServer.LoadBalancingServices
                 }
             }
 
-            Client client = BuildClient(targetServer);
-            client.SendRequest(rb);
+            using (ISocketClientConnection client = BuildClient(targetServer))
+            {
+                client.SendRequest(rb);
 
-            SocketAppServerClient.OperationResult result = client.GetResult();
+                SocketAppServerClient.OperationResult result = client.GetResult();
 
-            if (EnabledCachedResultsForUnreachableServers)
-                CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
+                if (EnabledCachedResultsForUnreachableServers)
+                    CacheRepository<SocketAppServerClient.OperationResult>.Set(cacheResultKey, result, 380);
 
-            targetServer.RefreshLifetimeIfHas();
-            return ActionResult.Json(result);
+                targetServer.RefreshLifetimeIfHas();
+                return ActionResult.Json(result);
+            }
         }
     }
 }

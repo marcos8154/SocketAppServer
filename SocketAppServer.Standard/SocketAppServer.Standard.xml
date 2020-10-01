@@ -31,6 +31,12 @@
             </summary>
             <param name="extension"></param>
         </member>
+        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableFromDiskExtension(System.String)">
+            <summary>
+            Enable an extension from the assembly disk file written for .NET (* .dll)
+            </summary>
+            <param name="extensionPath">Full assembly path (* .dll) that contains an implementation for 'IExtensibleFrameworkInterface'</param>
+        </member>
         <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterCLICommand(System.String,System.String,SocketAppServer.CoreServices.CLIHost.ICLIClient)">
             <summary>
             It allows integration with the CLI of the framework, which allows execution of specific routines from commands typed at the ConsoleApp prompt
@@ -153,14 +159,14 @@
             <summary>
             Gets the average % CPU usage in the last X hours
             </summary>
-            <param name="lastHours"></param>
+            <param name="lastMinutes"></param>
             <returns></returns>
         </member>
         <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageMemoryUsage(System.Int32)">
             <summary>
             Gets the average MB memory usage in the last X hours
             </summary>
-            <param name="lastHours"></param>
+            <param name="lastMinutes"></param>
             <returns></returns>
         </member>
         <member name="M:SocketAppServer.CoreServices.IHardwareServices.ReleaseMemory">
@@ -182,7 +188,7 @@
             <param name="serversLifetimeInMinutes">Lifetime (in minutes) that the sub-server instance should remain in the pool. At the end of the lifetime, the server will be detached from the pool and the INotifiableSubServerRequirement class will be notified to shut down the sub-server</param>
             <returns></returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:SocketAppServer.LoadBalancingServices.LoadBalanceConfigurator.AddSubServer(System.String,System.Int32,System.Text.Encoding,System.Int32,System.Int32,System.Int32)" -->
+        <!-- Badly formed XML comment ignored for member "M:SocketAppServer.LoadBalancingServices.LoadBalanceConfigurator.AddSubServer(System.String,System.Int32,System.Text.Encoding,System.Int32,System.Int32)" -->
         <member name="T:SocketAppServer.ManagedServices.IServiceManager">
             <summary>
             Interface for allocating and managing instances of other service interfaces (IoC)

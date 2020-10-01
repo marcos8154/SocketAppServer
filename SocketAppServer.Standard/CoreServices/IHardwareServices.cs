@@ -38,16 +38,16 @@ namespace SocketAppServer.CoreServices
         /// <summary>
         /// Gets the average % CPU usage in the last X hours
         /// </summary>
-        /// <param name="lastHours"></param>
+        /// <param name="lastMinutes"></param>
         /// <returns></returns>
-        double AverageCPUUsage(int lastHours = 3);
+        double AverageCPUUsage(int lastMinutes = 3);
 
         /// <summary>
         /// Gets the average MB memory usage in the last X hours
         /// </summary>
-        /// <param name="lastHours"></param>
+        /// <param name="lastMinutes"></param>
         /// <returns></returns>
-        double AverageMemoryUsage(int lastHours = 3);
+        double AverageMemoryUsage(int lastMinutes = 3);
        
         /// <summary>
         /// Waits for current processes to end on the server to force 

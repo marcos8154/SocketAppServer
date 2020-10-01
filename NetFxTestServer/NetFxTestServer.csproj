@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="GrupoViewModel.cs" />
     <Compile Include="ImageController.cs" />
+    <Compile Include="PortInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -33,7 +33,14 @@ namespace SocketAppServerClient
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T GetResult<T>();
+        T GetResultObject<T>();
+
+
+        /// <summary>
+        /// Gets the server default OperationResult
+        /// </summary>
+        /// <returns></returns>
+        OperationResult GetResult();
 
         /// <summary>
         /// Get an instance of the server information service

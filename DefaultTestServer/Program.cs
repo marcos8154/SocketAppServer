@@ -7,6 +7,7 @@ using SocketAppServer.ManagedServices;
 using SocketAppServer.Security;
 using SocketAppServer.ServerObjects;
 using SocketAppServer.TelemetryServices;
+using SocketAppServerClient;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +22,24 @@ namespace DefaultTestServer
     {
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+                Startup.serverPort = 6000;
+            else
+                Startup.serverPort = int.Parse(args[0]);
+            /*
+            string ipAddress = "192.168.15.11";
+
+            SocketClientSettings settings = new SocketClientSettings(ipAddress,
+                4050, Encoding.UTF8, 3, 1000);
+
+            SocketConnectionFactory.SetDefaultSettings(settings);
+
+            using (ISocketClientConnection conn = SocketConnectionFactory.GetConnection())
+            {
+
+            }
+            */
+
             Console.ForegroundColor = ConsoleColor.White;
             SocketServerHost.CreateHostBuilder()
                    .UseStartup<Startup>()
@@ -29,6 +48,8 @@ namespace DefaultTestServer
 
         public class Startup : AppServerConfigurator
         {
+            public static int serverPort;
+
             public override void ConfigureServices(IServiceManager serviceManager)
             {
                 DisableStatisticsComputing();
@@ -44,7 +65,7 @@ namespace DefaultTestServer
                 //the server's operating parameters, such as port, 
                 //Encoding, buffer and connection limit
                 return new ServerConfiguration(Encoding.UTF8,
-                         6000, 10000000, false, 100, true);
+                         serverPort, 10000000, false, 100, true);
             }
         }
 
@@ -65,10 +86,22 @@ namespace DefaultTestServer
 
         public class CustomerController : IController
         {
-            [ServerAction]
-            public void AddCustomer(Customer customer)
-            {
+            private static List<string> customers;
 
+            public CustomerController()
+            {
+                if (customers == null)
+                {
+                    customers = new List<string>();
+                }
+            }
+
+            [ServerAction]
+            public void AddCustomer(string customer)
+            {
+                Thread.Sleep(1000);
+                customers.Add(customer);
+                Console.WriteLine($"Added customer. Count: {customers.Count}");
             }
         }
     }

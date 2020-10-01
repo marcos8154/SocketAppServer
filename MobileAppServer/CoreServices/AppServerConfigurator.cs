@@ -59,7 +59,7 @@ namespace SocketAppServer.CoreServices
         public AppServerConfigurator()
         {
             Services = ServiceManager.GetInstance();
-      
+
             Services.Bind<ILoggingService>(typeof(LoggingServiceImpl), true);
             Services.Bind<IControllerManager>(typeof(ControllerManagerImpl), true);
             Services.Bind<IDomainModelsManager>(typeof(DomainModelsManager), true);
@@ -135,6 +135,15 @@ namespace SocketAppServer.CoreServices
         protected void EnableExtension(IExtensibleFrameworkInterface extension)
         {
             Services.GetService<IEFIManager>().AddExtension(extension);
+        }
+
+        /// <summary>
+        /// Enable an extension from the assembly disk file written for .NET (* .dll)
+        /// </summary>
+        /// <param name="extensionPath">Full assembly path (* .dll) that contains an implementation for 'IExtensibleFrameworkInterface'</param>
+        protected void EnableFromDiskExtension(string extensionPath)
+        {
+            Services.GetService<IEFIManager>().AddExtensionFromDisk(extensionPath);
         }
 
         /// <summary>

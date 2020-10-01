@@ -16,9 +16,7 @@ namespace SocketAppServerClient
         public int MaxAttempts { get; private set; }
         public JsonSerializerSettings SerializerSettings { get; private set; }
 
-
-        [Obsolete("")]
-        public int ReceiveTimeOut { get; }
+        public int Timeout { get; }
         [Obsolete("")]
         public int BufferSize { get; private set; }
 
@@ -29,12 +27,14 @@ namespace SocketAppServerClient
 
         public SocketClientSettings(string server, int port,
             Encoding encoding, int maxAttempts = 3,
+            int timeout = 5000,
             JsonSerializerSettings jsonSettings = null)
         {
             Server = server;
             Port = port;
             Encoding = encoding;
             MaxAttempts = maxAttempts;
+            Timeout = timeout;
 
             if (jsonSettings != null)
             {
@@ -64,7 +64,7 @@ namespace SocketAppServerClient
             Encoding = encoding;
             BufferSize = packetSize;
             MaxAttempts = maxAttempts;
-            ReceiveTimeOut = receiveTimeOut;
+            Timeout = receiveTimeOut;
 
             SerializerSettings = new JsonSerializerSettings();
             foreach (PropertyInfo prop in SerializerSettings.GetType().GetProperties())

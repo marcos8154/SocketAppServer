@@ -35,6 +35,8 @@ namespace SocketAppServer.CoreServices
     {
         void AddExtension(IExtensibleFrameworkInterface extension);
 
+        void AddExtensionFromDisk(string extensionPath);
+
         void LoadAll();
     }
 }

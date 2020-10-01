@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SocketAppServerClient;
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace ClientTest
@@ -9,43 +10,24 @@ namespace ClientTest
     {
         static void Main(string[] args)
         {
-            //Configuração do Json em modo GLOBAL
-
-            Client.Configure("localhost", 6000,
-                Encoding.UTF8, 4096, 10, 0, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-
-
-            Customer ct = new Customer();
-            ct.Info = new Info
+            try
             {
-                //  Customer = ct
-            };
+                SocketConnectionFactory.SetDefaultSettings(new SocketClientSettings(
+                        "localhost", 7001,
+                        Encoding.UTF8, 3
+                    ));
 
-            Client c = new Client();
+                using(ISocketClientConnection conn = SocketConnectionFactory.GetConnection())
+                {
 
-            RequestBody rb = RequestBody.Create("CustomerController", "AddCustomer")
-             .AddParameter("customer", ct);
-
-            c.SendRequest(rb);
-            c.GetResult();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 
-    public class Info
-    {
-        public string InfoName { get; set; }
-
-        public Customer Customer { get; set; }
-    }
-
-    public class Customer
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Phone { get; set; }
-        public Info Info { get; set; }
-    }
 }

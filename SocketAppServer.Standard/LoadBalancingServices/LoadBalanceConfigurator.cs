@@ -54,16 +54,16 @@ namespace SocketAppServer.LoadBalancingServices
         /// <param name="address"Network path of the destination server></param>
         /// <param name="port">Sub server port</param>
         /// <param name="encoding">Sub server encoding (Must match the same Encoding configured on the destination server)</param>
-        /// <param name="bufferSize">Subserver buffer size</param>
         /// <param name="maxConnectionAttempts">Maximum number of attempts to connect to the sub-server</param>
         /// <param name="acceptableProcesses">Number of simultaneous requests supported by the sub-server. If the limit is met, the balancer will find another server in the pool</param>
         /// <returns></returns>
-        public LoadBalanceConfigurator AddSubServer(string address, int port, Encoding encoding,
-            int bufferSize, int maxConnectionAttempts,
+        public LoadBalanceConfigurator AddSubServer(string address, 
+            int port, Encoding encoding,
+            int maxConnectionAttempts,
             int acceptableProcesses)
         {
             LoadBalanceServer.AddSubServer(address, port,
-                encoding, bufferSize, maxConnectionAttempts, acceptableProcesses);
+                encoding, maxConnectionAttempts, acceptableProcesses);
             return this;
         }
     }

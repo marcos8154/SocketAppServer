@@ -82,14 +82,14 @@ namespace SocketAppServer.ServerObjects
             return ActionResult.Json(new OperationResult(RequestProcessor.ThreadCount, 600, null));
         }
 
-        public ActionResult AverageCPUUsage()
+        public ActionResult AverageCPUUsage(int lastMinutes)
         {
-            return ActionResult.Json(new OperationResult(hardware.AverageCPUUsage(), 600, null));
+            return ActionResult.Json(new OperationResult(hardware.AverageCPUUsage(lastMinutes), 600, null));
         }
 
-        public ActionResult AverageMemoryUsage()
+        public ActionResult AverageMemoryUsage(int lastMinutes)
         {
-            return ActionResult.Json(new OperationResult(hardware.AverageMemoryUsage(), 600, null));
+            return ActionResult.Json(new OperationResult(hardware.AverageMemoryUsage(lastMinutes), 600, null));
         }
 
         public ActionResult RequestsSuccessCount(string controllerName, string actionName)

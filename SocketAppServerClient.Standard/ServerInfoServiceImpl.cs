@@ -22,7 +22,7 @@ namespace SocketAppServerClient
                 lastMinutes
             });
 
-            return connection.GetResult<double>();
+            return connection.GetResultObject<double>();
         }
 
         public double ServerAverageMemoryUsage(int lastMinutes = 3)
@@ -32,7 +32,7 @@ namespace SocketAppServerClient
                 lastMinutes
             });
 
-            return connection.GetResult<double>();
+            return connection.GetResultObject<double>();
         }
 
         public int RequestsErrorsCount(string controllerName, string actionName)
@@ -43,7 +43,7 @@ namespace SocketAppServerClient
                 actionName
             });
 
-            return connection.GetResult<int>();
+            return connection.GetResultObject<int>();
         }
 
         public int RequestsSuccessCount(string controllerName, string actionName)
@@ -54,13 +54,13 @@ namespace SocketAppServerClient
                 actionName
             });
 
-            return connection.GetResult<int>();
+            return connection.GetResultObject<int>();
         }
 
         public long GetCurrentThreadsCount()
         {
             connection.SendRequest("ServerInfoController", "GetCurrentThreadsCount");
-            return  connection.GetResult<long>();
+            return  connection.GetResultObject<long>();
         }
 
         public string[] GetActionParameters(string controller, string action)
@@ -71,13 +71,13 @@ namespace SocketAppServerClient
                 action
             });
 
-            return connection.GetResult<string[]>();
+            return connection.GetResultObject<string[]>();
         }
 
         public ServerInfo GetFullServerInfo()
         {
             connection.SendRequest("ServerInfoController", "FullServerInfo");
-            return connection.GetResult<ServerInfo>();
+            return connection.GetResultObject<ServerInfo>();
         }
     }
 }

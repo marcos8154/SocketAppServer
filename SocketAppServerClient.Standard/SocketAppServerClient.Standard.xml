@@ -81,5 +81,97 @@
             Closes current connection on server
             </summary>
         </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.ServerAverageCPUUsage(System.Int32)">
+            <summary>
+            Obtains the average (in %) of the CPU usage on the server in the last X minutes. 
+            Note that this only works if telemetry services on the server are enabled
+            </summary>
+            <param name="lastMinutes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.ServerAverageMemoryUsage(System.Int32)">
+            <summary>
+            Obtains the average (in %) of the memory usage on the server in the last X minutes. 
+            Note that this only works if telemetry services on the server are enabled
+            </summary>
+            <param name="lastMinutes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.RequestsErrorsCount(System.String,System.String)">
+            <summary>
+            Obtains the number of failed requests on the server for the specified controller and action
+            Note that this only works if telemetry services on the server are enabled
+            </summary>
+            <param name="controllerName"></param>
+            <param name="actionName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.RequestsSuccessCount(System.String,System.String)">
+            <summary>
+            Obtains the number of succeded requests on the server for the specified controller and action
+            Note that this only works if telemetry services on the server are enabled
+            </summary>
+            <param name="controllerName"></param>
+            <param name="actionName"></param>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.GetCurrentThreadsCount">
+            <summary>
+            Get the number of active threads on the server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.GetActionParameters(System.String,System.String)">
+            <summary>
+            Get the parameters of an action inside a controller on the server
+            </summary>
+            <param name="controller"></param>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.IServerInformationService.GetFullServerInfo">
+            <summary>
+            Get general information about the server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.SendRequest(SocketAppServerClient.RequestBody)">
+            <summary>
+            Send the request to the server using a RequestBody instance with the parameters
+            </summary>
+            <param name="body">Request body containing the target Controller and Action, as well as the parameters if any</param>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.SendRequest(System.String,System.String,System.Object)">
+            <summary>
+            Send the request to the server using an anonymous object as a parameter
+            </summary>
+            <param name="controller">Target controller</param>
+            <param name="action">Target action</param>
+            <param name="param">An anonymous object "new {...}" whose properties and their respective types are equivalent to action parameters</param>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.ReadResponse">
+            <summary>
+            Reads the server's gross response (return entities will not be deserialized)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.GetResultObject``1">
+            <summary>
+            Gets the return from the server converted to an object (T)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.GetResult">
+            <summary>
+            Gets the server default OperationResult
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SocketAppServerClient.ISocketClientConnection.GetServerInfo">
+            <summary>
+            Get an instance of the server information service
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>

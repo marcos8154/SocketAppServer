@@ -11,8 +11,6 @@ namespace SocketAppServerClient
         private static SocketClientSettings defaultSettings;
         public static void SetDefaultSettings(SocketClientSettings settings)
         {
-            if (defaultSettings != null)
-                throw new InvalidOperationException("Already applied");
             defaultSettings = settings;
         }
 

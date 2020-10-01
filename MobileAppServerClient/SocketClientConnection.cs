@@ -22,6 +22,9 @@ namespace SocketAppServerClient
         private string thisStr;
         private AutoResetEvent connectionEvent;
 
+        private bool beginConnectFailed = false;
+        private string beginConnectErrorMessage = null;
+
         internal SocketClientConnection(SocketClientSettings config)
         {
             configuration = config;
@@ -34,6 +37,10 @@ namespace SocketAppServerClient
         {
             if (clientSocket.Connected)
                 return;
+
+            beginConnectFailed = false;
+            beginConnectErrorMessage = null;
+
             connectionEvent = new AutoResetEvent(false);
             int attempts = 0;
             while (!clientSocket.Connected)
@@ -41,9 +48,19 @@ namespace SocketAppServerClient
                 if (attempts >= configuration.MaxAttempts)
                     throw new Exception("Maximum number of attempts exceeded");
                 attempts++;
+
+                clientSocket.SendTimeout = configuration.Timeout;
+                clientSocket.ReceiveTimeout = configuration.Timeout;
+
                 clientSocket.BeginConnect(configuration.Server, configuration.Port, OnTcpClientConnected, clientSocket);
-                connectionEvent.WaitOne();
+                connectionEvent.WaitOne(configuration.Timeout);
+
+                if (beginConnectFailed)
+                    throw new Exception(beginConnectErrorMessage);
             }
+
+            if (!clientSocket.Connected)
+                throw new Exception("Connection fail");
             thisStr = $"SocketClient for .NET 4.x. Connected to {configuration.Server}:{configuration.Port}";
         }
 
@@ -55,7 +72,15 @@ namespace SocketAppServerClient
 
         private void OnTcpClientConnected(IAsyncResult asyncResult)
         {
-            clientSocket.EndConnect(asyncResult);
+            try
+            {
+                clientSocket.EndConnect(asyncResult);
+            }
+            catch (Exception ex)
+            {
+                beginConnectFailed = true;
+                beginConnectErrorMessage = ex.Message;
+            }
             connectionEvent.Set();
         }
 
@@ -113,7 +138,17 @@ namespace SocketAppServerClient
             }
         }
 
-        public T GetResult<T>()
+        public OperationResult GetResult()
+        {
+            ServerResponse response = ReadResponse();
+            if (response.Status == 500)
+                throw new Exception(response.Message);
+
+            OperationResult result = responseHelper.GetResultInternal(response.Content.ToString());
+            return result;
+        }
+
+        public T GetResultObject<T>()
         {
             string entityTypeName = string.Empty;
             try
@@ -136,7 +171,7 @@ namespace SocketAppServerClient
                     return (T)result.Entity;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"{ex.Message}\nReturned entity Type: {entityTypeName}", ex);
             }
@@ -177,5 +212,7 @@ namespace SocketAppServerClient
         {
             return new ServerInfoServiceImpl(this);
         }
+
+
     }
 }

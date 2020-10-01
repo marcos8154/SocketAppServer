@@ -28,6 +28,7 @@ using SocketAppServer.ManagedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,14 +70,46 @@ namespace SocketAppServer.CoreServices.EFIManagement
                     if (serverVersion < minServerVersion)
                         throw new Exception($"The extension '{extension.ExtensionName}' could not be loaded because it requires server v{extension.MinServerVersion}");
 
-                    logger.WriteLog($"Loading extension '{extension.ExtensionName}', version {extension.ExtensionVersion} by {extension.ExtensionPublisher}", ServerLogType.INFO);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    logger.WriteLog($"      => Loading extension '{extension.ExtensionName}'");
+                    logger.WriteLog($"      => version {extension.ExtensionVersion}");
+                    logger.WriteLog($"      => by {extension.ExtensionPublisher}");
                     extension.Load(manager);
-                    logger.WriteLog($"Extension '{extension.ExtensionName}' successfully loaded");
+                    logger.WriteLog($"      => Extension '{extension.ExtensionName}' successfully loaded");
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 catch (Exception ex)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     logger.WriteLog($"Extension '{extension.ExtensionName}' fail to load: {ex.Message}", Logging.ServerLogType.ERROR);
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
+            }
+        }
+
+        public void AddExtensionFromDisk(string extensionPath)
+        {
+            try
+            {
+                IExtensibleFrameworkInterface efi = null;
+
+                Assembly assembly = Assembly.LoadFile(extensionPath);
+                Type[] types = assembly.GetTypes();
+
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (types[i].GetInterface(typeof(IExtensibleFrameworkInterface).FullName) != null)
+                    {
+                        efi = (IExtensibleFrameworkInterface)Activator.CreateInstance(types[i]);
+                        break;
+                    }
+                }
+
+                AddExtension(efi);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An implementation for 'IExtensibleFrameworkInterface' could not be found in the specified assembly.");
             }
         }
     }

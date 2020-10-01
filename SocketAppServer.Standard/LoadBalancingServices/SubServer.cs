@@ -38,8 +38,6 @@ namespace SocketAppServer.LoadBalancingServices
 
         public Encoding Encoding { get; private set; }
 
-        public int BufferSize { get; private set; }
-
         public int MaxConnectionAttempts { get; private set; }
 
         public int AcceptableProcesses { get; private set; }
@@ -49,13 +47,12 @@ namespace SocketAppServer.LoadBalancingServices
         private ILoggingService Logger { get; set; }
 
         public SubServer(string address, int port, Encoding encoding,
-            int bufferSize, int maxConnectionAttempts,
+            int maxConnectionAttempts,
             int acceptableProcesses)
         {
             Address = address;
             Port = port;
             Encoding = encoding;
-            BufferSize = bufferSize;
             MaxConnectionAttempts = maxConnectionAttempts;
             AcceptableProcesses = acceptableProcesses;
 
@@ -71,7 +68,6 @@ namespace SocketAppServer.LoadBalancingServices
             Address = address;
             Port = port;
             Encoding = encoding;
-            BufferSize = bufferSize;
             MaxConnectionAttempts = maxConnectionAttempts;
             AcceptableProcesses = acceptableProcesses;
             ServerLifetimeInMinutes = serverLifetimeInMinutes;
