@@ -42,6 +42,8 @@ namespace SocketAppServer.CoreServices
 
         IReadOnlyCollection<LoggedUserInfo> GetLoggedUsers();
 
+        LoggedUserInfo GetLoggedUser(string token);
+
         IReadOnlyCollection<UserActivity> GetUserActivities(LoggedUserInfo loggedUser);
 
         ServerUser Authenticate(string userNameOrEmail, string password);

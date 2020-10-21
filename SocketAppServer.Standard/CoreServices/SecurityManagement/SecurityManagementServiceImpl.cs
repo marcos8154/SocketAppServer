@@ -106,5 +106,12 @@ namespace SocketAppServer.CoreServices.SecurityManagement
         {
             definitions.Repository.OnSuccessFulAuthentication(token);
         }
+
+        public LoggedUserInfo GetLoggedUser(string token)
+        {
+            var tk = TokenRepository.Instance.GetToken(token);
+            return new LoggedUserInfo(tk.SessionId, tk.User.Identifier,
+                  tk.User.Name, tk.CreatedAt, tk.ExpireAt);
+        }
     }
 }

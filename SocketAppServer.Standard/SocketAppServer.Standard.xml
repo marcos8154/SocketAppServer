@@ -155,14 +155,14 @@
             Obtains basic hardware information about the current server process
             </summary>
         </member>
-        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageCPUUsage(System.Int32)">
+        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageCPUUsage(System.Double)">
             <summary>
             Gets the average % CPU usage in the last X hours
             </summary>
             <param name="lastMinutes"></param>
             <returns></returns>
         </member>
-        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageMemoryUsage(System.Int32)">
+        <member name="M:SocketAppServer.CoreServices.IHardwareServices.AverageMemoryUsage(System.Double)">
             <summary>
             Gets the average MB memory usage in the last X hours
             </summary>

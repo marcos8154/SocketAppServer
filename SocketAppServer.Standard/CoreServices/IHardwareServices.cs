@@ -40,15 +40,15 @@ namespace SocketAppServer.CoreServices
         /// </summary>
         /// <param name="lastMinutes"></param>
         /// <returns></returns>
-        double AverageCPUUsage(int lastMinutes = 3);
+        double AverageCPUUsage(double lastMinutes = 3);
 
         /// <summary>
         /// Gets the average MB memory usage in the last X hours
         /// </summary>
         /// <param name="lastMinutes"></param>
         /// <returns></returns>
-        double AverageMemoryUsage(int lastMinutes = 3);
-       
+        double AverageMemoryUsage(double lastMinutes = 3);
+
         /// <summary>
         /// Waits for current processes to end on the server to force 
         /// immediate freeing of memory in the current server process

@@ -98,11 +98,8 @@ namespace SocketAppServer.TelemetryServices.Impl
 
             using (TextWriter writer = new StreamWriter(fileName, true, coreServer.GetConfiguration().ServerEncoding))
             {
-                for (int i = 0; i < events.Count(); i++)
-                {
-                    T evt = events.ElementAt(i);
+                foreach (T evt in events.ToList())
                     writer.WriteLine(TransformToCSVLine<T>(evt));
-                }
 
                 writer.Flush();
                 writer.Close();
@@ -130,7 +127,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                 if (mem_errors != null)
                     foreach (var error in errors)
                         mem_errors.Add(error);
-                WriteToFile<ActionError>(errors, "br.com.SocketAppServer.TelemetryServices.ActionErrors");
+                WriteToFile<ActionError>(errors.ToList(), "br.com.SocketAppServer.TelemetryServices.ActionErrors");
             }
         }
 
@@ -141,7 +138,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                 if (mem_actionExec != null)
                     foreach (var action in actions)
                         mem_actionExec.Add(action);
-                WriteToFile(actions, "br.com.SocketAppServer.TelemetryServices.ActionExecutions");
+                WriteToFile(actions.ToList(), "br.com.SocketAppServer.TelemetryServices.ActionExecutions");
             }
         }
 
@@ -152,7 +149,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                 if (mem_hardwareUsages != null)
                     foreach (var usage in usages)
                         mem_hardwareUsages.Add(usage);
-                WriteToFile(usages, "br.com.SocketAppServer.TelemetryServices.HWUsage");
+                WriteToFile(usages.ToList(), "br.com.SocketAppServer.TelemetryServices.HWUsage");
             }
         }
 
@@ -163,7 +160,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                 if (mem_dependencyInjectors != null)
                     foreach (var di in dependencyInjectors)
                         mem_dependencyInjectors.Add(di);
-                WriteToFile<DependencyInjectorExecutionTime>(dependencyInjectors, "br.com.SocketAppServer.DependencyInjectorExecutionTime.ActionErrors");
+                WriteToFile<DependencyInjectorExecutionTime>(dependencyInjectors.ToList(), "br.com.SocketAppServer.DependencyInjectorExecutionTime.ActionErrors");
             }
         }
 
@@ -174,7 +171,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                 if (mem_interceptors != null)
                     foreach (var intercp in interceptors)
                         mem_interceptors.Add(intercp);
-                WriteToFile<InterceptorExecutionTime>(interceptors, "br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
+                WriteToFile<InterceptorExecutionTime>(interceptors.ToList(), "br.com.SocketAppServer.TelemetryServices.InterceptorExecutionTime");
             }
         }
 
@@ -285,7 +282,8 @@ namespace SocketAppServer.TelemetryServices.Impl
                              where
                              evt.CollectedTime >= startDate &&
                              evt.CollectedTime <= endDate
-                             select evt);
+                             select evt)
+                             .OrderBy(evt => evt.CollectedTime);
 
                 return query.AsEnumerable();
             }

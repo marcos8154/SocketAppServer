@@ -159,16 +159,22 @@ namespace SocketAppServerClient
 
                 OperationResult result = responseHelper.GetResultInternal(response.Content.ToString());
 
-                string entityJson = result.Entity.ToString();
-                if (entityJson.Contains("{") && entityJson.Contains("}"))
-                    result.Entity = responseHelper.GetEntityObjectInternal(entityJson, typeof(T));
+                if (!string.IsNullOrEmpty(result.Entity + ""))
+                {
+                    string entityJson = result.Entity.ToString();
+                    if (entityJson.Contains("{") && entityJson.Contains("}"))
+                        result.Entity = responseHelper.GetEntityObjectInternal(entityJson, typeof(T));
+                }
 
                 if (result.Entity == null)
                     return default(T);
                 else
                 {
                     entityTypeName = result.Entity.GetType().Name;
-                    return (T)result.Entity;
+                    if (entityTypeName.Equals("JArray"))
+                        return default(T);
+                    else
+                        return (T)result.Entity;
                 }
             }
             catch (Exception ex)

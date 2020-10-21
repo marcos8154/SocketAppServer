@@ -1,9 +1,6 @@
 ﻿using SocketAppServer.CoreServices;
 using SocketAppServer.EFI;
 using SocketAppServer.ManagedServices;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SocketAppServer.Extensions.ClientMaker
 {

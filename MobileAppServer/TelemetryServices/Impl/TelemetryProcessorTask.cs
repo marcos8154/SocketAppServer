@@ -40,7 +40,7 @@ namespace SocketAppServer.TelemetryServices.Impl
         private ITelemetryDataCollector collector;
         private ILoggingService logging;
         public TelemetryProcessorTask()
-            : base("TelemetryProcessor", false, new ScheduledTaskInterval(0, 0, 3, 0), false)
+            : base("TelemetryProcessor", false, new ScheduledTaskInterval(0, 0, 0, 30), false)
         {
             IServiceManager manager = ServiceManager.GetInstance();
             telemetry = manager.GetService<ITelemetryServicesProvider>();

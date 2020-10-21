@@ -45,34 +45,39 @@ namespace SocketAppServer.CoreServices.CoreServer
             coreServer = manager.GetService<ICoreServerService>();
         }
 
-        public double AverageCPUUsage(int minutes = 3)
+        public double AverageCPUUsage(double minutes = 3)
         {
             if (telemetry == null)
                 return 0;
 
-            DateTime startDate = DateTime.Now.AddMinutes(-minutes);
+            DateTime startDate = (minutes == 0
+             ? DateTime.Now.AddSeconds(-(minutes * 10))
+             : DateTime.Now.AddMinutes(-minutes));
             DateTime endDate = DateTime.Now;
             IEnumerable<HardwareUsage> events = telemetry.GetHardwareUsages(startDate, endDate);
 
             if (events.Count() > 0)
-                return events.LastOrDefault().CPUUsage;//events.Average(evt => evt.CPUUsage);
+                return events.Average(ev => ev.CPUUsage);//events.Average(evt => evt.CPUUsage);
             else
                 return 0;
         }
 
-        public double AverageMemoryUsage(int minutes = 3)
+        public double AverageMemoryUsage(double minutes = 3)
         {
             if (telemetry == null)
                 return 0;
 
-            DateTime startDate = DateTime.Now.AddMinutes(-minutes);
+            DateTime startDate = (minutes == 0
+             ? DateTime.Now.AddSeconds(-(minutes * 10))
+             : DateTime.Now.AddMinutes(-minutes));
             DateTime endDate = DateTime.Now;
             IEnumerable<HardwareUsage> events = telemetry.GetHardwareUsages(startDate, endDate);
             if (events.Count() > 0)
-                return events.LastOrDefault().MemoryUsageMegabytes;// events.Average(evt => evt.MemoryUsageMegabytes);
+                return events.Average(ev => ev.MemoryUsageMegabytes);// events.Average(evt => evt.MemoryUsageMegabytes);
             else
                 return 0;
         }
+
 
         public void ReleaseMemory()
         {

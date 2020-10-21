@@ -1,14 +1,13 @@
-﻿using SocketAppServer.CoreServices.CLIHost;
+﻿using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.CLIHost;
+using SocketAppServer.CoreServices.ControllerManagement;
+using SocketAppServer.ManagedServices;
+using SocketAppServer.ServerObjects;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using SocketAppServerClient;
 using System.IO;
-using SocketAppServer.ManagedServices;
-using SocketAppServer.CoreServices;
-using SocketAppServer.CoreServices.ControllerManagement;
 using System.Reflection;
-using SocketAppServer.ServerObjects;
+using System.Text;
 
 namespace SocketAppServer.Extensions.ClientMaker
 {
@@ -118,25 +117,37 @@ and also cannot return ActionResult. Instead, return void or your return object 
 
         private string GetMethodBody(string controllerName, MethodInfo method)
         {
-            string body = $@"            Client client = new Client();
-            RequestBody rb = RequestBody.Create(""{controllerName}"", ""{method.Name}"")";
-            foreach (var parameter in method.GetParameters())
-                if (parameter.ParameterType != typeof(SocketRequest))
-                    body += $@"
-                .AddParameter(""{parameter.Name}"", {parameter.Name})";
-            body += $@";
-            client.SendRequest(rb);";
+            string body = $@"            using(ISocketClientConnection connection = SocketConnectionFactory.GetConnection())
+            {{";
+
+            if (method.GetParameters().Length > 0)
+            {
+                body += $@"
+                connection.SendRequest(""{controllerName}"", ""{method.Name}"", new {{ ";
+                foreach (var parameter in method.GetParameters())
+                    if (parameter.ParameterType != typeof(SocketRequest))
+                        body += $@"
+                    {parameter.Name}, ";
+
+                body = body.Substring(0, body.Length - 2);
+                body += @"
+                });";
+            }
+            else
+                body += $@"                connection.SendRequest(""{ controllerName} "", ""{ method.Name}"");";
 
             if (method.ReturnType.Name == "Void")
             {
                 body += @"
-            client.GetResult();";
+                connection.GetResult();
+            }";
                 return body;
             }
 
             body += $@"
-            {GetTypeDescription(method.ReturnType)} result = client.GetResult<{GetTypeDescription(method.ReturnType)}> ();
-            return result;";
+            {GetTypeDescription(method.ReturnType)} result = connection.GetResultObject<{GetTypeDescription(method.ReturnType)}> ();
+                return result;
+            }}";
             return body;
         }
 
@@ -168,11 +179,10 @@ namespace {targetNamespace}
 
                 string parameters = GetMethodParameters(method);
 
-                string methodDeclaration = $@"        public {GetTypeDescription(method.ReturnType)} {method.Name} ({parameters})
+                string methodDeclaration = $@"        public {GetTypeDescription(method.ReturnType)} {method.Name}({parameters})
         {{
 {GetMethodBody(controller.Name, method)}
         }}
-
 ";
 
                 sb.AppendLine(methodDeclaration);

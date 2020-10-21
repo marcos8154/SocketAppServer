@@ -10,10 +10,11 @@
     <RepositoryUrl>https://github.com/marcos8154/SocketAppServer.git</RepositoryUrl>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MobileAppServer" Version="2.0.2" />
+    <PackageReference Include="MobileAppServer" Version="2.0.33" />
   </ItemGroup>
 
   <ItemGroup>

@@ -46,28 +46,6 @@ namespace DefaultTestServer
                    .Run();
         }
 
-        public class Startup : AppServerConfigurator
-        {
-            public static int serverPort;
-
-            public override void ConfigureServices(IServiceManager serviceManager)
-            {
-                DisableStatisticsComputing();
-                DisableTelemetryServices();
-                RegisterController(typeof(CustomerController));
-                RegisterModel(typeof(Customer));
-                RegisterModel(typeof(Info));
-            }
-
-            public override ServerConfiguration GetServerConfiguration()
-            {
-                //Here, we must return the object that contains
-                //the server's operating parameters, such as port, 
-                //Encoding, buffer and connection limit
-                return new ServerConfiguration(Encoding.UTF8,
-                         serverPort, 10000000, false, 100, true);
-            }
-        }
 
 
         public class UserRepository : IServerUserRepository
@@ -79,7 +57,7 @@ namespace DefaultTestServer
 
             public void OnSuccessFulAuthentication(string token)
             {
-                throw new NotImplementedException();
+            //    throw new NotImplementedException();
             }
         }
 

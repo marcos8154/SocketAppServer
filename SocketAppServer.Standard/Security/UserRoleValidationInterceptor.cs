@@ -59,11 +59,13 @@ namespace SocketAppServer.Security
                     && (r.ActionName.Equals(actionName) || r.ActionName.Equals("*")));
                 if (role == null)
                     result = new InterceptorHandleResult(false, true, "Access granted", "");
-
-                if (role.EnableAccess)
-                    result = new InterceptorHandleResult(false, true, "Access granted", "");
                 else
-                    result = new InterceptorHandleResult(true, false, "Access danied", "");
+                {
+                    if (role.EnableAccess)
+                        result = new InterceptorHandleResult(false, true, "Access granted", "");
+                    else
+                        result = new InterceptorHandleResult(true, false, "Access danied", "");
+                }
             }
             else
                 result = new InterceptorHandleResult(false, true, "Access granted", "");
