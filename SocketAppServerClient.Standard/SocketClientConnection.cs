@@ -122,7 +122,7 @@ namespace SocketAppServerClient
                     responseText = responseText.Replace("\t", "");
 
                 ServerResponse response = responseHelper.ReadResponseInternal(responseText);
-                if (response.Type == 1)
+                 if (response.Type == 1)
                     if (response.FileState == "BOF")
                         response.Content = configuration.Encoding.GetBytes(response.Content.ToString()); ;
 

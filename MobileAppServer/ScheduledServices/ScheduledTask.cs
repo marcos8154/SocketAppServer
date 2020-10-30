@@ -30,11 +30,11 @@ namespace SocketAppServer.ScheduledServices
 {
     public abstract class ScheduledTask
     {
-        internal bool IsRunning { get; set; }
-        public bool RunOnServerStart { get; }
-        internal string TaskName { get; private set; }
+        public bool IsRunning { get; internal set; }
+        public bool RunOnServerStart { get; internal set; }
+        public string TaskName { get; internal set; }
         public ScheduledTaskInterval Interval { get; internal set; }
-        public bool SaveState { get; }
+        public bool SaveState { get; internal set; }
 
         Timer timer = new Timer();
         public ScheduledTask(string taskName,
