@@ -59,7 +59,6 @@ namespace SocketAppServer.CoreServices
         public AppServerConfigurator()
         {
             Services = ServiceManager.GetInstance();
-
             Services.Bind<ILoggingService>(typeof(LoggingServiceImpl), true);
             Services.Bind<IControllerManager>(typeof(ControllerManagerImpl), true);
             Services.Bind<IDomainModelsManager>(typeof(DomainModelsManager), true);

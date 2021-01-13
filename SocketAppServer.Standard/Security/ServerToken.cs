@@ -32,7 +32,7 @@ using System.Text;
 namespace SocketAppServer.Security
 {
     ///added comment
-    internal class ServerToken
+    public class ServerToken
     {
         public Guid SessionId { get; private set; }
 
@@ -74,6 +74,13 @@ namespace SocketAppServer.Security
             Fill(user);
             CreateToken();
             RemoteIP = request.RemoteEndPoint.Address.ToString();
+        }
+
+        public ServerToken(string token, ServerUser user, string remoteEndPoint)
+        {
+            UserToken = token;
+            User = user;
+            RemoteIP = remoteEndPoint;
         }
 
         private void Fill(ServerUser user)

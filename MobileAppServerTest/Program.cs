@@ -16,34 +16,6 @@ namespace MobileAppServerTest
         [STAThread]
         static void Main()
         {
-            SocketConnectionFactory.SetDefaultSettings(new SocketClientSettings
-            (
-                "localhost",
-                2500,
-                Encoding.UTF8
-            ));
-
-            using (ISocketClientConnection connection = SocketConnectionFactory.GetConnection())
-            {
-                connection.SendRequest("controller", "action", new
-                {
-                    nome = "XPTO",
-                    idade = 39,
-                    outroParametroQualquer = Guid.NewGuid()
-                });
-
-                var response = connection.ReadResponse();
-            }
-
-
-
-
-
-
-
-
-
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

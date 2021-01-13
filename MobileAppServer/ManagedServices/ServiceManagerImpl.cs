@@ -121,9 +121,9 @@ namespace SocketAppServer.ManagedServices
 
                 return GetServiceInternal<T>(bind, args);
             }
-            catch
+            catch(Exception ex)
             {
-                return default(T);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -137,9 +137,9 @@ namespace SocketAppServer.ManagedServices
 
                 return GetServiceInternal<T>(bind, args);
             }
-            catch
+            catch(Exception ex)
             {
-                return default(T);
+                throw new Exception(ex.Message);
             }
         }
 

@@ -304,6 +304,12 @@
             Default value = 100
             </summary>
         </member>
+        <member name="M:SocketAppServer.ServerObjects.SocketRequest.ComputeStatisticks(SocketAppServer.ServerObjects.ActionResult)">
+            <summary>
+            Calculates the consumption of the action execution on the server and returns it in the response body
+            </summary>
+            <param name="result">response result</param>
+        </member>
         <member name="T:SocketAppServer.TelemetryServices.ITelemetryServicesProvider">
             <summary>
             The telemetry service provider allows the storage, search and maintenance of the events collected

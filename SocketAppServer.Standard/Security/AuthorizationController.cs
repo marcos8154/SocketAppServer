@@ -28,7 +28,7 @@ using SocketAppServer.ServerObjects;
 
 namespace SocketAppServer.Security
 {
-    internal class AuthorizationController : IController
+    public class AuthorizationController : IController
     {
         public ActionResult IsValidToken(string token, SocketRequest request)
         {

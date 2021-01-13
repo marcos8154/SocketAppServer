@@ -89,6 +89,8 @@ namespace SocketAppServer.CoreServices.SecurityManagement
         public IReadOnlyCollection<UserActivity> GetUserActivities(LoggedUserInfo loggedUser)
         {
             ServerToken token = TokenRepository.Instance.GetToken(loggedUser.SessionId);
+            if (token == null)
+                return new List<UserActivity>().AsReadOnly();
             return token.GetActivities();
         }
 
@@ -110,6 +112,9 @@ namespace SocketAppServer.CoreServices.SecurityManagement
         public LoggedUserInfo GetLoggedUser(string token)
         {
             var tk = TokenRepository.Instance.GetToken(token);
+            if (tk == null)
+                return null;
+
             return new LoggedUserInfo(tk.SessionId, tk.User.Identifier,
                   tk.User.Name, tk.CreatedAt, tk.ExpireAt);
         }

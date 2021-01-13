@@ -40,35 +40,38 @@ namespace SocketAppServer.ServerObjects
 {
     public class SocketRequest
     {
-        internal Socket ClientSocket { get; set; }
-        public IPEndPoint LocalEndPoint
-        {
-            get
-            {
-                if (ClientSocket == null)
-                    return null;
-                return (ClientSocket.LocalEndPoint as IPEndPoint);
-            }
-
-        }
-
-        public IPEndPoint RemoteEndPoint
-        {
-            get
-            {
-                if (ClientSocket == null)
-                    return null;
-                return (ClientSocket.RemoteEndPoint as IPEndPoint);
-            }
-        }
-
+        #region Properties
+        public IController Controller { get; internal set; }
+        public string Action { get; internal set; }
+        public bool HasErrors { get; internal set; }
+        public string InternalErrorMessage { get; internal set; }
+        public IPEndPoint LocalEndPoint { get; private set; }
+        public IPEndPoint RemoteEndPoint { get; private set; }
 
         private ILoggingService logger = null;
         private IEncodingConverterService encoder = null;
         private ICoreServerService coreServer = null;
+        private IControllerManager controllerManager = null;
         private IMemoryResponseStorage responseStorage = null;
+        private List<RequestParameter> requestParameters = null;
+        private string ResponseStorageId { get; set; }
+        internal Socket ClientSocket { get; private set; }
+        #endregion
+
+        #region Constructors and helpers
         public SocketRequest()
         {
+            requestParameters = new List<RequestParameter>();
+            InitializeServices();
+        }
+
+        internal SocketRequest(IController controller,
+             string action, List<RequestParameter> parameters, Socket clientSocket)
+        {
+            Controller = controller;
+            Action = action;
+            requestParameters = parameters;
+            SetClientSocket(clientSocket);
             InitializeServices();
         }
 
@@ -77,26 +80,13 @@ namespace SocketAppServer.ServerObjects
             IServiceManager manager = ServiceManager.GetInstance();
             logger = manager.GetService<ILoggingService>();
             encoder = manager.GetService<IEncodingConverterService>();
+            controllerManager = manager.GetService<IControllerManager>();
             coreServer = manager.GetService<ICoreServerService>("realserver");
             responseStorage = manager.GetService<IMemoryResponseStorage>();
         }
+        #endregion
 
-        internal SocketRequest(IController controller,
-            string action, List<RequestParameter> parameters, Socket clientSocket)
-        {
-            Controller = controller;
-            Action = action;
-            requestParameters = parameters;
-            ClientSocket = clientSocket;
-            InitializeServices();
-        }
-
-        private List<RequestParameter> requestParameters = new List<RequestParameter>();
-        internal void AddParameter(RequestParameter parameter)
-        {
-            requestParameters.Add(parameter);
-        }
-
+        #region Accessibility
         public RequestParameter FindParameter(string parameterName)
         {
             var parameter = requestParameters.FirstOrDefault(p => p.Name.Equals(parameterName));
@@ -113,22 +103,50 @@ namespace SocketAppServer.ServerObjects
             }
         }
 
-        public IController Controller { get; internal set; }
-        public string Action { get; internal set; }
-        public bool HasErrors { get; internal set; }
-        public string InternalErrorMessage { get; internal set; }
+        public void Fill(string controllerName, string action,
+            IPEndPoint localEndPoint, IPEndPoint remoteEndPoint, List<RequestParameter> parameters)
+        {
+            if (Controller != null)
+                throw new Exception("It is not possible to apply changes to a requisition after it has been created.");
 
-        private string ResponseStorageId { get; set; }
+            RequestBody mockBody = new RequestBody();
+            mockBody.Action = action;
+            mockBody.Controller = controllerName;
+            mockBody.Parameters = parameters;
+
+            Controller = controllerManager.InstantiateController(controllerName, mockBody);
+            Action = action;
+
+            this.requestParameters = parameters;
+            LocalEndPoint = localEndPoint;
+            RemoteEndPoint = remoteEndPoint;
+        }
 
         internal void ProcessResponse(ActionResult result, Socket socket,
-            string sessionStorageId)
+          string sessionStorageId)
         {
             ResponseStorageId = sessionStorageId;
             ComputeStatisticks(result);
-            ClientSocket = socket;
+            SetClientSocket(socket);
             ProcessResponse(result);
         }
 
+        internal void SetClientSocket(Socket socket)
+        {
+            ClientSocket = socket;
+            LocalEndPoint = (ClientSocket.LocalEndPoint as IPEndPoint);
+            RemoteEndPoint = (ClientSocket.RemoteEndPoint as IPEndPoint);
+        }
+
+        internal void AddParameter(RequestParameter parameter)
+        {
+            requestParameters.Add(parameter);
+        }
+
+        /// <summary>
+        /// Calculates the consumption of the action execution on the server and returns it in the response body
+        /// </summary>
+        /// <param name="result">response result</param>
         internal void ComputeStatisticks(ActionResult result)
         {
             if (AppServerConfigurator.DisableStatisticsCalculating)
@@ -181,6 +199,8 @@ Operation has stopped.";
             if (percentBufferUsed >= 80)
             {
                 string msg = $"\nThe action response on the controller is using around {percentBufferUsed.ToString("N2")}% of the buffer quota configured on the server. Review your code as soon as possible before the server collapses and begins to give incomplete responses to connected clients.";
+                result.ServerMessage = msg;
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(msg);
                 Console.ForegroundColor = ConsoleColor.Gray;
@@ -196,7 +216,9 @@ Operation has stopped.";
                 ServerAlertManager.CreateAlert(alert);
             }
         }
+        #endregion
 
+        #region Network response
         private void SendBytes(byte[] data)
         {
             var session = coreServer.GetSession(ClientSocket);
@@ -266,5 +288,6 @@ Operation has stopped.";
             resultData = null;
             response = null;
         }
+        #endregion
     }
 }

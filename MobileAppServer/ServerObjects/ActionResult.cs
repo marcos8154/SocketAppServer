@@ -39,6 +39,8 @@ namespace SocketAppServer.ServerObjects
         public virtual int Status { get; set; }
         public virtual Object Content { get; set; }
 
+        public virtual string ServerMessage { get; set; }
+
         public static ActionResult Json(object obj, int status = ResponseStatus.SUCCESS, string message = "Request success")
         {
             return new JsonResult(ref obj, ref status, ref message);

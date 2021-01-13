@@ -29,7 +29,7 @@ using System.Linq;
 
 namespace SocketAppServer.Security
 {
-    internal class TokenRepository
+    public class TokenRepository
     {
         private static TokenRepository _instance;
 
@@ -80,6 +80,13 @@ namespace SocketAppServer.Security
             ServerToken token = new ServerToken(user, ref request);
             Tokens.Add(token);
             return token;
+        }
+
+        public ServerToken AddToken(string token, ServerUser user, SocketRequest request)
+        {
+            ServerToken serverToken = new ServerToken(token, user, request.RemoteEndPoint.ToString());
+            Tokens.Add(serverToken);
+            return serverToken;
         }
 
         public void AddReplicatedToken(string token)
