@@ -162,6 +162,7 @@
     <Compile Include="ServerObjects\JsonResult.cs" />
     <Compile Include="CoreServices\Logging\LoggingServiceImpl.cs" />
     <Compile Include="CoreServices\DomainModelsManagement\ModelRegister.cs" />
+    <Compile Include="ServerObjects\SinalizeAttribute.cs" />
     <Compile Include="ServerObjects\SingleThreaded.cs" />
     <Compile Include="ServerObjects\ObjectRequestParameter.cs" />
     <Compile Include="ServerObjects\OperationResult.cs" />

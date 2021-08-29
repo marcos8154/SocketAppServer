@@ -59,14 +59,24 @@ namespace SocketAppServer.CoreServices.CoreServer
         {
             try
             {
+                SocketRequest req = new SocketRequest(basicController, "RunAction", new System.Collections.Generic.List<RequestParameter>(),
+                    preProcessor.clientSocket);
+
                 Stopwatch s = new Stopwatch();
                 s.Start();
-                ActionResult result = basicController.RunAction(receivedData);
+                object resultObject = basicController.RunAction(receivedData, req);
                 s.Stop();
 
-                string resultToJson = JsonConvert.SerializeObject(result, AppServerConfigurator.SerializerSettings);
+                string resultString = string.Empty;
 
-                byte[] resultBytes = coreServer.GetConfiguration().ServerEncoding.GetBytes(resultToJson);
+                if (resultObject != null)
+                {
+                    resultString = (resultObject.GetType() == typeof(string)
+                        ? resultObject.ToString()
+                        : JsonConvert.SerializeObject(resultObject, AppServerConfigurator.SerializerSettings));
+                }
+
+                byte[] resultBytes = coreServer.GetConfiguration().ServerEncoding.GetBytes(resultString);
                 preProcessor.clientSocket.Send(resultBytes);
             }
             catch (Exception ex)

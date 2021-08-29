@@ -45,11 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GrupoViewModel.cs" />
-    <Compile Include="ImageController.cs" />
-    <Compile Include="PortInfo.cs" />
+    <Compile Include="BasicServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

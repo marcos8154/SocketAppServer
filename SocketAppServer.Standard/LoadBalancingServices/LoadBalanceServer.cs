@@ -276,7 +276,7 @@ namespace SocketAppServer.LoadBalancingServices
 
         private bool retried = false;
 
-        public ActionResult RunAction(string receivedData)
+        public object RunAction(string receivedData, SocketRequest request)
         {
             SocketAppServerClient.RequestBody rb = JsonConvert.DeserializeObject<SocketAppServerClient.RequestBody>(receivedData,
                 AppServerConfigurator.SerializerSettings);
@@ -297,7 +297,7 @@ namespace SocketAppServer.LoadBalancingServices
                 else
                 {
                     retried = true;
-                    return RunAction(receivedData);
+                    return RunAction(receivedData, request);
                 }
             }
 

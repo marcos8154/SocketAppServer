@@ -104,10 +104,21 @@ namespace SocketAppServer.CoreServices.CoreServer
                 }
 
                 logger.WriteLog($@"A syntax error was detected while converting the request body to a server object. 
-{msg}", ServerLogType.ERROR);
+{msg}
+
+-------------
+
+Raw received body: 
+
+{uriRequest}", ServerLogType.ERROR);
                 new SocketRequest().ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR,
                     $@"A syntax error was detected while converting the request body to a server object. 
-{msg}"), this.clientSocket, null);
+{msg}
+-------------
+
+Raw received body: 
+
+{uriRequest}"), this.clientSocket, null);
             }
         }
         #endregion

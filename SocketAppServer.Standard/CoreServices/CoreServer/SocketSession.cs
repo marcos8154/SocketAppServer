@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+using System;
 using System.Net;
 using System.Net.Sockets;
 
@@ -30,6 +31,8 @@ namespace SocketAppServer.CoreServices.CoreServer
     public class SocketSession
     {
         internal Socket ClientSocket { get; private set; }
+        private int BufferSize { get; set; }
+        public IAsyncResult AsyncResult { get; }
 
         public string ClienteRemoteAddress
         {
@@ -47,9 +50,11 @@ namespace SocketAppServer.CoreServices.CoreServer
 
         internal byte[] SessionStorage { get; private set; }
 
-        public SocketSession(Socket socket, int bufferSize)
+        public SocketSession(Socket socket, int bufferSize, IAsyncResult asyncResult)
         {
             ClientSocket = socket;
+            BufferSize = bufferSize;
+            AsyncResult = asyncResult;
             SessionStorage = new byte[bufferSize];
         }
 
@@ -60,11 +65,22 @@ namespace SocketAppServer.CoreServices.CoreServer
             if (SessionClosed)
                 return;
 
+     //       ClientSocket.DisCloconnect(true);
             ClientSocket.Close();
-            ClientSocket.Dispose();
             ClientSocket = null;
             SessionStorage = null;
             SessionClosed = true;
+        }
+
+        internal void Clear()
+        {
+            SessionStorage = null;
+            SessionStorage = new byte[BufferSize];
+        }
+
+        internal void SetClientSocket(Socket socket)
+        {
+            ClientSocket = socket;
         }
     }
 }

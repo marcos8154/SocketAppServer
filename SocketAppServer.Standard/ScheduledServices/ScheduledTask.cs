@@ -89,7 +89,11 @@ namespace SocketAppServer.ScheduledServices
             if (timer != null)
             {
                 timer.Stop();
-                timer.Dispose();
+                try
+                {
+                    timer.Dispose();
+                }
+                catch { }
                 timer = null;
             }
 

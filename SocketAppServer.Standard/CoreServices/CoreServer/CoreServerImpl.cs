@@ -56,6 +56,7 @@ namespace SocketAppServer.CoreServices.CoreServer
         private ILoggingService loggingService;
         private ISecurityManagementService security;
         private ICLIHostService cliHost;
+        private IEncodingConverterService encodingService;
         private Socket serverSocket;
         private ServerConfiguration configuration;
         private List<SocketSession> clientSessions;
@@ -77,14 +78,39 @@ namespace SocketAppServer.CoreServices.CoreServer
                 try
                 {
                     Socket socket = serverSocket.EndAccept(AR);
-                    var session = new SocketSession(socket, configuration.BufferSize);
+                    var session = new SocketSession(socket, configuration.BufferSize, AR);
+
                     clientSessions.Add(session);
                     socket.BeginReceive(session.SessionStorage, 0, configuration.BufferSize, SocketFlags.None, ReceiveCallback, socket);
                     serverSocket.BeginAccept(AcceptCallback, null);
+
                 }
                 catch (Exception ex) // I cannot seem to avoid this (on exit when properly closing sockets)
                 {
                     loggingService.WriteLog("*** ERROR ***: \n" + ex.Message, ServerLogType.ERROR);
+                }
+            }
+        }
+
+        public void ReceiveCallback(IAsyncResult AR)
+        {
+            lock (lockReceive)
+            {
+                RequestPreProcessor preProcessor = new RequestPreProcessor(AR);
+                preProcessor.Process();
+            }
+        }
+
+        public void RemoveSession(ref SocketSession session)
+        {
+            lock (lockRemoveSession)
+            {
+                clientSessions.Remove(session);
+                if (session != null)
+                {
+                    //         session.Clear();
+                    session.Close();
+                    session = null;
                 }
             }
         }
@@ -124,15 +150,6 @@ namespace SocketAppServer.CoreServices.CoreServer
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, configuration.Port));
             serverSocket.Listen(0);
             serverSocket.BeginAccept(AcceptCallback, null);
-        }
-
-        public void ReceiveCallback(IAsyncResult AR)
-        {
-            lock (lockReceive)
-            {
-                RequestPreProcessor preProcessor = new RequestPreProcessor(AR);
-                preProcessor.Process();
-            }
         }
 
         public void SetConfiguration(ServerConfiguration configuration)
@@ -215,6 +232,7 @@ namespace SocketAppServer.CoreServices.CoreServer
         {
             serviceManager = ServiceManager.GetInstance();
             loggingService = serviceManager.GetService<ILoggingService>();
+            encodingService = serviceManager.GetService<IEncodingConverterService>();
             security = serviceManager.GetService<ISecurityManagementService>();
 
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -295,18 +313,7 @@ namespace SocketAppServer.CoreServices.CoreServer
             }
         }
 
-        public void RemoveSession(ref SocketSession session)
-        {
-            lock (lockRemoveSession)
-            {
-                clientSessions.Remove(session);
-                if (session != null)
-                {
-                    session.Close();
-                    session = null;
-                }
-            }
-        }
+
 
         public bool IsLoadBalanceEnabled()
         {

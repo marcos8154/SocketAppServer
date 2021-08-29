@@ -38,6 +38,7 @@ namespace SocketAppServer.CoreServices.CoreServer
         public bool IsSingleThreaded { get; private set; }
         public int MaxThreadsCount { get; private set; }
         public bool IsConsoleApplication { get; }
+       // public bool Keep
 
         /// <summary>
         /// Provides parameters for configuring the current server

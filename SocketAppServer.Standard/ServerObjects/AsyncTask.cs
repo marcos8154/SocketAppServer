@@ -195,7 +195,7 @@ namespace SocketAppServer.ServerObjects
         public void CancelTask(bool invokeOnPostExecute = false)
         {
             if (!Cancelable)
-                throw new Exception("Uma AsynkTask não pode ser cancelada antes ou após DoInBackground.");
+                throw new Exception("An AsynkTask cannot be canceled before or after DoInBackground.");
 
             Canceled = true;
             InvokeOnPostExecute = invokeOnPostExecute;

@@ -35,6 +35,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using SocketAppServer.ServerUtils;
+using System.Threading;
 
 namespace SocketAppServer.ServerObjects
 {
@@ -63,6 +64,21 @@ namespace SocketAppServer.ServerObjects
         {
             requestParameters = new List<RequestParameter>();
             InitializeServices();
+        }
+
+        public void SendData(byte[] data)
+        {
+            using (SocketAsyncEventArgs args = new SocketAsyncEventArgs())
+            {
+                args.SetBuffer(data, 0, data.Length);
+                ClientSocket.SendAsync(args);
+            }
+        }
+
+        public void SendData(string data)
+        {
+            byte[] buffer = encoder.ConvertToByteArray(data);
+            ClientSocket.Send(buffer);
         }
 
         internal SocketRequest(IController controller,

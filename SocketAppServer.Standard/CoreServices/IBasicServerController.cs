@@ -35,8 +35,9 @@ namespace SocketAppServer.CoreServices
     /// <summary>
     /// Basic request processor, works dedicated with a single controller type and does not support advanced features like the standard processor (RequestProcessor)
     /// </summary>
-    public interface IBasicServerController
+    public interface IBasicServerController : IController
     {
-        ActionResult RunAction(string receivedData);
+        [ServerAction]
+        object RunAction(string receivedData, SocketRequest request);
     }
 }

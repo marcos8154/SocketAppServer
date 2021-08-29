@@ -97,7 +97,17 @@ namespace SocketAppServerClient
                     js.Serialize(jw, body);
                     string commandRequest = sb.ToString();
                     byte[] buffer = configuration.Encoding.GetBytes(commandRequest);
-                    clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+
+                    SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                    AutoResetEvent evt = new AutoResetEvent(false);
+                    args.Completed += delegate
+                    {
+                        evt.Set();
+                    };
+
+                    args.SetBuffer(buffer, 0, buffer.Length);
+                    clientSocket.SendAsync(args);
+                    evt.WaitOne();
                 }
             }
         }
