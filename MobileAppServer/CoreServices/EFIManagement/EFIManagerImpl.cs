@@ -54,7 +54,9 @@ namespace SocketAppServer.CoreServices.EFIManagement
         {
             IServiceManager manager = ServiceManager.GetInstance();
             ICoreServerService coreServer = manager.GetService<ICoreServerService>();
-            double serverVersion = double.Parse(coreServer.GetServerVersion());
+            double serverVersion;
+            double.TryParse(coreServer.GetServerVersion(), out serverVersion);
+
             foreach (IExtensibleFrameworkInterface extension in Extensions)
             {
                 try
