@@ -15,6 +15,8 @@ namespace SocketAppServerClient
         public string Message { get; set; }
         public object Content { get; set; }
 
+        public virtual string ServerMessage { get; set; }
+
         public ServerResponse(int status,
             string message, object entity, double bytesUsed)
         {
