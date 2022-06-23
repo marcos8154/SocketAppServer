@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServer", "MobileAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketAppServerClient", "MobileAppServerClient\SocketAppServerClient.csproj", "{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManager2", "ServerManager2\ServerManager2.csproj", "{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Standard", "SocketAppServer.Standard\SocketAppServer.Standard.csproj", "{947A305A-2092-4035-AECC-84149A3457F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServerClient.Standard", "SocketAppServerClient.Standard\SocketAppServerClient.Standard.csproj", "{A04C58E4-EACF-4947-88E5-7A3CFD81F59C}"
@@ -33,6 +31,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Extensions.ClientMaker", "SocketAppServer.Extensions.ClientMaker\SocketAppServer.Extensions.ClientMaker.csproj", "{B444FC3E-49D9-47A7-9A18-7C5A927558AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devtools", "devtools", "{AC851A1C-8D85-4605-8905-FB7B0B83B841}"
+	ProjectSection(SolutionItems) = preProject
+		MobileAppServer\MobileAppServer.2.0.44.1301.nupkg = MobileAppServer\MobileAppServer.2.0.44.1301.nupkg
+		MobileAppServerClient\SocketAppServer.Client.2.1.11.1301.nupkg = MobileAppServerClient\SocketAppServer.Client.2.1.11.1301.nupkg
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "propagate", "propagate\propagate.csproj", "{EE244CFC-6459-48E1-9FD0-C87644CE17FF}"
 EndProject
@@ -60,10 +62,6 @@ Global
 		{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D70A4664-CC13-442B-AB28-DCAC82E1C7A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{947A305A-2092-4035-AECC-84149A3457F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{947A305A-2092-4035-AECC-84149A3457F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{947A305A-2092-4035-AECC-84149A3457F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -102,7 +100,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{73D8736A-12CA-4552-A3E5-090023E3A18D} = {A68DC8C8-AD51-4C7C-96DA-C0874BE9C4BB}
-		{E95E2EF8-AFD4-4F14-A05F-EA9C829A3D4A} = {A68DC8C8-AD51-4C7C-96DA-C0874BE9C4BB}
 		{05F4F107-ACEA-4572-9A6A-A813AF712CAC} = {3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}
 		{B444FC3E-49D9-47A7-9A18-7C5A927558AD} = {3260EA04-1484-423E-B961-8690305A76AE}
 		{EE244CFC-6459-48E1-9FD0-C87644CE17FF} = {AC851A1C-8D85-4605-8905-FB7B0B83B841}

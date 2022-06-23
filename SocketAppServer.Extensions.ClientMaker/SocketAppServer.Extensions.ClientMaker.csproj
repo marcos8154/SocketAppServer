@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MobileAppServer" Version="2.0.33" />
+    <PackageReference Include="MobileAppServer" Version="2.0.43" />
   </ItemGroup>
 
   <ItemGroup>
