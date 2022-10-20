@@ -36,6 +36,7 @@ namespace SocketAppServer.CoreServices.TelemetryManagement
     public class TelemetryManagementImpl : ITelemetryManagement
     {
         private Type provider;
+        private IServiceManager manager;
 
         public TelemetryManagementImpl()
         {
@@ -44,7 +45,7 @@ namespace SocketAppServer.CoreServices.TelemetryManagement
 
         public void Initialize()
         {
-            IServiceManager manager = ServiceManager.GetInstance();
+            manager = ServiceManager.GetInstance();
             manager.Bind<ITelemetryServicesProvider>(provider, true);
             manager.Bind<ITelemetryDataCollector>(typeof(TelemetryDataCollectorImpl), true);
 

@@ -31,10 +31,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketAppServer.Extensions.ClientMaker", "SocketAppServer.Extensions.ClientMaker\SocketAppServer.Extensions.ClientMaker.csproj", "{B444FC3E-49D9-47A7-9A18-7C5A927558AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devtools", "devtools", "{AC851A1C-8D85-4605-8905-FB7B0B83B841}"
-	ProjectSection(SolutionItems) = preProject
-		MobileAppServer\MobileAppServer.2.0.44.1301.nupkg = MobileAppServer\MobileAppServer.2.0.44.1301.nupkg
-		MobileAppServerClient\SocketAppServer.Client.2.1.11.1301.nupkg = MobileAppServerClient\SocketAppServer.Client.2.1.11.1301.nupkg
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "propagate", "propagate\propagate.csproj", "{EE244CFC-6459-48E1-9FD0-C87644CE17FF}"
 EndProject

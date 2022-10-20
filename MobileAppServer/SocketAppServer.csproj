@@ -79,7 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreServices\AppServerConfigurator.cs" />
+    <Compile Include="AppServerConfigurator.cs" />
     <Compile Include="CoreServices\CLIHost\CLICommand.cs" />
     <Compile Include="CoreServices\CLIHost\CLIHostServiceImpl.cs" />
     <Compile Include="CoreServices\CLIHost\ICLIClient.cs" />
@@ -201,6 +201,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="LICENCE.MD" />
+    <None Include="MobileAppServer.nupkg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

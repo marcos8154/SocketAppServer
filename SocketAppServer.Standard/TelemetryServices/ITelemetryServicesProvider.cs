@@ -36,6 +36,8 @@ namespace SocketAppServer.TelemetryServices
     /// </summary>
     public interface ITelemetryServicesProvider
     {
+        void SetStoragePath(string path);
+
         /// <summary>
         /// Store/Persist collected ActionExecutionTime events
         /// </summary>

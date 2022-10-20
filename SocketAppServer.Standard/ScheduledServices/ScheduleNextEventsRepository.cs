@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 using Newtonsoft.Json;
-using SocketAppServer.CoreServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,10 +32,13 @@ namespace SocketAppServer.ScheduledServices
 {
     internal class ScheduleNextEventsRepository
     {
+        private static char spr = '\\';
         private string defaultDir = $@"{Directory.GetCurrentDirectory()}\ScheduledTasks\";
 
         private ScheduleNextEventsRepository()
         {
+            spr = Path.PathSeparator;
+            defaultDir = $@".{spr}ScheduledTasks{spr}";
             if (!Directory.Exists(defaultDir))
                 Directory.CreateDirectory(defaultDir);
         }

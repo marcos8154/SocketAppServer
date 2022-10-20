@@ -49,8 +49,6 @@ using System.Reflection;
 
 namespace SocketAppServer
 {
-
-    /***  dadadadadadadadad */
     public abstract class AppServerConfigurator
     {
         internal IServiceManager Services { get; set; }

@@ -11,6 +11,10 @@
     <DocumentationFile>C:\Users\Marcos Vinícius\Documents\Visual Studio 2015\Projects\MobileAppServer\SocketAppServerClient.Standard\SocketAppServerClient.Standard.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\marco\Documents\Visual Studio 2019\Projects\MobileAppServer\SocketAppServerClient.Standard\SocketAppServerClient.Standard.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>

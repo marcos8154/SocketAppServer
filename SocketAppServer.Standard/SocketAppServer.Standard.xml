@@ -4,7 +4,7 @@
         <name>SocketAppServer.Standard</name>
     </assembly>
     <members>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.DisableStatisticsComputing">
+        <member name="M:SocketAppServer.AppServerConfigurator.DisableStatisticsComputing">
             <summary>
             Disables the calculation of server buffer usage statistics. 
             Disabling this feature will bring performance gains to the 
@@ -12,32 +12,32 @@
             Controllers/Actions will become more difficult
             </summary>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.SetJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings)">
+        <member name="M:SocketAppServer.AppServerConfigurator.SetJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings)">
             <summary>
             Changes the default serializer settings for Newtonsoft.Json
             </summary>
             <param name="settings">JsonSerializerSettings object</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.ConfigureDefaultExceptionHandler(System.Type)">
+        <member name="M:SocketAppServer.AppServerConfigurator.ConfigureDefaultExceptionHandler(System.Type)">
             <summary>
             Configures a standard exception handler for all server actions
             that use the annotation/attribute [ServerAction]
             </summary>
             <param name="exceptionHandlerType">IActionExceptionHandler implementation class type</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableExtension(SocketAppServer.EFI.IExtensibleFrameworkInterface)">
+        <member name="M:SocketAppServer.AppServerConfigurator.EnableExtension(SocketAppServer.EFI.IExtensibleFrameworkInterface)">
             <summary>
             Enable the loading of a framework extension (EFI) as soon as the server core is booted
             </summary>
             <param name="extension"></param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableFromDiskExtension(System.String)">
+        <member name="M:SocketAppServer.AppServerConfigurator.EnableFromDiskExtension(System.String)">
             <summary>
             Enable an extension from the assembly disk file written for .NET (* .dll)
             </summary>
             <param name="extensionPath">Full assembly path (* .dll) that contains an implementation for 'IExtensibleFrameworkInterface'</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterCLICommand(System.String,System.String,SocketAppServer.CoreServices.CLIHost.ICLIClient)">
+        <member name="M:SocketAppServer.AppServerConfigurator.RegisterCLICommand(System.String,System.String,SocketAppServer.CoreServices.CLIHost.ICLIClient)">
             <summary>
             It allows integration with the CLI of the framework, which allows execution of specific routines from commands typed at the ConsoleApp prompt
             </summary>
@@ -45,7 +45,7 @@
             <param name="commandDescription">Brief description of the purpose of the command</param>
             <param name="executorClient">Instance of the implementation of the ICLIClient interface, which connects the CLI of ConsoleApp with the target class that will perform the tasks</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.EnableLoadBalanceServer(System.Int32,System.Boolean)">
+        <member name="M:SocketAppServer.AppServerConfigurator.EnableLoadBalanceServer(System.Int32,System.Boolean)">
             <summary>
             Enables load balancing features on the current server
             </summary>
@@ -53,13 +53,13 @@
             <param name="cacheResultsForUnreachableServers">If the number of attempts to obtain a server from the pool has exceeded, it will return a cache of the last request successfully made in the controller/action</param>
             <returns></returns>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.DisableTelemetryServices">
+        <member name="M:SocketAppServer.AppServerConfigurator.DisableTelemetryServices">
             <summary>
             Disables standard telemetry services on the server
             WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code
             </summary>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.UseAuthentication(SocketAppServer.Security.IServerUserRepository,System.Int32,System.String)">
+        <member name="M:SocketAppServer.AppServerConfigurator.UseAuthentication(SocketAppServer.Security.IServerUserRepository,System.Int32,System.String)">
             <summary>
             Enables authentication features on the current server
             </summary>
@@ -67,51 +67,51 @@
             <param name="tokenLifetime">Authentication Token lifetime (in minutes)</param>
             <param name="tokenCryptPassword">(Optional) A password used to encrypt the data that will make up the authentication Token. If it is an empty string, the authentication service will take care of generating dynamic passwords for each connected client. For the password generation process, see Wiki section on GitHub project</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.SetDefaultLoggerWrapper(SocketAppServer.CoreServices.Logging.ILoggerWrapper)">
+        <member name="M:SocketAppServer.AppServerConfigurator.SetDefaultLoggerWrapper(SocketAppServer.CoreServices.Logging.ILoggerWrapper)">
             <summary>
             Provide a wrapper for capturing logs fired by the Logging service
             </summary>
             <param name="loggerWrapper">Implementation of the wrapper that will capture and provide query logs</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddInterceptor(SocketAppServer.ServerObjects.IHandlerInterceptor)">
+        <member name="M:SocketAppServer.AppServerConfigurator.AddInterceptor(SocketAppServer.ServerObjects.IHandlerInterceptor)">
             <summary>
             Adds a request interceptor for a specific server controller/action
             </summary>
             <param name="interceptor">Implementation of Interceptor</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddDependencyInjector(SocketAppServer.ServerObjects.IDependencyInjectorMaker)">
+        <member name="M:SocketAppServer.AppServerConfigurator.AddDependencyInjector(SocketAppServer.ServerObjects.IDependencyInjectorMaker)">
             <summary>
             Adds a dependency injection helper for server controllers
             </summary>
             <param name="dependencyInjector">Implementation of injector helper</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterController(System.Type)">
+        <member name="M:SocketAppServer.AppServerConfigurator.RegisterController(System.Type)">
             <summary>
             Register a controller on the server
             </summary>
             <param name="controllerType">Concrete type of controller. It is mandatory to implement the "IController" interface</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterAllControllers(System.Reflection.Assembly,System.String)">
+        <member name="M:SocketAppServer.AppServerConfigurator.RegisterAllControllers(System.Reflection.Assembly,System.String)">
             <summary>
             Adds a set of Controllers to the server. A scan will be performed on the specified Assembly namespace to search for possible Controllers and register them automatically
             </summary>
             <param name="assembly">Assembly in which Controller classes are contained</param>
             <param name="namespaceName">Assembly namespace in which the controllers are contained</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterModel(System.Type)">
+        <member name="M:SocketAppServer.AppServerConfigurator.RegisterModel(System.Type)">
             <summary>
             Registers a model class so that the Controller can inject them into the Actions they need
             </summary>
             <param name="modelType">Base type of the class to be registered</param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.RegisterAllModels(System.Reflection.Assembly,System.String)">
+        <member name="M:SocketAppServer.AppServerConfigurator.RegisterAllModels(System.Reflection.Assembly,System.String)">
             <summary>
             Adds a set of model classes to the server. A scan will be performed on the specified Assembly namespace to search for possible classes and register them automatically
             </summary>
             <param name="assembly"></param>
             <param name="namespaceName"></param>
         </member>
-        <member name="M:SocketAppServer.CoreServices.AppServerConfigurator.AddScheduledTask(SocketAppServer.ScheduledServices.ScheduledTask)">
+        <member name="M:SocketAppServer.AppServerConfigurator.AddScheduledTask(SocketAppServer.ScheduledServices.ScheduledTask)">
             <summary>
             Adds a scheduled task on the server
             </summary>

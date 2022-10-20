@@ -63,12 +63,33 @@ namespace SocketAppServer.TelemetryServices.Impl
 
         private ICoreServerService coreServer = null;
         private IScheduledTaskManager taskManager = null;
+        private ILoggingService log = null;
+
+        private static char spr = '\\';
+        private static string storageRoot = "";
 
         public DefaultTelemetryServicesProvider()
         {
             IServiceManager serviceManager = ServiceManager.GetInstance();
             coreServer = serviceManager.GetService<ICoreServerService>();
             taskManager = serviceManager.GetService<IScheduledTaskManager>();
+            log = serviceManager.GetService<ILoggingService>();
+
+            spr = Path.PathSeparator;
+
+            storageRoot = $@".{spr}Telemetry.Data{spr}";
+            if (!Directory.Exists(storageRoot))
+                Directory.CreateDirectory($@"{spr}Telemetry.Data{spr}");
+        }
+
+        public void SetStoragePath(string path)
+        {
+            string sr = $@"{spr}Telemetry.Data{spr}";
+            storageRoot = Path.Combine(path, sr);
+            if (!Directory.Exists(storageRoot))
+                Directory.CreateDirectory(storageRoot);
+
+            log.WriteLog($"ITelemetryServicesProvider: storage path changed to '{storageRoot}'");
         }
 
         private void RefreshTelemetryData()
@@ -86,15 +107,15 @@ namespace SocketAppServer.TelemetryServices.Impl
             return sb.ToString();
         }
 
+
         private void WriteToFile<T>(IEnumerable<T> events, string fileName)
             where T : struct
         {
             if (events.Count() == 0)
                 return;
 
-            if (!Directory.Exists(@".\Telemetry.Data\"))
-                Directory.CreateDirectory(@".\Telemetry.Data\");
-            fileName = $@".\Telemetry.Data\{fileName}.tlm";
+            fileName = Path.Combine(storageRoot, $"{fileName}.tlm");
+            log.WriteLog($"Updating telemetry file '{fileName}' ...");
 
             using (TextWriter writer = new StreamWriter(fileName, true, coreServer.GetConfiguration().ServerEncoding))
             {
@@ -108,9 +129,8 @@ namespace SocketAppServer.TelemetryServices.Impl
 
         private IEnumerable<string> ReadTelemetryFile(string fileName)
         {
-            if (!Directory.Exists(@".\Telemetry.Data\"))
-                Directory.CreateDirectory(@".\Telemetry.Data\");
-            fileName = $@".\Telemetry.Data\{fileName}.tlm";
+            fileName = Path.Combine(storageRoot, $"{fileName}.tlm");
+            log.WriteLog($"Reading telemetry file '{fileName}' ...");
 
             if (!File.Exists(fileName))
                 return new List<string>(0);
@@ -282,8 +302,7 @@ namespace SocketAppServer.TelemetryServices.Impl
                              where
                              evt.CollectedTime >= startDate &&
                              evt.CollectedTime <= endDate
-                             select evt)
-                             .OrderBy(evt => evt.CollectedTime);
+                             select evt);
 
                 return query.AsEnumerable();
             }

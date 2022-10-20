@@ -2,13 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.0.44.1301</Version>
-    <AssemblyVersion>2.0.43.1301</AssemblyVersion>
-    <FileVersion>2.0.44.1301</FileVersion>
+    <Version>2.0.45.0</Version>
+    <AssemblyVersion>2.0.45.0</AssemblyVersion>
+    <FileVersion>2.0.45.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\Marcos Vinícius\Documents\Visual Studio 2015\Projects\MobileAppServer\SocketAppServer.Standard\SocketAppServer.Standard.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\marco\Documents\Visual Studio 2019\Projects\MobileAppServer\SocketAppServer.Standard\SocketAppServer.Standard.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\marco\Documents\Visual Studio 2019\Projects\MobileAppServer\SocketAppServer.Standard\SocketAppServer.Standard.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
