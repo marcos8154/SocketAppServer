@@ -57,7 +57,7 @@ namespace propagate
 
         private static void ShowPathMap()
         {
-            string file = @".\paths.plist";
+            string file = @"paths.plist";
             string[] paths = (File.Exists(file)
                             ? File.ReadAllLines(file)
                             : new string[] { });
@@ -100,7 +100,7 @@ namespace propagate
 
         private static void AddExclude(string[] args)
         {
-            string confFile = @".\exclude.plist";
+            string confFile = @"exclude.plist";
             List<string> excludeList = (File.Exists(confFile)
                 ? File.ReadAllLines(confFile).ToList()
                 : new List<string>());
@@ -139,11 +139,11 @@ namespace propagate
         private static void PropagateNow()
         {
             propagatedFiles = 0;
-            string[] paths = File.ReadAllLines(@".\paths.plist");
+            string[] paths = File.ReadAllLines(@"paths.plist");
             string sourcePath = paths[0].Replace("source:", "");
             string targetPath = paths[1].Replace("target:", "");
 
-            string excludeFile = @".\exclude.plist";
+            string excludeFile = @"exclude.plist";
             string[] excludeList = (File.Exists(excludeFile)
                 ? File.ReadAllLines(excludeFile)
                 : new string[] { });
@@ -212,7 +212,7 @@ namespace propagate
             if (!Directory.Exists(path))
                 throw new Exception($"Directory not found: '{path}'");
 
-            string confFile = $@".\paths.plist";
+            string confFile = $@"paths.plist";
             string[] confStr = (File.Exists(confFile)
                 ? File.ReadAllLines(confFile)
                 : new string[] { "source:", "target:" });
