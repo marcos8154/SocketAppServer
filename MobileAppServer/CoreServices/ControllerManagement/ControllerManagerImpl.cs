@@ -77,6 +77,9 @@ namespace SocketAppServer.CoreServices.ControllerManagement
             try
             {
                 ControllerRegister register = GetControllerRegister(name);
+                if (register == null)
+                    throw new Exception($"Controller '{name}' was not registered");
+
                 IDependencyInjectorMaker injector = null;
 
                 object[] injectArgs = null;
@@ -102,12 +105,10 @@ namespace SocketAppServer.CoreServices.ControllerManagement
             }
             catch (Exception ex)
             {
-                ILoggingService logger = serviceManager.GetService<ILoggingService>();
                 string msg = ex.Message;
                 if (ex.InnerException != null)
                     msg += ex.InnerException.Message;
-                logger.WriteLog($@"Instantiate controller '{name}' threw an exception. 
-{msg}", name, "", ServerLogType.ERROR);
+
                 throw new Exception($@"Instantiate controller '{name}' threw an exception. 
 {msg}");
             }

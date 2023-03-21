@@ -47,16 +47,26 @@ namespace SocketAppServerClient
             {
                 if (attempts >= configuration.MaxAttempts)
                     throw new Exception("Maximum number of attempts exceeded");
-                attempts++;
 
                 clientSocket.SendTimeout = configuration.Timeout;
                 clientSocket.ReceiveTimeout = configuration.Timeout;
 
-                clientSocket.BeginConnect(configuration.Server, configuration.Port, OnTcpClientConnected, clientSocket);
-                connectionEvent.WaitOne(configuration.Timeout);
+                try
+                {
+                    clientSocket.BeginConnect(configuration.Server, configuration.Port, OnTcpClientConnected, clientSocket);
+                    connectionEvent.WaitOne(configuration.Timeout);
+                }
+                catch
+                {
+                    beginConnectFailed = true;
+                }
 
                 if (beginConnectFailed)
-                    throw new Exception(beginConnectErrorMessage);
+                    if (attempts >= configuration.MaxAttempts)
+                        throw new Exception(beginConnectErrorMessage);
+
+                Thread.Sleep(1000 * attempts);
+                attempts++;
             }
 
             if (!clientSocket.Connected)

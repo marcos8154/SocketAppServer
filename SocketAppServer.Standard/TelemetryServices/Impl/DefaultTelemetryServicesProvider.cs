@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using SocketAppServer.CoreServices;
+using SocketAppServer.CoreServices.Logging;
 using SocketAppServer.ManagedServices;
 using SocketAppServer.TelemetryServices.Events;
 using System;
@@ -65,7 +66,6 @@ namespace SocketAppServer.TelemetryServices.Impl
         private IScheduledTaskManager taskManager = null;
         private ILoggingService log = null;
 
-        private static char spr = '\\';
         private static string storageRoot = "";
 
         public DefaultTelemetryServicesProvider()
@@ -75,17 +75,17 @@ namespace SocketAppServer.TelemetryServices.Impl
             taskManager = serviceManager.GetService<IScheduledTaskManager>();
             log = serviceManager.GetService<ILoggingService>();
 
-            spr = Path.PathSeparator;
+            string asmDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
 
-            storageRoot = $@".{spr}Telemetry.Data{spr}";
+            storageRoot = Path.Combine(asmDir, "telemetry.data");
+
             if (!Directory.Exists(storageRoot))
-                Directory.CreateDirectory($@"{spr}Telemetry.Data{spr}");
+                Directory.CreateDirectory(storageRoot);
         }
 
         public void SetStoragePath(string path)
         {
-            string sr = $@"{spr}Telemetry.Data{spr}";
-            storageRoot = Path.Combine(path, sr);
+            storageRoot = Path.Combine(path, "telemetry.data");
             if (!Directory.Exists(storageRoot))
                 Directory.CreateDirectory(storageRoot);
 
@@ -115,7 +115,20 @@ namespace SocketAppServer.TelemetryServices.Impl
                 return;
 
             fileName = Path.Combine(storageRoot, $"{fileName}.tlm");
-            log.WriteLog($"Updating telemetry file '{fileName}' ...");
+
+            if (File.Exists(fileName))
+                if (new FileInfo(fileName).Length > 30000000) // 30mb
+                {
+                    try
+                    {
+                        File.Delete(fileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.WriteLog($"Telemetry file '{fileName}' cannot be deleted: '{ex.Message}'", ServerLogType.ERROR);
+                        return;
+                    }
+                }
 
             using (TextWriter writer = new StreamWriter(fileName, true, coreServer.GetConfiguration().ServerEncoding))
             {
@@ -130,7 +143,7 @@ namespace SocketAppServer.TelemetryServices.Impl
         private IEnumerable<string> ReadTelemetryFile(string fileName)
         {
             fileName = Path.Combine(storageRoot, $"{fileName}.tlm");
-            log.WriteLog($"Reading telemetry file '{fileName}' ...");
+            log.WriteLog($"Reading telemetry file '{new FileInfo(fileName).Name}' ...");
 
             if (!File.Exists(fileName))
                 return new List<string>(0);

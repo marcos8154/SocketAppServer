@@ -212,7 +212,7 @@ Raw received body:
 
                 logger.WriteLog($"Request completed: {controllerName}/{actionName}; ~{w.ElapsedMilliseconds}ms");
 
-                if (w.ElapsedMilliseconds > 10000)
+                if (w.ElapsedMilliseconds > 20000)
                     ServerAlertManager.CreateAlert(new ServerAlert(request.Controller.GetType().Name, request.Action,
                         $"The action it is taking considerable time to execute ({w.ElapsedMilliseconds} ms). Review your code to improve performance.'"));
 
@@ -247,6 +247,10 @@ Raw received body:
 
             if (request != null)
             {
+
+                if(method == null)
+                    request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket, null);
+
                 ServerAction serverAction = method.GetCustomAttribute<ServerAction>();
                 if (serverAction == null)
                     request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket, null);
@@ -324,7 +328,7 @@ Raw received body:
             }
             catch (Exception ex)
             {
-                logger.WriteLog(ex.Message + "\n" + ex.StackTrace, controllerName, actionName, ServerLogType.ERROR);
+                logger.WriteLog(ex.Message + "\n", controllerName, actionName, ServerLogType.ERROR);
                 request.HasErrors = true;
                 request.InternalErrorMessage = ex.Message;
                 return request;

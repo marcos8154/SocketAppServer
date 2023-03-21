@@ -42,21 +42,31 @@ namespace SocketAppServerClient
             beginConnectErrorMessage = null;
 
             connectionEvent = new AutoResetEvent(false);
-            int attempts = 0;
+            int attempts = 1;
             while (!clientSocket.Connected)
             {
                 if (attempts >= configuration.MaxAttempts)
                     throw new Exception("Maximum number of attempts exceeded");
-                attempts++;
-
+           
                 clientSocket.SendTimeout = configuration.Timeout;
                 clientSocket.ReceiveTimeout = configuration.Timeout;
 
-                clientSocket.BeginConnect(configuration.Server, configuration.Port, OnTcpClientConnected, clientSocket);
-                connectionEvent.WaitOne(configuration.Timeout);
+                try
+                {
+                    clientSocket.BeginConnect(configuration.Server, configuration.Port, OnTcpClientConnected, clientSocket);
+                    connectionEvent.WaitOne(configuration.Timeout);
+                }
+                catch
+                {
+                    beginConnectFailed = true;
+                }
 
                 if (beginConnectFailed)
-                    throw new Exception(beginConnectErrorMessage);
+                    if (attempts >= configuration.MaxAttempts)
+                        throw new Exception(beginConnectErrorMessage);
+
+                Thread.Sleep(1000 * attempts);
+                attempts++;
             }
 
             if (!clientSocket.Connected)
@@ -122,7 +132,7 @@ namespace SocketAppServerClient
                     responseText = responseText.Replace("\t", "");
 
                 ServerResponse response = responseHelper.ReadResponseInternal(responseText);
-                 if (response.Type == 1)
+                if (response.Type == 1)
                     if (response.FileState == "BOF")
                         response.Content = configuration.Encoding.GetBytes(response.Content.ToString()); ;
 

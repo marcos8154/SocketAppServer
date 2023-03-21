@@ -1,4 +1,5 @@
 ﻿
+using SocketAppServer;
 using SocketAppServer.CoreServices;
 using SocketAppServer.CoreServices.CoreServer;
 using SocketAppServer.CoreServices.Logging;
