@@ -247,8 +247,12 @@ Raw received body:
 
             if (request != null)
             {
+
                 if (method == null)
+                {
                     request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket, null);
+                    return;
+                }
 
                 ServerAction serverAction = method.GetCustomAttribute<ServerAction>();
                 if (serverAction == null)
@@ -327,7 +331,7 @@ Raw received body:
             }
             catch (Exception ex)
             {
-                logger.WriteLog(ex.Message + "\n" + ex.StackTrace, controllerName, actionName, ServerLogType.ERROR);
+                logger.WriteLog(ex.Message + "\n", controllerName, actionName, ServerLogType.ERROR);
                 request.HasErrors = true;
                 request.InternalErrorMessage = ex.Message;
                 return request;

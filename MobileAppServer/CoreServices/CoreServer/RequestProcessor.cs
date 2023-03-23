@@ -248,8 +248,11 @@ Raw received body:
             if (request != null)
             {
 
-                if(method == null)
+                if (method == null)
+                {
                     request.ProcessResponse(ActionResult.Json("", ResponseStatus.ERROR, $"Process request error: {msg}"), clientSocket, null);
+                    return;
+                }
 
                 ServerAction serverAction = method.GetCustomAttribute<ServerAction>();
                 if (serverAction == null)

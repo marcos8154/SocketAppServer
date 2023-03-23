@@ -62,10 +62,12 @@ namespace SocketAppServerClient
                 }
 
                 if (beginConnectFailed)
+                {
                     if (attempts >= configuration.MaxAttempts)
                         throw new Exception(beginConnectErrorMessage);
-
-                Thread.Sleep(1000 * attempts);
+                    else
+                        Thread.Sleep(1000 * attempts);
+                }
                 attempts++;
             }
 

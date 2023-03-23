@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTest", "ClientTest\Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnAnyExtensionFromFile", "AnAnyExtensionFromFile\AnAnyExtensionFromFile.csproj", "{C421E7B9-A579-48EE-8CFD-0354C670EB0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileAppServer.Extensions.HttpServer", "MobileAppServer.Extensions.HttpServer\MobileAppServer.Extensions.HttpServer.csproj", "{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{C421E7B9-A579-48EE-8CFD-0354C670EB0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C421E7B9-A579-48EE-8CFD-0354C670EB0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C421E7B9-A579-48EE-8CFD-0354C670EB0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{CACDE2FD-0E31-4BFE-A459-73F671F7C625} = {3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}
 		{2A36411B-54C6-4F60-91F8-0BE58BFABEDE} = {3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}
 		{C421E7B9-A579-48EE-8CFD-0354C670EB0E} = {3493C73D-BF75-40F3-8E07-DC3E61A8A3FF}
+		{9C3E7D7E-BB49-4DDB-8C5D-5A48E767B930} = {3260EA04-1484-423E-B961-8690305A76AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DE951B6-022E-4CC6-B987-AB7590327349}

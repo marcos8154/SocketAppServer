@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.1.12.1303</Version>
+    <Version>2.1.13.1303</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <AssemblyVersion>2.1.12.1303</AssemblyVersion>
+    <AssemblyVersion>2.1.13.1303</AssemblyVersion>
     <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
 
