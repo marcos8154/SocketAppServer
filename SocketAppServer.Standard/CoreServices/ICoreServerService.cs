@@ -46,6 +46,7 @@ namespace SocketAppServer.CoreServices
         void EnableBasicServerProcessorMode(Type basicProccessorType);
         bool IsBasicServerEnabled();
         void Start();
+        void Stop();
         SocketSession GetSession(Socket clientSocket);
         void RemoveSession(ref SocketSession session);
         bool IsLoadBalanceEnabled();

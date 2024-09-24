@@ -330,5 +330,20 @@ namespace SocketAppServer.CoreServices.CoreServer
         {
             telemetryServicesDisabled = true;
         }
+
+        public void Stop()
+        {
+            try
+            {
+                serverSocket.Close();
+                serverSocket.Dispose();
+                serverSocket = null;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+            catch { }
+        }
     }
 }

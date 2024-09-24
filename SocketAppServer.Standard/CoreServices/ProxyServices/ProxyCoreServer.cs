@@ -134,5 +134,10 @@ namespace SocketAppServer.CoreServices.ProxyServices
         {
             realServer.DisableTelemetryServices();
         }
+
+        public void Stop()
+        {
+            realServer.Stop();
+        }
     }
 }
