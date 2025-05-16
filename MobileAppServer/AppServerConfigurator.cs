@@ -49,6 +49,10 @@ using System.Reflection;
 
 namespace SocketAppServer
 {
+    internal class CSL
+    {
+        public static bool ConsoleDisabled { get; internal set; }
+    }
     public abstract class AppServerConfigurator
     {
         internal IServiceManager Services { get; set; }
@@ -56,6 +60,7 @@ namespace SocketAppServer
         internal static Type DefaultExceptionHandlerType { get; private set; }
         internal static bool DisableStatisticsCalculating { get; private set; }
         internal static JsonSerializerSettings SerializerSettings { get; private set; }
+
 
         public AppServerConfigurator()
         {
@@ -89,6 +94,15 @@ namespace SocketAppServer
         protected void DisableStatisticsComputing()
         {
             DisableStatisticsCalculating = true;
+        }
+
+        /// <summary>
+        /// Disable console calls on unsupported platforms
+        /// e.g.: Net-MAUI Android/iOS
+        /// </summary>
+        protected void DisableConsole()
+        {
+            CSL.ConsoleDisabled = true;
         }
 
         /// <summary>

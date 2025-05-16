@@ -72,19 +72,19 @@ namespace SocketAppServer.CoreServices.EFIManagement
                     if (serverVersion < minServerVersion)
                         throw new Exception($"The extension '{extension.ExtensionName}' could not be loaded because it requires server v{extension.MinServerVersion}");
 
-                    Console.ForegroundColor = ConsoleColor.Green;
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Green;
                     logger.WriteLog($"      => Loading extension '{extension.ExtensionName}'");
                     logger.WriteLog($"      => version {extension.ExtensionVersion}");
                     logger.WriteLog($"      => by {extension.ExtensionPublisher}");
                     extension.Load(manager);
                     logger.WriteLog($"      => Extension '{extension.ExtensionName}' successfully loaded");
-                    Console.ForegroundColor = ConsoleColor.White;
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.White;
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Red;
                     logger.WriteLog($"Extension '{extension.ExtensionName}' fail to load: {ex.Message}", Logging.ServerLogType.ERROR);
-                    Console.ForegroundColor = ConsoleColor.White;
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.White;
                 }
             }
         }

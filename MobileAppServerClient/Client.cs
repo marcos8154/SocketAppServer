@@ -148,7 +148,7 @@ namespace SocketAppServerClient
                 }
             }
 
-            thisStr = $"SocketClient for .NET Standard. Connected on {server}:{port}";
+            thisStr = $"[Legacy] SocketClient for .NET Framework. Connected on {server}:{port}";
         }
 
         public ServerResponse Response { get; private set; }

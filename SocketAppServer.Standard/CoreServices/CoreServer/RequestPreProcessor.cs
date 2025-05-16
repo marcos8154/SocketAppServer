@@ -165,9 +165,9 @@ namespace SocketAppServer.CoreServices.CoreServer
             while (maxThreadsCount > 0 &&
                 RequestProcessor.ThreadCount >= maxThreadsCount)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Yellow;
                 logger.WriteLog("\nThe number of current threads has exceeded the limit configured for this server. Waiting for pending requests completation...", ServerLogType.ALERT);
-                Console.ForegroundColor = ConsoleColor.White;
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.White;
                 Thread.Sleep(300);
             }
         }

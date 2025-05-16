@@ -105,7 +105,6 @@ namespace SocketAppServer.CoreServices.ControllerManagement
             }
             catch (Exception ex)
             {
-                ILoggingService logger = serviceManager.GetService<ILoggingService>();
                 string msg = ex.Message;
                 if (ex.InnerException != null)
                     msg += ex.InnerException.Message;

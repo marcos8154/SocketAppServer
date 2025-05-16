@@ -99,5 +99,10 @@ namespace SocketAppServer.Security
         {
             return Tokens.FirstOrDefault(token => token.SessionId.Equals(sessionId));
         }
+
+        internal void RemoveToken(ServerToken token)
+        {
+            Tokens.Remove(token);
+        }
     }
 }

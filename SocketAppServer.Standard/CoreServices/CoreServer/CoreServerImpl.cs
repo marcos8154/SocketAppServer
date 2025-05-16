@@ -176,17 +176,20 @@ namespace SocketAppServer.CoreServices.CoreServer
             loggingService.WriteLog($"Server started in {sw.ElapsedMilliseconds}ms", "Server", "Start");
             loggingService.WriteLog($"Running at port {configuration.Port}");
 
-            Console.WriteLine("Type 'exit' to stop; 'reboot' to send reboot request event...");
+            if (!CSL.ConsoleDisabled) Console.WriteLine("Type 'exit' to stop; 'reboot' to send reboot request event...");
             string line = "";
 
-            cliHost = serviceManager.GetService<ICLIHostService>();
-            if (cliHost.RegisteredCommands().Count > 0)
+            if (!CSL.ConsoleDisabled)
             {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"\nCommands available on this CLI:");
-                foreach (CLICommand command in cliHost.RegisteredCommands())
-                    Console.WriteLine($"=>  {command.CommandText}: {command.CommandDescription}");
-                Console.ForegroundColor = ConsoleColor.White;
+                cliHost = serviceManager.GetService<ICLIHostService>();
+                if (cliHost.RegisteredCommands().Count > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"\nCommands available on this CLI:");
+                    foreach (CLICommand command in cliHost.RegisteredCommands())
+                        Console.WriteLine($"=>  {command.CommandText}: {command.CommandDescription}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
 
             if (configuration.IsConsoleApplication)
@@ -243,9 +246,9 @@ namespace SocketAppServer.CoreServices.CoreServer
             if (telemetryServicesDisabled)
             {
                 string alert = "WARNING!: Disabling telemetry services can bring some extra performance to the server (even if perhaps imperceptible). However it will not be possible to collect metrics to implement improvements in your code";
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(alert);
-                Console.ForegroundColor = ConsoleColor.White;
+                if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Yellow;
+                if (!CSL.ConsoleDisabled) Console.WriteLine(alert);
+                if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.White;
 
                 serviceManager.Unbind<ITelemetryManagement>();
                 loggingService.WriteLog(alert, ServerLogType.ALERT);
@@ -264,14 +267,14 @@ namespace SocketAppServer.CoreServices.CoreServer
 
             try
             {
-                Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
+                if (!CSL.ConsoleDisabled) Console.WriteLine("Socket App Server - version " + new ServerInfo().ServerVersion);
             }
             catch { }
 
-            Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
-            Console.WriteLine($"Server Encoding: '{configuration.ServerEncoding.EncodingName}'");
+            if (!CSL.ConsoleDisabled) Console.WriteLine($"Server started with {configuration.BufferSize} bytes for buffer size \n");
+            if (!CSL.ConsoleDisabled) Console.WriteLine($"Server Encoding: '{configuration.ServerEncoding.EncodingName}'");
             if (configuration.MaxThreadsCount > 0)
-                Console.WriteLine($"Server max threads count: " + configuration.MaxThreadsCount);
+                if (!CSL.ConsoleDisabled) Console.WriteLine($"Server max threads count: " + configuration.MaxThreadsCount);
         }
 
         private Type _basicProcessorType = null;

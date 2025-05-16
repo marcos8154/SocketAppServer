@@ -118,11 +118,6 @@ namespace SocketAppServer.ServerObjects
             return ActionResult.Json(new OperationResult(info, 600, "Server info"));
         }
 
-        public ActionResult DownloadFile(string path)
-        {
-            return ActionResult.File(path);
-        }
-
         private ControllerInfo GetControllerInfo(string controllerName)
         {
             try

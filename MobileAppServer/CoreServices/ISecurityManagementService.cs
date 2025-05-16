@@ -33,8 +33,7 @@ namespace SocketAppServer.CoreServices
 {
     public interface ISecurityManagementService
     {
-        void EnableSecurity(IServerUserRepository userRepository,
-                 int tokenLifetime = 3, string tokenCryptPassword = "");
+        void EnableSecurity(IServerUserRepository userRepository, int tokenLifetime = 3, string tokenCryptPassword = "");
 
         bool IsAuthenticationEnabled();
 
@@ -43,6 +42,8 @@ namespace SocketAppServer.CoreServices
         IReadOnlyCollection<LoggedUserInfo> GetLoggedUsers();
 
         LoggedUserInfo GetLoggedUser(string token);
+
+        void LogoutUser(Guid sessionId);
 
         IReadOnlyCollection<UserActivity> GetUserActivities(LoggedUserInfo loggedUser);
 

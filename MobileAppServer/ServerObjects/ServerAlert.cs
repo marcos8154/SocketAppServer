@@ -90,9 +90,9 @@ namespace SocketAppServer.ServerObjects
 
                 if (alerts.Count > 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"\nYour server has {alerts.Count} alerts!");
-                    Console.ForegroundColor = ConsoleColor.Gray;
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Red;
+                   if (!CSL.ConsoleDisabled) Console.WriteLine($"\nYour server has {alerts.Count} alerts!");
+                   if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Gray;
                 }
 
                 alerts.Add(alert);

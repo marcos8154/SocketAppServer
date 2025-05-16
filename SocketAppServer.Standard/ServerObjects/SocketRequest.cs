@@ -196,9 +196,9 @@ Server Buffer Size: {bufferSize}
 Response Size:      {lenght}
 Operation has stopped.";
 
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(msg);
-                Console.ForegroundColor = ConsoleColor.Gray;
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Red;
+               if (!CSL.ConsoleDisabled) Console.WriteLine(msg);
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Gray;
 
                 var alert = new ServerAlert
                 {
@@ -217,9 +217,9 @@ Operation has stopped.";
                 string msg = $"\nThe action response on the controller is using around {percentBufferUsed.ToString("N2")}% of the buffer quota configured on the server. Review your code as soon as possible before the server collapses and begins to give incomplete responses to connected clients.";
                 result.ServerMessage = msg;
 
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(msg);
-                Console.ForegroundColor = ConsoleColor.Gray;
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Red;
+               if (!CSL.ConsoleDisabled) Console.WriteLine(msg);
+               if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Gray;
 
                 var alert = new ServerAlert
                 {

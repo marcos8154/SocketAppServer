@@ -118,5 +118,13 @@ namespace SocketAppServer.CoreServices.SecurityManagement
             return new LoggedUserInfo(tk.SessionId, tk.User.Identifier,
                   tk.User.Name, tk.CreatedAt, tk.ExpireAt);
         }
+
+        public void LogoutUser(Guid sessionId)
+        {
+            var token = TokenRepository.Instance.Tokens
+                   .FirstOrDefault(t => t.SessionId == sessionId);
+            if (token == null) return;
+            TokenRepository.Instance.RemoveToken(token);
+        }
     }
 }

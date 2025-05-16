@@ -40,7 +40,7 @@ namespace SocketAppServer.CoreServices.Logging
         internal void WriteLogInternal(ServerLog log)
         {
             if (!cliHost.IsCLIBusy())
-                Console.WriteLine($"[{log.EventDate} {log.Type}]: {log.LogText}");
+               if (!CSL.ConsoleDisabled) Console.WriteLine($"[{log.EventDate} {log.Type}]: {log.LogText}");
             if (loggerWrapper != null)
                 lock (lckObj)
                     loggerWrapper.Register(ref log);

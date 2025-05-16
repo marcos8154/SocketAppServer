@@ -313,9 +313,9 @@ namespace SocketAppServer.ServerObjects
             string msg = "You are using an old version of the native client for the server, or the format of the parameters is out of date. The framework will use the hourly backward compatibility mode, but in future versions support for this parameter format will be discontinued.";
             logger.WriteLog(msg, ServerLogType.ALERT);
             ServerAlertManager.CreateAlert(new ServerAlert(controller.GetType().Name, action, msg));
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = ConsoleColor.White;
+           if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.Red;
+           if (!CSL.ConsoleDisabled) Console.WriteLine(msg);
+           if (!CSL.ConsoleDisabled) Console.ForegroundColor = ConsoleColor.White;
 
             object entityParameterObject = null;
             HashSet<RequestParameter> result = new HashSet<RequestParameter>();
