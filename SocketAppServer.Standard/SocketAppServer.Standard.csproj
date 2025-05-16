@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SocketAppServer.Client" Version="2.1.12.1303" />
+    <PackageReference Include="SocketAppServer.Client" Version="2.1.13.1303" />
   </ItemGroup>
 
 </Project>
